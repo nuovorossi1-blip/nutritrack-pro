@@ -56,6 +56,6 @@
   "last_session": {
     "model": "Codex (GPT-6)",
     "date": "2026-10-16",
-    "summary": "Swipe a sinistra sugli alimenti: azione rossa, swipe lungo diretto e Annulla con ripristino. Build e prova touch/cloud locale ok; prova touch completa riuscita anche sul sito pubblico; utente temporaneo eliminato."
+    "summary": "Dettaglio pasto come screenshot: hero, riepilogo macro2x2, swipe, barre giornaliere, Aggiungi altro e picker separato. Build/browser locale/cloud320px ok; prova completa sul sito pubblico riuscita, account temporaneo eliminato."
   }
 }

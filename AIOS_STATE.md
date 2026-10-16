@@ -40,6 +40,8 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. Fase 4 (
 
 ## 3. Cosa funziona
 
+- [FACT] Dettaglio del pasto come riferimento utente (16/10/2026): tocco su Colazione/Pranzo/Cena/Spuntini apre hero con emoji e tema oro/blu, griglia 2×2 calorie/carboidrati/proteine/grassi, elenco con quantità/kcal e swipe, quattro barre nutrizionali. Barre etichettate come contributo agli obiettivi GIORNALIERI (non esistono ancora quote per pasto, nessun valore inventato). Pulsante fisso «Aggiungi altro» apre picker esistente (frequenti, ricerca locale/USDA/prodotti, barcode, creazione); salvataggio porzione torna al dettaglio e scroll iniziale. Modifica, eliminazione e Annulla aggiornano riepilogo e barre. Build e browser locale: totali 372→455→541→369→541, cloud, 320px e zero errori JS verificati; prova completa sul sito pubblico riuscita, account temporaneo eliminato. Nessuna foto AI o icona fotocamera finta aggiunta.
+
 - [FACT] Swipe sugli alimenti del pasto (16/10/2026): breve da destra a sinistra scopre pulsante rosso Elimina, lungo oltre 60% riga (minimo 130px) elimina subito. Azioni esistenti Modifica/Elimina conservate. Scroll verticale e touchCancel non eliminano. Un solo swipe aperto per volta. Annulla per 7 secondi ripristina la voce nella posizione originale del giorno/pasto corretto, senza sovrascrivere altri cambiamenti o duplicarla. Browser touch CDP mobile locale: swipe, annullamento, persistenza cloud e riapertura riusciti; build ok, prova touch completa riuscita anche sul sito pubblico; utente temporaneo eliminato.
 
 - [FACT] Frase completa «fettina di vitello 200 g cotta pranzo»: inserimento AI diretto con Annulla, senza chiedere di ridigitare quantità/pasto. Ingredienti e macro completi, nessun avviso plausibilità, pasto riconosciuto dalla frase necessari per l'inserimento diretto. Preparazione AI cruda/cotta persistita in `Food.preparation`, nome e ID distinti; non riusa una voce cruda per una cotta o un vecchio AI ambiguo. 200 g cotti usano valori per 100 g da cotto senza seconda conversione. Macro AI restano stime e sono indicati come tali nel messaggio. In errore AI nessun ripiego sul parser parziale (evita macinato di vitello → manzo). Prova browser locale riuscita: frase reale, peso cotto, macro calcolati, Annulla, quantità mancante e errore503 senza aggiunta; prova completa sul sito pubblico riuscita, utente temporaneo eliminato.
@@ -122,6 +124,8 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. Fase 4 (
 
 ## 8. Decisioni prese
 
+- **Apertura del pasto come negli screenshot**, conferma utente 16/10/2026: dettaglio prima della ricerca, riepilogo macro 2×2, elenco swipe, barre e Aggiungi altro. Conservato tema oro/blu. Le barre usano gli obiettivi giornalieri esistenti e lo dichiarano; obiettivi per pasto non introdotti senza scelta specifica.
+
 - **Swipe per eliminare come nell’altra app mostrata negli screenshot**, richiesta utente 16/10/2026: gesto da destra a sinistra. Implementati swipe breve con pulsante rosso, lungo diretto e Annulla per il recupero, mantenendo il tema NutriTrack.
 
 - **Frasi naturali complete da inserire direttamente**, richiesta utente 16/10/2026: «fettina di vitello 200 g cotta pranzo». Nessun obbligo di riformulare; pasto/quantità/qualificatori devono essere riconosciuti. Valori cotti separati dai crudi; niente promessa di esattezza assoluta per stime AI. Se mancano quantità/pasto o i valori sono da controllare si chiede conferma, negli altri casi Annulla disponibile.
@@ -171,21 +175,21 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. Fase 4 (
 
 **Modello:** Codex (GPT-6) · **Data:** 2026-10-16
 
-Implementato swipe da destra a sinistra sugli alimenti del pasto, come richiesto negli
-screenshot: breve mostra Elimina rosso, lungo elimina direttamente; Annulla recupera
-la singola voce con ordine originale e aggiorna i totali. Scroll verticale e gesto
-cancellato non rimuovono nulla. Tap di modifica/eliminazione restano disponibili.
-Build e browser touch CDP mobile locale riusciti, inclusa persistenza su cloud dopo
-eliminazione/ripristino e riapertura; utente temporaneo e dati eliminati.
-Prima prova: gesto sulle icone escluso, corretto per farlo partire anche da destra.
-Deploy manuale dpl_3TE6WCq84Gmg4ipmEUiYfYVL1E9B READY; prova touch completa riuscita anche sul sito pubblico; utente temporaneo eliminato.
-Nessuna modifica server, database o dipendenza per questa funzione.
+Schermata dettaglio pasto implementata come riferimento: hero emoji, riepilogo2×2,
+alimenti con quantità/kcal e swipe,4barre rispetto agli obiettivi giornalieri,
+pulsante fisso Aggiungi altro. Picker separato con strumenti esistenti e ritorno
+automatico al dettaglio dopo conferma porzione; back torna al dettaglio o chiude pasto.
+Build e browser locale riusciti: aggiunta, modifica quantità, swipe/Annulla con totali
+e barre aggiornati, cloud,320px, zero errori JS; account temporaneo eliminato.
+Nessun nuovo pacchetto/server/database, solo UI. Deploy dpl_GP1ZiFDby4FSMkpJ9w2g2bfVCwS3 READY; prova completa sul sito pubblico riuscita, account temporaneo eliminato.
+Riferimenti immagini utente: telegram-llm/dati/allegati/1792163879318-file_0.jpg e
+1792163883588-file_1.jpg. Quote per pasto NON implementate: confronto giornaliero esplicito.
 
 ---
 
 ## 11. Prossimi passi
 
-1. [utente] Ricaricare NutriTrack, aprire un pasto con alimenti e provare lo swipe verso sinistra: breve scopre Elimina, lungo elimina subito; Annulla recupera la voce.
+1. [utente] Ricaricare NutriTrack e toccare Colazione: verificare dettaglio, riepilogo e barre. Per inserire un alimento usare Aggiungi altro; swipe e Annulla restano disponibili.
 2. Decidere con l'utente se nutritrack.redapp.dev deve puntare a Vercel (CNAME) e spegnere la copia sul PC, o restare sul PC.
 3. Valutare CIQUAL come ampliamento del catalogo USDA già disponibile; migliorare traduzioni e sinonimi con esempi reali.
 4. Fase 4: APK Android auto-aggiornante (modulo AI-OS) con permessi fotocamera/microfono e ricerca Open Food Facts nativa.
@@ -198,6 +202,7 @@ Nessuna modifica server, database o dipendenza per questa funzione.
 
 | Data | Modello | Cosa è stato fatto |
 |---|---|---|
+| 2026-10-16 | Codex (GPT-6) | Nuovo dettaglio pasto come screenshot: hero, griglia2×2 macro, elenco swipe, barre giornaliere e Aggiungi altro con picker separato. Build/browser locale/cloud320px ok; prova completa sul sito pubblico riuscita, account temporaneo eliminato. |
 | 2026-10-16 | Codex (GPT-6) | Swipe breve/lungo per eliminare alimenti con azione rossa e Annulla; scroll verticale sicuro. Build e browser touch/cloud locale ok; prova touch completa riuscita anche sul sito pubblico; utente temporaneo eliminato. |
 | 2026-10-16 | Codex (GPT-6) | Frasi AI complete aggiunte direttamente con Annulla; distinzione persistita crudo/cotto e nessun fallback ambiguo in errore. 31 test/build/browser locale ok, prova completa sul sito pubblico riuscita, utente temporaneo eliminato. |
 | 2026-10-16 | Codex (GPT-6) | Ricerca USDA in italiano, 8.104 record ufficiali, fonte e scheda di conferma, salvataggio cloud e riutilizzo senza ricerca. Tacchino locale chiarito. 30 test/build/Edge mobile locale ok; prova completa riuscita anche sul sito pubblico, con utente temporaneo poi eliminato. |

@@ -1,5 +1,5 @@
 import { ArrowLeft, Barcode, Camera, Pencil, PlusCircle, Search, Star, Trash2 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import type { AppData, Food, MealItem, MealKey } from '../types';
 import { MEALS } from '../types';
 import { sumMacros, type Portion } from '../lib/nutrition';
@@ -13,6 +13,7 @@ import { plausibilityWarnings } from '../lib/plausibility';
 import { BarcodeScanner } from './BarcodeScanner';
 import { searchUsda, type UsdaResult } from '../lib/usda';
 import { SwipeFoodRow } from './SwipeFoodRow';
+import { MealSummary, MealProgress } from './MealSummary';
 
 type Tab = 'frequenti' | 'cerca' | 'barcode' | 'crea';
 
@@ -52,6 +53,9 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
   const [code, setCode] = useState('');
   const [scanning, setScanning] = useState(false);
   const [openSwipe, setOpenSwipe] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
+  const sheet = useRef<HTMLDivElement>(null);
+  const changeView = (add: boolean) => { setAdding(add); sheet.current?.scrollTo({ top: 0 }); };
 
   const [picking, setPicking] = useState<{ food: Food; initial?: Portion; itemId?: string } | null>(null);
   // back: da dove si e' arrivati (correzione dalla schermata della quantita'), per tornarci dopo il salvataggio.
@@ -130,25 +134,27 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
   );
 
   return (
-    <div className="fixed inset-0 z-40 bg-neutral-100 dark:bg-neutral-950 overflow-y-auto">
-      <div className="max-w-2xl mx-auto p-4 space-y-4 pb-16">
+    <div ref={sheet} data-meal-sheet className="fixed inset-0 z-40 bg-neutral-100 dark:bg-neutral-950 overflow-y-auto">
+      <div className="max-w-2xl mx-auto p-4 space-y-5 pb-32">
         <div className="flex items-center gap-3">
-          <button aria-label="Indietro" onClick={onClose} className="w-10 h-10 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 flex items-center justify-center">
+          <button aria-label={adding ? 'Torna al pasto' : 'Indietro'} onClick={() => adding ? changeView(false) : onClose()} className="w-10 h-10 shrink-0 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 flex items-center justify-center">
             <ArrowLeft size={18} />
           </button>
           <div>
             <h2 className="font-extrabold text-lg">
-              {info.emoji} {info.label}
+              {adding ? `Aggiungi a ${info.label.toLowerCase()}` : info.label}
             </h2>
             <p className="text-xs text-neutral-400">{dayLabel}</p>
           </div>
-          <div className="ml-auto text-right">
+          {adding && <div className="ml-auto text-right">
             <div className="text-lg font-extrabold text-blue-600 dark:text-blue-400">{total.kcal} kcal</div>
             <div className="text-[11px] text-neutral-400">C {total.carbs} · P {total.pro} · G {total.fats}</div>
-          </div>
+          </div>}
         </div>
 
-        <section className="bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200/70 dark:border-neutral-800 p-3">
+        {!adding && <>
+        <MealSummary emoji={info.emoji} total={total} />
+        <section aria-label="Alimenti del pasto" className="bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200/70 dark:border-neutral-800 p-3">
           {items.length === 0 ? (
             <p className="text-xs text-neutral-400 text-center py-4">Ancora nessun alimento in questo pasto.</p>
           ) : (
@@ -161,9 +167,10 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
                     <div className="min-w-0 flex-1">
                       <div className="text-sm font-semibold truncate">{it.name}</div>
                       <div className="text-[11px] text-neutral-400">
-                        {it.label} · {it.kcal} kcal · C {it.carbs} · P {it.pro} · G {it.fats}
+                        {it.label}
                       </div>
                     </div>
+                    <span className="text-sm font-bold whitespace-nowrap">{it.kcal} kcal</span>
                     {food && (
                       <button aria-label="Modifica" onClick={() => setPicking({ food, initial: { mode: it.mode, qty: it.qty, cooked: it.cooked }, itemId: it.id })} className="p-2 text-neutral-400 hover:text-blue-500">
                         <Pencil size={16} />
@@ -179,8 +186,10 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
           )}
           {items.length > 0 && <p className="text-[10px] text-neutral-400 pt-2">Scorri una riga verso sinistra per eliminare. Uno swipe lungo la elimina subito; puoi annullare.</p>}
         </section>
+        <MealProgress total={total} goals={data.goals} />
+        </>}
 
-        <section className="bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200/70 dark:border-neutral-800 p-3 space-y-3">
+        {adding && <section className="bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200/70 dark:border-neutral-800 p-3 space-y-3">
           <div className="flex border-b border-neutral-100 dark:border-neutral-800 gap-1 overflow-x-auto">
             {tabBtn('frequenti', 'Frequenti', Star)}
             {tabBtn('cerca', 'Cerca', Search)}
@@ -311,8 +320,16 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
               </button>
             </div>
           )}
-        </section>
+        </section>}
       </div>
+
+      {!adding && <div className="fixed bottom-0 inset-x-0 z-10 bg-white/95 dark:bg-neutral-950/95 backdrop-blur border-t border-neutral-200 dark:border-neutral-800 px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
+        <div className="max-w-2xl mx-auto">
+          <button onClick={() => changeView(true)} className="w-full rounded-2xl bg-blu text-white font-extrabold py-4 flex items-center justify-center gap-2">
+            <PlusCircle size={20} /> Aggiungi altro
+          </button>
+        </div>
+      </div>}
 
       {scanning && (
         <BarcodeScanner
@@ -351,6 +368,7 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
             if (picking.itemId) onUpdate(picking.itemId, picking.food, p);
             else onAdd(picking.food, p);
             setPicking(null);
+            changeView(false);
           }}
         />
       )}
