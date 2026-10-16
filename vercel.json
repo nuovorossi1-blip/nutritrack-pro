@@ -1,4 +1,8 @@
 {
+  "headers": [
+    { "source": "/version.json", "headers": [{ "key": "Cache-Control", "value": "no-store" }] },
+    { "source": "/nutritrack.apk", "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }, { "key": "Content-Type", "value": "application/vnd.android.package-archive" }] }
+  ],
   "rewrites": [
     { "source": "/off-search/:path*", "destination": "https://search.openfoodfacts.org/:path*" }
   ]

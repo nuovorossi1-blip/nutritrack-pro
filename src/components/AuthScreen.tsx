@@ -2,6 +2,7 @@ import { Flame } from 'lucide-react';
 import { useState } from 'react';
 import { supabase, TERMS_VERSION } from '../lib/cloud';
 import { LegalModal } from './Legal';
+import { AndroidDownloadBanner } from './AndroidTools';
 
 type Mode = 'accedi' | 'registrati' | 'dimenticata' | 'inviata' | 'nuova-password';
 
@@ -103,6 +104,7 @@ export function AuthScreen({ recovery, onPasswordChanged }: Props) {
           <p className="text-xs text-neutral-400">Calorie e macro dei tuoi pasti, giorno per giorno</p>
         </div>
 
+        <AndroidDownloadBanner />
         <section className="bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200/70 dark:border-neutral-700 p-5 space-y-3">
           <h2 className="font-extrabold text-lg">{title}</h2>
 

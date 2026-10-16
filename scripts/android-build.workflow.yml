@@ -1,0 +1,87 @@
+name: Android APK
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - 'AIOS_PROJECT.json'
+      - 'public/nutritrack.apk'
+      - 'public/version.json'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: android-main
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Dipendenze, controlli e shell Android
+        run: |
+          npm ci
+          npm test
+          npm run build
+          rm -f public/nutritrack.apk
+          npx cap sync android
+      - name: Firma stabile e SDK
+        env:
+          SIGNING_STORE: ${{ secrets.ANDROID_DEBUG_KEYSTORE_B64 }}
+        run: |
+          test -n "$SIGNING_STORE"
+          mkdir -p "$HOME/.android"
+          printf '%s' "$SIGNING_STORE" | base64 --decode > "$HOME/.android/debug.keystore"
+          chmod 600 "$HOME/.android/debug.keystore"
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0"
+      - name: Compila e verifica APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon -PbuildVersionCode=${{ github.run_number }} -PbuildVersionName=1.0.${{ github.run_number }}
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify app/build/outputs/apk/debug/app-debug.apk
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging app/build/outputs/apk/debug/app-debug.apk | head -n 10
+      - name: Prepara download e versione
+        run: |
+          mkdir -p public
+          cp android/app/build/outputs/apk/debug/app-debug.apk public/nutritrack.apk
+          node --input-type=module <<'JS'
+          import {writeFileSync} from 'node:fs';
+          const code=Number(process.env.GITHUB_RUN_NUMBER);
+          writeFileSync('public/version.json',JSON.stringify({version:`1.0.${code}`,versionCode:code,apkUrl:`https://nutritrack-pro-zeta.vercel.app/nutritrack.apk?v=${code}`,releaseUrl:'https://github.com/nuovorossi1-blip/nutritrack-pro/releases/latest',notes:'Aggiornamenti di NutriTrack PRO: diario, alimenti e funzioni Android.',mandatory:false},null,2)+'\n');
+          JS
+      - uses: actions/upload-artifact@v7
+        with:
+          name: nutritrack-android-${{ github.run_number }}
+          path: public/nutritrack.apk
+          retention-days: 14
+      - name: Salva APK e versione su GitHub
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/nutritrack.apk public/version.json
+          git commit -m "build: publish Android 1.0.${{ github.run_number }}"
+          git pull --rebase origin main
+          git push origin HEAD:main
+      - name: Pubblica sul sito esistente
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          EXPORT="$RUNNER_TEMP/nutritrack-site"
+          mkdir -p "$EXPORT/.vercel"
+          git archive HEAD | tar -x -C "$EXPORT"
+          printf '%s' '{"orgId":"team_120YIJ1W9Lw7prbsmDAkzla5","projectId":"prj_TiOVBVDkN4bqm9JAoet7oI9nTQ5F"}' > "$EXPORT/.vercel/project.json"
+          npx --yes vercel@62.4.0 deploy --cwd "$EXPORT" --prod --yes --token "$VERCEL_TOKEN" --scope decisione
+          curl --fail --retry 5 --retry-delay 3 "https://nutritrack-pro-zeta.vercel.app/version.json?t=${{ github.run_number }}" -o "$RUNNER_TEMP/published-version.json"
+          test "$(jq -r .versionCode "$RUNNER_TEMP/published-version.json")" = "${{ github.run_number }}"
+          curl --fail --retry 3 "https://nutritrack-pro-zeta.vercel.app/nutritrack.apk?v=${{ github.run_number }}" -o "$RUNNER_TEMP/published.apk"
+          cmp public/nutritrack.apk "$RUNNER_TEMP/published.apk"

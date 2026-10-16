@@ -17,6 +17,8 @@ import { SettingsModal } from './components/SettingsModal';
 import { QuickConfirm } from './components/QuickConfirm';
 import { ProfileGoals } from './components/ProfileGoals';
 import { plausibilityWarnings } from './lib/plausibility';
+import { isAndroidApp, SpeechInput } from './native/android';
+import { AndroidDownloadBanner } from './components/AndroidTools';
 
 interface Toast {
   id: number;
@@ -156,7 +158,15 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
     );
   }
 
-  const dictate = () => {
+  const dictate = async () => {
+    if (isAndroidApp()) {
+      if (listening) return;
+      setListening(true);
+      try { setText((await SpeechInput.start()).text); }
+      catch (e) { if ((e as { code?: string }).code !== 'CANCELLED') toast((e as Error).message || 'Dettatura non disponibile', true); }
+      finally { setListening(false); }
+      return;
+    }
     const w = window as unknown as { SpeechRecognition?: SpeechCtor; webkitSpeechRecognition?: SpeechCtor };
     const Ctor = w.SpeechRecognition || w.webkitSpeechRecognition;
     if (!Ctor) return toast('Dettatura non disponibile in questo browser', true);
@@ -252,6 +262,7 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
       </header>
 
       <main className="max-w-2xl mx-auto px-4 pt-4 space-y-4">
+        <AndroidDownloadBanner />
         <DayStrip selected={selected} today={today} daysWithData={daysWithData} onSelect={setSelected} />
         {!data.profile && (
           <button onClick={() => setSettings(true)} className="w-full text-left rounded-3xl p-4 bg-blu text-white shadow-md">

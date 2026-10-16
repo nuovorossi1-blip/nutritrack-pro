@@ -31,7 +31,11 @@ export async function requestPermission(d: Device): Promise<PermState> {
   }
 }
 
-export const DENIED_HELP =
+import { isAndroidApp } from '../native/android';
+
+export const DENIED_HELP = isAndroidApp()
+  ? 'Apri Impostazioni Android → App → NutriTrack PRO → Autorizzazioni e consenti Fotocamera e Microfono.'
+  :
   "Il permesso è bloccato. Tocca il lucchetto (o i tre puntini) accanto all'indirizzo → Autorizzazioni / Impostazioni sito → consenti Fotocamera e Microfono, poi ricarica la pagina.";
 
 export function cameraErrorMessage(e: unknown): string {

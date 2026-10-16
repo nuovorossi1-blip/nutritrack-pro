@@ -75,6 +75,8 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. Fase 4 (
 
 ## 4. Cosa è in lavorazione
 
+- → APK Android richiesto esplicitamente dall'utente. Capacitor 8.5.3, app.nutritrack.pro, URL Vercel remoto, updater/version.json, banner web, dettatura nativa e permessi. Firma stabile in GitHub Secrets, NON in git. Pipeline Android APK in preparazione/avvio; file scaricabile non ancora verificato. Installazione, fotocamera e dettatura da verificare sul telefono reale: build/controlli desktop non equivalgono alla prova su dispositivo.
+
 - → niente (fase 1 chiusa)
 
 ## 5. Cosa manca ancora
@@ -123,6 +125,8 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. Fase 4 (
 ---
 
 ## 8. Decisioni prese
+
+- **APK scaricabile richiesto il 16/10/2026:** applicare MODULO_ANDROID_AUTOAGGIORNANTE di AI-OS con guscio Capacitor e sito Vercel remoto. Firma stabile come segreto cifrato GitHub (istruzioni utente vietano segreti nel repository, quindi nessun keystore committato). Build su push main e pubblicazione APK/version.json sul sito; conferma installazione obbligatoria Android. Per caricamento remoto sullo stesso dominio, ricerca Open Food Facts usa il proxy Vercel esistente, non necessita richieste native alternative.
 
 - **Apertura del pasto come negli screenshot**, conferma utente 16/10/2026: dettaglio prima della ricerca, riepilogo macro 2×2, elenco swipe, barre e Aggiungi altro. Conservato tema oro/blu. Le barre usano gli obiettivi giornalieri esistenti e lo dichiarano; obiettivi per pasto non introdotti senza scelta specifica.
 
