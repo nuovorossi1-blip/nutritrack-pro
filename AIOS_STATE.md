@@ -30,7 +30,7 @@ si apre la creazione del profilo prima del diario: nome, data di nascita, sesso,
 peso, altezza, attività e obiettivo. Calcolo automatico di età, TDEE, calorie e macro;
 modifica successiva da Profilo e obiettivi. I profili completi precedenti restano validi.
 SMTP Gmail e testi italiani configurati; l'utente ha confermato la registrazione.
-Fase 2 (CIQUAL) e fase 4 (APK) da fare.
+Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. Fase 4 (APK) da fare.
 
 **Online (Vercel, account smaugdrago@gmail.com, team Decisione):** https://nutritrack-pro-zeta.vercel.app
 **Sul PC (stessa app e stesso database):** https://nutritrack.redapp.dev (tunnel Cloudflare) e http://127.0.0.1:5180
@@ -39,6 +39,8 @@ Fase 2 (CIQUAL) e fase 4 (APK) da fare.
 ---
 
 ## 3. Cosa funziona
+
+- [FACT] Ricerca USDA: da Cerca → «Cerca su USDA (alimenti generici)», query in italiano, 8.104 voci ufficiali complete (Foundation aprile 2026 + SR Legacy aprile 2018, CC0) incluse SOLO sul server. Query comuni deterministiche; altrimenti AI traduce query inglese e poi nomi italiani. Macro copiati dal record FDC validato, mai dal modello. Scheda con fonte/link/descrizione originale, crudo/cotto e % grassi mantenuti; scelta e conferma prima del salvataggio tra alimenti personali, quindi quantità e pasto. Alimento e alias italiano ritrovati sul secondo dispositivo senza ricerca esterna. Nessuna API key USDA né scraping ad ogni ricerca; aggiornamenti del catalogo richiedono nuova importazione e deploy. 30 test, build e prova completa Edge mobile locale riusciti; prova completa riuscita anche sul sito pubblico, con utente temporaneo poi eliminato. Endpoint autenticato, limiti in memoria 200/giorno globali e 40/utente per istanza, cache query 24 ore (non un limite globale distribuito). Scottona segnalata come categoria non distinta da USDA, risultati di manzo generico; niente falsa equivalenza. «Petto / fesa di tacchino (carne fresca, cruda)» chiarisce la vecchia voce locale senza cambiarne i valori.
 
 - [FACT] Primo accesso: schermata «Creiamo il tuo profilo» per profili assenti/incompleti. Nome, data di nascita, sesso, peso, altezza, attività e obiettivo obbligatori; selezioni esplicite, niente sesso/attività scelti in automatico per utenti nuovi. Calorie e macro si aggiornano anche se si cambia peso dopo aver scelto l'obiettivo. Salvataggio iniziale attende conferma cloud; errore rete mostra riprova senza perdere i campi. Profili precedenti con età e senza data di nascita ancora utilizzabili. Profilo e calorie manuali persistono anche su un altro dispositivo. Test 27/27, build e prova Edge mobile locale riusciti il 16/10/2026.
 
@@ -63,7 +65,7 @@ Fase 2 (CIQUAL) e fase 4 (APK) da fare.
 - [FACT] Profilo (nome, sesso, età, peso, altezza, attività: sedentario / 1-3 / 3-5 / 6-7 allenamenti / atleta / altro con mantenimento a mano) → metabolismo basale (Mifflin-St Jeor) e mantenimento (× 1,2-1,9), `src/lib/metabolism.ts`. Esempio provato: uomo 35 anni 80 kg 180 cm 1-3 allenamenti → basale 1755, mantenimento 2410.
 - [FACT] Obiettivo Dieta (-20%) / Mantenimento / Massa (+10%): calorie e macro suggeriti (proteine 2,2/1,8/2 g per kg, grassi 25%, carboidrati il resto). Calorie modificabili; l'utente scrive due macro e sceglie quale è «auto» (calcolato dalle kcal): 2000 kcal, 200 P, 200 C → grassi 44 g. Avviso se i due macro superano le kcal. Riquadro "Completa il tuo profilo" finché manca; nel riepilogo «Ciao Nome · Dieta».
 - [FACT] Crea alimento a mano. Obiettivi con profili rapidi. Backup/ripristino JSON. Tema scuro. Azzera il giorno scelto (con conferma).
-- [FACT] Test: 24 test logica (giorni, crudo/cotto, parole, Open Food Facts, storico) ok; tsc ok; build ok; prova completa in Edge senza errori.
+- [FACT] Test: 30 test logica e USDA (giorni, crudo/cotto, parole, Open Food Facts, storico, profilo, provenienza valori) ok; tsc ok; build ok; prova completa in Edge senza errori.
 
 ## 4. Cosa è in lavorazione
 
@@ -71,7 +73,7 @@ Fase 2 (CIQUAL) e fase 4 (APK) da fare.
 
 ## 5. Cosa manca ancora
 
-- Fase 2: alimenti sfusi ufficiali CIQUAL tradotti in italiano (oggi 21 alimenti di base del prototipo), USDA come riserva.
+- Catalogo generico: ricerca USDA in italiano implementata (8.104 voci); valutare CIQUAL come ampliamento successivo e migliorare ulteriormente sinonimi e traduzioni.
 - Fase 3: login, cloud e Vercel pubblicati; SMTP configurato, manca solo la verifica reale delle email (vedi problema 1).
 - Fase 4: APK Android auto-aggiornante (modulo AI-OS, come GymBuilder): permessi Android CAMERA e RECORD_AUDIO nel manifest + richiesta in app; ricerca Open Food Facts nell'APK tramite richiesta nativa (niente CORS).
 - Vera analisi del piatto da foto con un modello AI (tolta la versione finta).
@@ -86,7 +88,6 @@ Fase 2 (CIQUAL) e fase 4 (APK) da fare.
 | 2 | Molti prodotti Open Food Facts senza peso porzione (es. Fage Total 0 → 100g). | 2026-10-16 | Campo "peso porzione" modificabile prima di salvare. |
 | 3 | Valori Open Food Facts a volte poco credibili (es. "tonno rio mare" 403 kcal/100 g). | 2026-10-16 | Avviso «⚠ valori da controllare» aggiunto il 16/10 (vedi sezione 3); i dati restano quelli di OFF, li corregge l'utente. Ordine dei risultati non ancora influenzato dall'avviso. |
 | 4 | Dettatura non provabile senza telefono vero (nel browser di prova: "Microfono non disponibile"). | 2026-10-16 | Da provare sul telefono con Chrome. |
-| 5 | Ricerca di alimenti generici incompleta: petto di tacchino/fesa ambiguo. | 2026-10-16 | Diagnosi Codex: unica voce locale f4 «Fesa di tacchino» (carne da cuocere), filtro con tutte le parole senza sinonimi; online solo Open Food Facts. Utente propone USDA FoodData Central. Documentazione USDA verificata: Foundation/SR Legacy per generici e CC0; importazione e traduzioni NON implementate. Distinguere crudo, cotto, con/senza pelle e affettato. |
 
 ## 7. Problemi risolti
 
@@ -96,6 +97,7 @@ Fase 2 (CIQUAL) e fase 4 (APK) da fare.
 
 | Problema | Causa vera | Soluzione |
 |---|---|---|
+| Petto di tacchino e generici difficili da trovare | Catalogo base limitato, nome fesa ambiguo e ricerca online solo prodotti Open Food Facts | Nome locale chiarito; aggiunta ricerca USDA in italiano con descrizioni originali, 8.104 record ufficiali, scheda di conferma e salvataggio persistente sull’account. |
 | Primo accesso senza creazione profilo | Profilo e TDEE esistevano solo nelle impostazioni, senza passaggio iniziale; età scritta a mano | Schermata obbligatoria per profilo incompleto, birthDate con età calcolata, TDEE e calorie per obiettivo, salvataggio cloud prima del diario e modifica dalle impostazioni. Header adattato anche a 320 px. |
 | Scheda "Foto AI" finta: qualsiasi foto diventava sempre "Pollo, Riso e Verdure" 135 kcal/100g | Gemini aveva simulato l'analisi (funzione `analyzePhotoFood` con dati fissi) | Scheda, sezione e funzione tolte (16/10). Va rifatta solo con un modello vero. |
 | Frequenti già pieni al primo avvio (es. albumi usati 12 volte) | Storico inventato dentro `state.frequentPerMeal` | Frequenti calcolati dallo storico reale (16/10). |
@@ -113,6 +115,8 @@ Fase 2 (CIQUAL) e fase 4 (APK) da fare.
 ---
 
 ## 8. Decisioni prese
+
+- **Ricerca USDA e salvataggio alimenti generici approvati dall'utente (16/10/2026):** catalogo ufficiale scaricabile incluso sul server per evitare nuova chiave/API e richieste ripetute a USDA. AI già autorizzata solo per traduzioni, valori dal record originale; conferma variante prima di salvare. Questa attuazione anticipa USDA rispetto alla precedente previsione CIQUAL → USDA di riserva. CIQUAL resta possibile estensione, non ancora importata.
 
 - **Proposta utente da valutare per il catalogo generico:** USDA FoodData Central (link ricerca Turkey breast), 16/10/2026. Fonte verificata come riutilizzabile CC0; nessun cambio della precedente scelta CIQUAL/USDA eseguito in questa diagnosi. Possibile importazione selezionata in italiano senza richieste API a ogni ricerca.
 
@@ -157,23 +161,26 @@ Fase 2 (CIQUAL) e fase 4 (APK) da fare.
 
 **Modello:** Codex (GPT-6) · **Data:** 2026-10-16
 
-Creazione profilo iniziale e modifica successiva implementate e pubblicate su Vercel
-(deploy dpl_21qMJHbgENh6eBCHyWxgoSVpkPct, READY). Primo deploy dal repository BLOCCATO
-per autore Git non membro del team Vercel; risolto pubblicando con CLI autenticata
-su esportazione dei sorgenti senza .git e senza .env, senza modificare permessi.
-Percorso usato: Temp/nutritrack-publish-20261016-162720.
-Test 27/27 e build riusciti; browser mobile locale: primo accesso, tre obiettivi,
-errore rete e riprova, cloud e secondo dispositivo, calorie manuali persistite,
-compatibilità profili precedenti. Account di prova eliminati. Stessa prova completa riuscita anche su https://nutritrack-pro-zeta.vercel.app; utente temporaneo eliminato.
-APK e CIQUAL non implementati; obiettivo finale resta web + APK con profilo personale.
+Ricerca USDA in italiano e salvataggio sull'account implementati. Catalogo generato con
+scripts/import-usda.py da download ufficiali CC0; 8.104 record completi in server/data/usda.mjs.
+Non è scraping in tempo reale: Foundation aprile 2026 e SR Legacy aprile 2018.
+AI traduce solo query e nomi, numeri dal catalogo e fonte visibile; conferma prima del salvataggio.
+Endpoint /api/usda-search solo autenticati, cache e limiti in memoria per istanza; stessa
+implementazione su Vite e Vercel. Server locale riavviato per caricare il nuovo endpoint.
+30 test e build riusciti. Prova reale dei sei esempi utente; patate inizialmente502,
+risolto con retry e query comuni senza traduzione AI. Glossario corretto per avena steel cut.
+Browser mobile locale: fonte, macro identici al catalogo, nessun salvataggio prima della
+conferma, cloud/pasto e secondo dispositivo senza nuova ricerca riusciti; utente test eliminato.
+Deploy manuale senza .git/.env come richiesto dagli account separati. Deploy dpl_4U9Beg5EEx7rxUqbhAECwcJazc2L READY; prova completa sul sito pubblico riuscita, utente temporaneo eliminato.
+APK ancora da realizzare; obiettivo finale web + APK con profilo e archivio personali.
 
 ---
 
 ## 11. Prossimi passi
 
-1. [utente] Ricaricare https://nutritrack-pro-zeta.vercel.app e compilare il profilo iniziale. Dopo il salvataggio si apre il diario; calorie e profilo si modificano dal pulsante Profilo e obiettivi in alto.
+1. [utente] Ricaricare NutriTrack, aprire un pasto → Cerca, scrivere il nome in italiano e premere «Cerca su USDA (alimenti generici)». Scegliere la variante, controllare e salvare: da quel momento resta fra i propri alimenti.
 2. Decidere con l'utente se nutritrack.redapp.dev deve puntare a Vercel (CNAME) e spegnere la copia sul PC, o restare sul PC.
-3. Fase 2: CIQUAL in italiano negli alimenti di base.
+3. Valutare CIQUAL come ampliamento del catalogo USDA già disponibile; migliorare traduzioni e sinonimi con esempi reali.
 4. Fase 4: APK Android auto-aggiornante (modulo AI-OS) con permessi fotocamera/microfono e ricerca Open Food Facts nativa.
 5. Rivedere con l'utente i testi di privacy e condizioni (titolare, contatti).
 6. Verificare il recupero password via email con l'utente (registrazione confermata riuscita).
@@ -184,6 +191,7 @@ APK e CIQUAL non implementati; obiettivo finale resta web + APK con profilo pers
 
 | Data | Modello | Cosa è stato fatto |
 |---|---|---|
+| 2026-10-16 | Codex (GPT-6) | Ricerca USDA in italiano, 8.104 record ufficiali, fonte e scheda di conferma, salvataggio cloud e riutilizzo senza ricerca. Tacchino locale chiarito. 30 test/build/Edge mobile locale ok; prova completa riuscita anche sul sito pubblico, con utente temporaneo poi eliminato. |
 | 2026-10-16 | Codex (GPT-6) | Creazione profilo al primo accesso, data nascita ed età automatica, TDEE e calorie per tre obiettivi, salvataggio cloud con riprova e modifica manuale persistita. 27 test e build ok, Edge mobile locale ok. Deploy Vercel READY; prova browser completa riuscita anche sul sito pubblico. |
 | 2026-10-16 | Codex (GPT-6) | SMTP Gmail e testi italiani configurati su Supabase; confronto PATCH/GET riuscito. Nessun codice o deploy modificato. Manca prova reale delle email. |
 | 2026-10-16 | Claude Opus 5.5 | Fase 3: Supabase (tabelle + RLS + login con conferma email + privacy/consensi), salvataggio cloud, AI solo registrati, pubblicazione Vercel; voce Gmail in Collega account |

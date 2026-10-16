@@ -56,6 +56,6 @@
   "last_session": {
     "model": "Codex (GPT-6)",
     "date": "2026-10-16",
-    "summary": "Creazione profilo al primo accesso con data di nascita, TDEE e calorie per obiettivo, modificabili dalle impostazioni; cloud e compatibilità profili precedenti verificati. Deploy Vercel READY e prova browser completa sul sito pubblico riuscita."
+    "summary": "Ricerca USDA in italiano con 8.104 voci ufficiali, fonte e scheda di conferma, salvataggio personale e riutilizzo. 30 test/build/browser locale ok; prova completa sul sito pubblico riuscita e deploy READY."
   }
 }

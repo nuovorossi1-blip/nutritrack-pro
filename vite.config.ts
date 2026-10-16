@@ -3,6 +3,8 @@ import react from '@vitejs/plugin-react';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 // @ts-expect-error modulo JS del server, senza tipi
 import { aiConfig, aiParse, verifyUser } from './server/aiParse.mjs';
+// @ts-expect-error modulo JS del server, senza tipi
+import { usdaSearch } from './server/usdaSearch.mjs';
 
 // La ricerca per nome di Open Food Facts (search.openfoodfacts.org) non
 // accetta richieste dirette dal browser (niente CORS): passa da /off-search.
@@ -20,7 +22,8 @@ const offProxy = {
 // La chiave OpenRouter si legge dall'ambiente del processo, mai dal browser.
 function aiEndpoint(env: Record<string, string>): Plugin {
   const handler = (req: IncomingMessage, res: ServerResponse, next: () => void) => {
-    if (req.url !== '/api/ai-parse' || req.method !== 'POST') return next();
+    const usda = req.url === '/api/usda-search';
+    if ((!usda && req.url !== '/api/ai-parse') || req.method !== 'POST') return next();
     let body = '';
     req.on('data', (c) => {
       body += c;
@@ -34,13 +37,13 @@ function aiEndpoint(env: Record<string, string>): Plugin {
         /* corpo non valido: frase vuota */
       }
       const user = await verifyUser(req.headers.authorization, env);
-      if (!user) {
+      if (!user || (usda && user === 'senza-login')) {
         res.statusCode = 401;
         res.setHeader('Content-Type', 'application/json; charset=utf-8');
         return res.end(JSON.stringify({ errore: "Accedi per usare l'AI" }));
       }
       const ip = String(user !== 'senza-login' ? user : req.headers['cf-connecting-ip'] || req.socket.remoteAddress || 'locale');
-      const out = await aiParse(text, { ...aiConfig(process.env), ip });
+      const out = await (usda ? usdaSearch : aiParse)(text, { ...aiConfig(process.env), ip });
       res.statusCode = out.status;
       res.setHeader('Content-Type', 'application/json; charset=utf-8');
       res.end(JSON.stringify(out.body));

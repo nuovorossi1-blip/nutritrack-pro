@@ -11,6 +11,7 @@ import { PortionEditor } from './PortionEditor';
 import { FoodReview } from './FoodReview';
 import { plausibilityWarnings } from '../lib/plausibility';
 import { BarcodeScanner } from './BarcodeScanner';
+import { searchUsda, type UsdaResult } from '../lib/usda';
 
 type Tab = 'frequenti' | 'cerca' | 'barcode' | 'crea';
 
@@ -45,6 +46,8 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
   const [query, setQuery] = useState('');
   const [online, setOnline] = useState<OffResult[] | null>(null);
   const [busy, setBusy] = useState(false);
+  const [usda, setUsda] = useState<UsdaResult | null>(null);
+  const [usdaBusy, setUsdaBusy] = useState(false);
   const [code, setCode] = useState('');
   const [scanning, setScanning] = useState(false);
 
@@ -56,7 +59,7 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
     const q = normalize(query).trim();
     if (!q) return foods.slice(0, 30);
     const parts = q.split(/\s+/);
-    return foods.filter((f) => parts.every((p) => normalize(`${f.name} ${f.brand || ''}`).includes(p))).slice(0, 30);
+    return foods.filter((f) => parts.every((p) => normalize(`${f.name} ${f.brand || ''} ${(f.aliases || []).join(' ')}`).includes(p))).slice(0, 30);
   }, [foods, query]);
 
   const searchOnline = async () => {
@@ -69,6 +72,17 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
     } finally {
       setBusy(false);
     }
+  };
+
+  const searchGeneric = async () => {
+    if (usdaBusy) return;
+    const q = query.trim();
+    if (q.length < 2) return toast('Scrivi almeno 2 lettere', true);
+    setUsdaBusy(true);
+    setUsda(null);
+    try { setUsda(await searchUsda(q)); }
+    catch (e) { toast((e as Error).message, true); }
+    finally { setUsdaBusy(false); }
   };
 
   const searchCode = async (value = code) => {
@@ -105,7 +119,7 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
         <div className="text-sm font-semibold truncate">{f.name}</div>
         <div className="text-[11px] text-neutral-400 truncate">
           {f.brand ? `${f.brand} · ` : ''}
-          {f.kcal} kcal/100g{f.cookedFactor ? ' crudo' : ''} · P {f.pro} · C {f.carbs} · G {f.fats}
+          {f.kcal} kcal/100g{f.cookedFactor ? ' crudo' : ''} · P {f.pro} · C {f.carbs} · G {f.fats}{f.source === 'usda' ? ' · USDA' : ''}
           {extra ? ` · ${extra}` : ''}
         </div>
       </div>
@@ -216,20 +230,39 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
               <div className="flex gap-2">
                 <input
                   value={query}
+                  disabled={usdaBusy || busy}
                   onChange={(e) => {
                     setQuery(e.target.value);
                     setOnline(null);
+                    setUsda(null);
                   }}
-                  onKeyDown={(e) => e.key === 'Enter' && searchOnline()}
+                  onKeyDown={(e) => e.key === 'Enter' && searchGeneric()}
                   placeholder="Es. yogurt fage 0, pasta, pollo..."
-                  className="flex-1 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-2xl px-4 py-2.5 text-sm"
+                  className="min-w-0 flex-1 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-2xl px-4 py-2.5 text-sm"
                 />
                 <button onClick={searchOnline} disabled={busy} className="bg-blu text-white text-xs font-bold rounded-2xl px-4 disabled:opacity-50">
-                  {busy ? 'Cerco…' : 'Cerca online'}
+                  {busy ? 'Cerco…' : 'Cerca prodotti'}
                 </button>
               </div>
+              <button onClick={searchGeneric} disabled={usdaBusy || busy} className="w-full rounded-2xl py-2.5 px-3 bg-blu text-white text-xs font-bold disabled:opacity-50">
+                {usdaBusy ? 'Cerco su USDA e traduco…' : 'Cerca su USDA (alimenti generici)'}
+              </button>
+              <p className="text-[11px] text-neutral-500 px-1">Scrivi in italiano: per esempio petto di tacchino, avena o macinato di vitello. Controlli la scheda prima di salvarla.</p>
+              {usda && (
+                <div className="space-y-2 border border-gold-500/30 rounded-2xl p-2">
+                  <div className="text-xs font-extrabold px-1">Alimenti USDA ({usda.foods.length})</div>
+                  {usda.note && <p className="text-xs text-gold-600 dark:text-gold-400 px-1">{usda.note}</p>}
+                  {!usda.foods.length && <p className="text-xs text-neutral-500 px-1">Nessuna voce corrispondente. Prova un nome più semplice o inserisci i valori dall'etichetta.</p>}
+                  {usda.foods.map((f) => foodRow(f, undefined, () => {
+                    const saved = foods.find((item) => item.id === f.id);
+                    if (saved) setPicking({ food: saved });
+                    else setReview({ food: f, missing: [], title: 'Controlla e salva alimento USDA' });
+                  }))}
+                  <p className="text-[10px] text-neutral-500 px-1">{usda.dataset}. Valori per 100 g; nomi tradotti automaticamente. Scegli la variante cruda o cotta corretta.</p>
+                </div>
+              )}
               <div className="text-[11px] font-bold text-neutral-400 px-1 pt-1">I tuoi alimenti e quelli di base</div>
-              {local.length ? local.map((f) => foodRow(f)) : <p className="text-xs text-neutral-400 px-1">Nessuno: prova «Cerca online».</p>}
+              {local.length ? local.map((f) => foodRow(f)) : <p className="text-xs text-neutral-400 px-1">Non presenti tra i tuoi alimenti: cerca su USDA o tra i prodotti.</p>}
               {online && (
                 <>
                   <div className="text-[11px] font-bold text-neutral-400 px-1 pt-2">Open Food Facts ({online.length})</div>

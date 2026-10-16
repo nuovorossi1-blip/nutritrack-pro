@@ -72,6 +72,13 @@ export function FoodReview({ food, missing = [], title, onSave, onClose }: Props
             Fonte: Open Food Facts{f.barcode ? ` · codice ${f.barcode}` : ''}. Controlla i valori con l'etichetta e correggili se serve.
           </p>
         )}
+        {f.usda && (
+          <div className="text-xs text-neutral-500 space-y-1">
+            <a className="font-bold underline text-blue-600 dark:text-gold-400" href={`https://fdc.nal.usda.gov/food-details/${f.usda.fdcId}/nutrients`} target="_blank" rel="noreferrer">Fonte: USDA FoodData Central · {f.usda.dataType} · {f.usda.fdcId}</a>
+            <p>Voce originale: {f.usda.description}</p>
+            <p>Nome tradotto automaticamente. Calorie e macro provengono dalla voce USDA, per 100 g nella preparazione indicata. Controlla crudo/cotto e percentuale di grassi prima di salvare.</p>
+          </div>
+        )}
         {missing.length > 0 && <p className="text-xs font-semibold text-red-500">Valori mancanti nella scheda: {missing.join(', ')}. Inseriscili dall'etichetta.</p>}
         {warnings.length > 0 && (
           <div className="rounded-2xl border border-gold-400/60 bg-gold-400/10 p-3 text-xs text-gold-700 dark:text-gold-300 space-y-2">
@@ -121,8 +128,9 @@ export function FoodReview({ food, missing = [], title, onSave, onClose }: Props
           />
         </label>
         <label className="block">
-          <span className="text-[11px] font-bold text-neutral-500">Si cuoce? (per pesarlo anche da cotto)</span>
+          <span className="text-[11px] font-bold text-neutral-500">Conversione del peso crudo/cotto (facoltativa)</span>
           <select
+            disabled={!!f.usda && !/\braw\b/i.test(f.usda.description)}
             value={f.cookedFactor ?? ''}
             onChange={(e) => {
               const c = COOKING.find((x) => String(x.factor) === e.target.value);
@@ -130,7 +138,7 @@ export function FoodReview({ food, missing = [], title, onSave, onClose }: Props
             }}
             className="w-full mt-0.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl px-3 py-2 text-sm"
           >
-            <option value="">No, si mangia così</option>
+            <option value="">Usa il peso della scheda, senza conversione</option>
             {COOKING.map((c) => (
               <option key={c.factor} value={c.factor}>
                 {c.label}
