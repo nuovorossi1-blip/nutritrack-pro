@@ -18,12 +18,12 @@ export function loadData(): AppData {
     const raw = localStorage.getItem(KEY);
     if (raw) {
       const d = JSON.parse(raw) as AppData;
-      if (d && d.version === 1) return { ...d, goals: d.goals || DEFAULT_GOALS, days: d.days || {}, foods: d.foods || [] };
+      if (d && d.version === 1) return { ...d, goals: d.goals || DEFAULT_GOALS, days: d.days || {}, foods: d.foods || [], dark: d.themeV2 ? d.dark : true, themeV2: true };
     }
   } catch {
     /* dati illeggibili: si riparte puliti */
   }
-  return { version: 1, goals: DEFAULT_GOALS, days: {}, foods: [], dark: false };
+  return { version: 1, goals: DEFAULT_GOALS, days: {}, foods: [], dark: true, themeV2: true };
 }
 
 export function saveData(d: AppData) {

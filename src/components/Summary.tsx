@@ -31,7 +31,14 @@ export function Summary({ total, goals, name }: { total: Macros; goals: Goals; n
         <div className="relative w-32 h-32 shrink-0">
           <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90">
             <circle cx="60" cy="60" r={R} fill="none" strokeWidth="10" className="stroke-neutral-200 dark:stroke-neutral-700" />
-            <circle cx="60" cy="60" r={R} fill="none" strokeWidth="10" strokeLinecap="round" className={left < 0 ? 'stroke-red-500' : 'stroke-blue-600'} strokeDasharray={C} strokeDashoffset={C - (C * pct) / 100} />
+            <defs>
+              <linearGradient id="anello-oro" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#FFE29A" />
+                <stop offset="50%" stopColor="#FFC857" />
+                <stop offset="100%" stopColor="#E6A800" />
+              </linearGradient>
+            </defs>
+            <circle cx="60" cy="60" r={R} fill="none" strokeWidth="10" strokeLinecap="round" stroke={left < 0 ? '#ef4444' : 'url(#anello-oro)'} strokeDasharray={C} strokeDashoffset={C - (C * pct) / 100} />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-2xl font-extrabold">{total.kcal}</span>
@@ -40,14 +47,14 @@ export function Summary({ total, goals, name }: { total: Macros; goals: Goals; n
         </div>
         <div>
           <div className="text-xs font-bold uppercase tracking-wide text-neutral-400">{name ? `Ciao ${name} · ` : ''}{goals.plan ? PLAN_LABEL[goals.plan] : 'Calorie del giorno'}</div>
-          <div className={`text-xl font-extrabold mt-1 ${left < 0 ? 'text-red-500' : 'text-blue-600 dark:text-blue-400'}`}>{left < 0 ? `${-left} kcal oltre` : `${left} kcal rimaste`}</div>
+          <div className={`text-xl font-extrabold mt-1 ${left < 0 ? 'text-red-500' : 'text-blue-600 dark:text-gold-400'}`}>{left < 0 ? `${-left} kcal oltre` : `${left} kcal rimaste`}</div>
           <p className="text-xs text-neutral-400 mt-1">Ogni giorno riparte da 0 a mezzanotte.</p>
         </div>
       </div>
       <div className="grid grid-cols-3 gap-2 mt-4">
-        <Bar label="Carboidrati" value={total.carbs} goal={goals.carbs} color="bg-yellow-500" />
-        <Bar label="Proteine" value={total.pro} goal={goals.pro} color="bg-red-500" />
-        <Bar label="Grassi" value={total.fats} goal={goals.fats} color="bg-green-500" />
+        <Bar label="Carboidrati" value={total.carbs} goal={goals.carbs} color="bg-gold" />
+        <Bar label="Proteine" value={total.pro} goal={goals.pro} color="bg-blu" />
+        <Bar label="Grassi" value={total.fats} goal={goals.fats} color="bg-neutral-400 dark:bg-white" />
       </div>
     </section>
   );

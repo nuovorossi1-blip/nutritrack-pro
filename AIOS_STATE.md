@@ -104,7 +104,7 @@ da sola all'accesso a Windows con l'attività pianificata "NutriTrack PRO locale
 - **Repository GitHub privato `nutritrack-pro`**; prototipo Gemini conservato in `prototipo/nutritrack-gemini.html` (originale anche in Download, non toccato) — data: 2026-10-16
 - **Fonti alimenti: Open Food Facts (confezionati/codici a barre) + CIQUAL (sfusi, dentro l'app) + USDA riserva** — motivo: aperte e gratuite; CREA e BDA IEO non riutilizzabili (diritto d'autore); OpenNutrition scartata finché la licenza non è chiara. Citare la fonte in app — data: 2026-10-16
 - **Poche richieste a Vercel/Supabase** — motivo: l'utente non vuole problemi di limiti. Ricerca alimenti mai tramite funzioni Vercel (solo rewrite), CIQUAL dentro l'app, cache locale delle ricerche; Supabase solo per i dati utente con salvataggi raggruppati — data: 2026-10-16
-- **Colori dell'app: solo blu (principale), bianco, giallo, nero, verde, rosso** (Tailwind blue / neutral / yellow / green / red; carboidrati giallo, proteine rosso, grassi verde, rosso anche per errori e "oltre l'obiettivo", verde per "consentito" e giorni con dati). Non usare indigo, violet, slate, amber, sky, emerald, rose — richiesta utente — data: 2026-10-16
+- **Tema stile PronoBlast scuro (scuro predefinito): sfondo nero (neutral-950), schede neutral-900, testi bianchi; sfumatura ORO (`bg-gold`, colori `gold-*` in tailwind.config.js: giorno scelto, logo, anello kcal, kcal rimaste, carboidrati) e sfumatura BLU (`bg-blu`: pulsanti, proteine); grassi bianchi; rosso solo per errori e "oltre l'obiettivo".** Sostituisce la regola precedente blu/giallo/verde (richiesta utente del 16/10 pomeriggio). Non usare verde, indigo, violet, slate, amber, sky, emerald — data: 2026-10-16
 - **Account nuovo per Vercel + Supabase: smaugdrago@gmail.com**, collegato dall'utente con "Collega account" — data: 2026-10-16
 
 ---
@@ -144,6 +144,7 @@ l'utente la provi e dica se procedere con la fase 2 (CIQUAL).
 
 | Data | Modello | Cosa è stato fatto |
 |---|---|---|
+| 2026-10-16 | Claude Opus 5.5 | Tema scuro stile PronoBlast: sfumature oro e blu su nero, testi bianchi |
 | 2026-10-16 | Claude Opus 5.5 | Inserimento a parole con più alimenti per frase, aggiunta automatica con Annulla; proposta AI vera (OpenRouter) in attesa di ok |
 | 2026-10-16 | Claude Opus 5.5 | Profilo utente, metabolismo/mantenimento, obiettivo dieta/mantenimento/massa, macro con terzo calcolato dalle kcal |
 | 2026-10-16 | Claude Opus 5.5 | Palette blu/bianco/giallo/nero/verde/rosso; intestazione su una riga sul telefono |

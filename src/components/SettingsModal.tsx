@@ -25,7 +25,7 @@ export function SettingsModal({ data, onSaveProfile, onImport, onClose, toast }:
   const permRow = (d: Device, label: string, Icon: typeof Camera, use: string) => {
     const st = perm[d];
     const text = { granted: 'Consentito', denied: 'Bloccato', prompt: 'Da consentire', unknown: 'Da verificare', unsupported: 'Non disponibile' }[st];
-    const color = st === 'granted' ? 'text-green-600' : st === 'denied' ? 'text-red-500' : 'text-neutral-400';
+    const color = st === 'granted' ? 'text-blue-600 dark:text-gold-400' : st === 'denied' ? 'text-red-500' : 'text-neutral-400';
     return (
       <div className="flex items-center gap-3 py-2">
         <Icon size={18} className="text-neutral-400" />
@@ -35,7 +35,7 @@ export function SettingsModal({ data, onSaveProfile, onImport, onClose, toast }:
         </div>
         <span className={`text-[11px] font-bold ${color}`}>{text}</span>
         {st !== 'granted' && st !== 'unsupported' && (
-          <button onClick={() => ask(d)} className="text-xs font-bold rounded-xl px-3 py-1.5 bg-blue-600 text-white">
+          <button onClick={() => ask(d)} className="text-xs font-bold rounded-xl px-3 py-1.5 bg-blu text-white">
             Consenti
           </button>
         )}

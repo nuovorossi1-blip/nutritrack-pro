@@ -23,7 +23,7 @@ export function QuickConfirm({ entries: initial, meal: initialMeal, dayLabel, on
   const set = (i: number, e: ParsedEntry) => setEntries(entries.map((x, j) => (j === i ? e : x)));
   const missingQty = entries.some((e) => rawGrams(e.food, e.portion) <= 0);
   const total = sumMacros(entries.map((e) => macrosFor(e.food, rawGrams(e.food, e.portion))));
-  const chip = (active: boolean) => `py-2 rounded-xl text-xs font-bold transition ${active ? 'bg-blue-600 text-white' : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500'}`;
+  const chip = (active: boolean) => `py-2 rounded-xl text-xs font-bold transition ${active ? 'bg-blu text-white' : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500'}`;
 
   return (
     <div className="fixed inset-0 z-50 bg-neutral-950/60 flex items-end sm:items-center justify-center" onClick={(e) => e.target === e.currentTarget && onClose()}>
@@ -103,7 +103,7 @@ export function QuickConfirm({ entries: initial, meal: initialMeal, dayLabel, on
         <button
           disabled={!meal || missingQty || entries.length === 0}
           onClick={() => meal && onConfirm(entries, meal)}
-          className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white font-bold rounded-2xl py-3"
+          className="w-full bg-blu hover:brightness-110 disabled:opacity-40 text-white font-bold rounded-2xl py-3"
         >
           {!meal ? 'Scegli il pasto' : missingQty ? 'Indica le quantità' : `Aggiungi a ${MEALS.find((m) => m.key === meal)!.label.toLowerCase()} · ${total.kcal} kcal`}
         </button>

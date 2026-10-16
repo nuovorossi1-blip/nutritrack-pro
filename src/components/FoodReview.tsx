@@ -93,7 +93,7 @@ export function FoodReview({ food, missing = [], title, onSave, onClose }: Props
             ))}
           </select>
         </label>
-        <button disabled={!valid} onClick={() => onSave({ ...f, name: f.name.trim() })} className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white font-bold rounded-2xl py-3">
+        <button disabled={!valid} onClick={() => onSave({ ...f, name: f.name.trim() })} className="w-full bg-blu hover:brightness-110 disabled:opacity-40 text-white font-bold rounded-2xl py-3">
           Salva e scegli la quantità
         </button>
       </div>

@@ -86,5 +86,7 @@ export interface AppData {
   /** Alimenti salvati dall'utente (personali e da Open Food Facts). */
   foods: Food[];
   dark: boolean;
+  /** Tema stile PronoBlast gia' applicato (scuro di partenza, una volta sola). */
+  themeV2?: boolean;
   profile?: Profile;
 }

@@ -23,11 +23,11 @@ export function DayStrip({ selected, today, daysWithData, onSelect }: Props) {
               <button
                 key={d}
                 onClick={() => onSelect(d)}
-                className={`rounded-2xl py-2 flex flex-col items-center transition ${active ? 'bg-blue-600 text-white shadow-md shadow-blue-500/30' : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'}`}
+                className={`rounded-2xl py-2 flex flex-col items-center transition ${active ? 'bg-gold text-neutral-950 shadow-md shadow-gold-500/30' : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'}`}
               >
-                <span className={`text-[10px] font-bold tracking-wide ${active ? 'text-blue-100' : 'text-neutral-400'}`}>{shortLabel(d, today)}</span>
+                <span className={`text-[10px] font-bold tracking-wide ${active ? 'text-neutral-800' : 'text-neutral-400'}`}>{shortLabel(d, today)}</span>
                 <span className="text-lg font-extrabold leading-tight">{parseISO(d).getDate()}</span>
-                <span className={`w-1.5 h-1.5 rounded-full mt-0.5 ${daysWithData.has(d) ? (active ? 'bg-white' : 'bg-green-500') : 'bg-transparent'}`} />
+                <span className={`w-1.5 h-1.5 rounded-full mt-0.5 ${daysWithData.has(d) ? (active ? 'bg-neutral-950' : 'bg-gold-400') : 'bg-transparent'}`} />
               </button>
             );
           })}
@@ -45,7 +45,7 @@ export function DayStrip({ selected, today, daysWithData, onSelect }: Props) {
         <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">{longLabel(selected)}</span>
         <div className="flex items-center gap-2">
           {selected !== today && (
-            <button onClick={() => onSelect(today)} className="text-xs font-bold text-blue-600 dark:text-blue-400">
+            <button onClick={() => onSelect(today)} className="text-xs font-bold text-blue-600 dark:text-gold-400">
               Torna a oggi
             </button>
           )}

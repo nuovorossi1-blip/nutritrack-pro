@@ -67,7 +67,7 @@ export function PortionEditor({ food, initial, confirmLabel, onConfirm, onClose 
                 Pesato cotto
               </button>
             </div>
-            {p.cooked && food.cookNote && <p className="text-[11px] text-yellow-700 dark:text-yellow-400 mt-1.5">{food.cookNote}.</p>}
+            {p.cooked && food.cookNote && <p className="text-[11px] text-gold-700 dark:text-gold-400 mt-1.5">{food.cookNote}.</p>}
           </div>
         ) : null}
 
@@ -95,7 +95,7 @@ export function PortionEditor({ food, initial, confirmLabel, onConfirm, onClose 
           </div>
         </div>
 
-        <button disabled={grams <= 0} onClick={() => onConfirm(p)} className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white font-bold rounded-2xl py-3">
+        <button disabled={grams <= 0} onClick={() => onConfirm(p)} className="w-full bg-blu hover:brightness-110 disabled:opacity-40 text-white font-bold rounded-2xl py-3">
           {confirmLabel}
         </button>
       </div>

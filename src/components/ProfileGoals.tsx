@@ -12,9 +12,9 @@ interface Props {
 const EMPTY: Profile = { name: '', sex: 'M', age: 0, weight: 0, height: 0, activity: 'sedentario' };
 const input = 'w-full mt-0.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl px-3 py-2 text-sm font-semibold';
 const MACROS: { key: MacroKey; label: string; color: string }[] = [
-  { key: 'pro', label: 'Proteine', color: 'bg-red-500' },
-  { key: 'carbs', label: 'Carboidrati', color: 'bg-yellow-500' },
-  { key: 'fats', label: 'Grassi', color: 'bg-green-500' },
+  { key: 'pro', label: 'Proteine', color: 'bg-blu' },
+  { key: 'carbs', label: 'Carboidrati', color: 'bg-gold' },
+  { key: 'fats', label: 'Grassi', color: 'bg-neutral-400 dark:bg-white' },
 ];
 
 export function ProfileGoals({ profile, goals, onSave }: Props) {
@@ -35,7 +35,7 @@ export function ProfileGoals({ profile, goals, onSave }: Props) {
       <NumberInput value={p[key] || undefined} onChange={(n) => setP({ ...p, [key]: n ?? 0 })} className={input} />
     </label>
   );
-  const chip = (active: boolean) => `flex-1 py-2 rounded-xl text-xs font-bold transition ${active ? 'bg-blue-600 text-white' : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500'}`;
+  const chip = (active: boolean) => `flex-1 py-2 rounded-xl text-xs font-bold transition ${active ? 'bg-blu text-white' : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500'}`;
 
   return (
     <div className="space-y-4">
@@ -83,7 +83,7 @@ export function ProfileGoals({ profile, goals, onSave }: Props) {
                 </div>
               )}
               <div>
-                Mantenimento stimato: <b className="text-blue-600 dark:text-blue-400">{maintenance} kcal</b>
+                Mantenimento stimato: <b className="text-blue-600 dark:text-gold-400">{maintenance} kcal</b>
               </div>
               <div className="text-[11px] text-neutral-500 mt-1">Stima (formula Mifflin-St Jeor × attività): controlla il peso per qualche settimana e correggi.</div>
             </>
@@ -125,7 +125,7 @@ export function ProfileGoals({ profile, goals, onSave }: Props) {
                 <div className="text-[10px] text-neutral-400">
                   {pct}% · {Math.round(g[m.key] * KCAL_PER_G[m.key])} kcal
                 </div>
-                <button onClick={() => setG(withAutoMacro({ ...g, auto: m.key }))} className={`mt-1 w-full text-[10px] font-bold rounded-lg py-1 ${isAuto ? 'bg-blue-600 text-white' : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500'}`}>
+                <button onClick={() => setG(withAutoMacro({ ...g, auto: m.key }))} className={`mt-1 w-full text-[10px] font-bold rounded-lg py-1 ${isAuto ? 'bg-blu text-white' : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500'}`}>
                   {isAuto ? 'auto' : 'calcola questo'}
                 </button>
               </div>
@@ -139,7 +139,7 @@ export function ProfileGoals({ profile, goals, onSave }: Props) {
       <button
         disabled={g.kcal <= 0 || gap < -5}
         onClick={() => onSave({ ...p, name: p.name.trim() }, g)}
-        className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white font-bold rounded-2xl py-3"
+        className="w-full bg-blu hover:brightness-110 disabled:opacity-40 text-white font-bold rounded-2xl py-3"
       >
         Salva profilo e obiettivi
       </button>

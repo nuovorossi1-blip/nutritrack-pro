@@ -185,7 +185,7 @@ export function MealSheet({ meal, dayLabel, items, data, onAdd, onUpdate, onRemo
                   placeholder="Es. yogurt fage 0, pasta, pollo..."
                   className="flex-1 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-2xl px-4 py-2.5 text-sm"
                 />
-                <button onClick={searchOnline} disabled={busy} className="bg-blue-600 text-white text-xs font-bold rounded-2xl px-4 disabled:opacity-50">
+                <button onClick={searchOnline} disabled={busy} className="bg-blu text-white text-xs font-bold rounded-2xl px-4 disabled:opacity-50">
                   {busy ? 'Cerco…' : 'Cerca online'}
                 </button>
               </div>
@@ -207,7 +207,7 @@ export function MealSheet({ meal, dayLabel, items, data, onAdd, onUpdate, onRemo
           {tab === 'barcode' && (
             <div className="space-y-2">
               <p className="text-xs text-neutral-500">Inquadra il codice con la fotocamera oppure scrivi il numero sotto il codice a barre.</p>
-              <button onClick={() => setScanning(true)} className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded-2xl py-3">
+              <button onClick={() => setScanning(true)} className="w-full flex items-center justify-center gap-2 bg-blu hover:brightness-110 text-white text-sm font-bold rounded-2xl py-3">
                 <Camera size={18} /> Scansiona con la fotocamera
               </button>
               <div className="flex gap-2">
@@ -219,7 +219,7 @@ export function MealSheet({ meal, dayLabel, items, data, onAdd, onUpdate, onRemo
                   placeholder="Es. 5201054017418"
                   className="flex-1 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-2xl px-4 py-2.5 text-sm"
                 />
-                <button onClick={() => searchCode()} disabled={busy} className="bg-blue-600 text-white text-xs font-bold rounded-2xl px-4 disabled:opacity-50">
+                <button onClick={() => searchCode()} disabled={busy} className="bg-blu text-white text-xs font-bold rounded-2xl px-4 disabled:opacity-50">
                   {busy ? 'Cerco…' : 'Cerca'}
                 </button>
               </div>
@@ -230,7 +230,7 @@ export function MealSheet({ meal, dayLabel, items, data, onAdd, onUpdate, onRemo
           {tab === 'crea' && (
             <div className="text-center py-3">
               <p className="text-xs text-neutral-500 mb-3">Inserisci a mano i valori per 100 g presi dall'etichetta.</p>
-              <button onClick={() => setReview({ food: emptyFood(), missing: [], title: 'Nuovo alimento' })} className="bg-blue-600 text-white text-sm font-bold rounded-2xl px-5 py-2.5">
+              <button onClick={() => setReview({ food: emptyFood(), missing: [], title: 'Nuovo alimento' })} className="bg-blu text-white text-sm font-bold rounded-2xl px-5 py-2.5">
                 Crea alimento
               </button>
             </div>

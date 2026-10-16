@@ -132,11 +132,11 @@ export default function App() {
       <header className="bg-white/90 dark:bg-neutral-900/90 backdrop-blur sticky top-0 z-30 border-b border-neutral-200/80 dark:border-neutral-800">
         <div className="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-blue-500 flex items-center justify-center text-white shadow-md">
+            <div className="w-10 h-10 rounded-2xl bg-gold flex items-center justify-center text-neutral-950 shadow-md shadow-gold-500/30">
               <Flame size={20} />
             </div>
             <div>
-              <h1 className="text-lg font-extrabold tracking-tight whitespace-nowrap text-blue-600 dark:text-blue-400">NutriTrack PRO</h1>
+              <h1 className="text-lg font-extrabold tracking-tight whitespace-nowrap text-neutral-900 dark:text-white">NutriTrack PRO</h1>
               <p className="hidden sm:block text-[11px] text-neutral-400 font-medium">Pasti, macro, crudo/cotto</p>
             </div>
           </div>
@@ -148,7 +148,7 @@ export default function App() {
               <RotateCcw size={16} />
             </button>
             <button aria-label="Tema" onClick={() => update((d) => ({ ...d, dark: !d.dark }))} className="w-10 h-10 rounded-2xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
-              {data.dark ? <Sun size={16} className="text-yellow-400" /> : <Moon size={16} />}
+              {data.dark ? <Sun size={16} className="text-gold-400" /> : <Moon size={16} />}
             </button>
           </div>
         </div>
@@ -157,7 +157,7 @@ export default function App() {
       <main className="max-w-2xl mx-auto px-4 pt-4 space-y-4">
         <DayStrip selected={selected} today={today} daysWithData={daysWithData} onSelect={setSelected} />
         {!data.profile && (
-          <button onClick={() => setSettings(true)} className="w-full text-left rounded-3xl p-4 bg-blue-600 text-white shadow-md">
+          <button onClick={() => setSettings(true)} className="w-full text-left rounded-3xl p-4 bg-blu text-white shadow-md">
             <div className="font-extrabold">Completa il tuo profilo</div>
             <div className="text-xs text-blue-100 mt-0.5">Età, peso, altezza e attività: l'app stima il tuo mantenimento e calcola calorie e macro per il tuo obiettivo.</div>
           </button>
@@ -183,7 +183,7 @@ export default function App() {
                 <Mic size={16} />
               </button>
             </div>
-            <button onClick={addQuick} className="bg-blue-500 hover:bg-blue-400 rounded-2xl px-4 text-sm font-bold">
+            <button onClick={addQuick} className="bg-blu hover:brightness-110 rounded-2xl px-4 text-sm font-bold">
               Inserisci
             </button>
           </div>
@@ -207,7 +207,7 @@ export default function App() {
                   </div>
                   {items.length > 0 && <p className="text-[11px] text-neutral-500 mt-2 line-clamp-2">{items.map((i) => `${i.name} (${i.label})`).join(' • ')}</p>}
                   <div className="flex items-end justify-between mt-3 pt-3 border-t border-neutral-100 dark:border-neutral-800">
-                    <span className="text-lg font-extrabold text-blue-600 dark:text-blue-400">{t.kcal} kcal</span>
+                    <span className="text-lg font-extrabold text-blue-600 dark:text-gold-400">{t.kcal} kcal</span>
                     <span className="text-[11px] text-neutral-400">
                       C {t.carbs} · P {t.pro} · G {t.fats}
                     </span>
@@ -249,7 +249,7 @@ export default function App() {
                   t.action!.run();
                   setToasts((all) => all.filter((x) => x.id !== t.id));
                 }}
-                className="shrink-0 text-yellow-400 font-extrabold"
+                className="shrink-0 text-gold-400 font-extrabold"
               >
                 {t.action.label}
               </button>
