@@ -175,3 +175,18 @@ describe('valori fuori norma', () => {
     for (const f of BASE_FOODS) expect([f.name, w(f)]).toEqual([f.name, []]);
   });
 });
+
+describe('ripeti l ultimo pasto', () => {
+  it('prende il piu recente prima del giorno mostrato', async () => {
+    const { lastMealBefore } = await import('../src/lib/store');
+    const riso = buildItem(food('f11'), { mode: 'grams', qty: 60, cooked: false });
+    const pollo = buildItem(food('f3'), { mode: 'grams', qty: 200, cooked: false });
+    let d: AppData = { version: 1, goals: { kcal: 2000, carbs: 200, pro: 150, fats: 60 }, days: {}, foods: [], dark: true };
+    d = withDay(d, '2026-10-14', { colazione: [], pranzo: [pollo], cena: [], spuntini: [] });
+    d = withDay(d, '2026-10-15', { colazione: [], pranzo: [riso, pollo], cena: [], spuntini: [] });
+    expect(lastMealBefore(d, 'pranzo', '2026-10-16')).toMatchObject({ day: '2026-10-15' });
+    expect(lastMealBefore(d, 'pranzo', '2026-10-16')!.items.map((i) => i.grams)).toEqual([60, 200]);
+    expect(lastMealBefore(d, 'pranzo', '2026-10-15')).toMatchObject({ day: '2026-10-14' });
+    expect(lastMealBefore(d, 'cena', '2026-10-16')).toBeNull();
+  });
+});

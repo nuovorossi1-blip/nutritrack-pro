@@ -1,60 +1,105 @@
+import { useState } from 'react';
 import type { Goals, Macros } from '../types';
+import { NumberInput } from './NumberInput';
 
-function Bar({ label, value, goal, color }: { label: string; value: number; goal: number; color: string }) {
+const PLAN_LABEL = { dieta: 'Dieta', mantenimento: 'Mantenimento', massa: 'Massa' };
+const fmt = (n: number) => Math.round(n).toLocaleString('it-IT');
+
+function Macro({ label, value, goal, color }: { label: string; value: number; goal: number; color: string }) {
   const pct = goal > 0 ? Math.min(100, (value / goal) * 100) : 0;
-  const left = Math.round((goal - value) * 10) / 10;
+  const over = value > goal;
   return (
-    <div className="rounded-2xl bg-neutral-50 dark:bg-neutral-800/60 p-3">
-      <div className="text-[11px] font-bold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{label}</div>
-      <div className="mt-1 text-lg font-extrabold">
-        {value}
-        <span className="text-xs font-semibold text-neutral-400"> / {goal}g</span>
+    <div className="flex flex-col items-center gap-1.5">
+      <span className="text-sm text-neutral-500 dark:text-neutral-300">{label}</span>
+      <div className="w-full h-2 rounded-full bg-neutral-200 dark:bg-neutral-700 overflow-hidden">
+        <div className={`h-full rounded-full ${over ? 'bg-red-500' : color}`} style={{ width: `${Math.max(pct, value > 0 ? 6 : 0)}%` }} />
       </div>
-      <div className="h-1.5 rounded-full bg-neutral-200 dark:bg-neutral-700 mt-1.5 overflow-hidden">
-        <div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
-      </div>
-      <div className={`text-[11px] mt-1 font-semibold ${left < 0 ? 'text-red-500' : 'text-neutral-400'}`}>{left < 0 ? `+${-left}g oltre` : `${left}g rimasti`}</div>
+      <span className={`text-sm font-extrabold ${over ? 'text-red-500' : ''}`}>
+        {fmt(value)} / {fmt(goal)} g
+      </span>
     </div>
   );
 }
 
-const PLAN_LABEL = { dieta: 'Dieta', mantenimento: 'Mantenimento', massa: 'Massa' };
+interface Props {
+  total: Macros;
+  goals: Goals;
+  name?: string;
+  /** Kcal bruciate con l'attivita' del giorno (scritte dall'utente). */
+  burned: number;
+  onBurned: (kcal: number) => void;
+}
 
-export function Summary({ total, goals, name }: { total: Macros; goals: Goals; name?: string }) {
-  const pct = goals.kcal > 0 ? Math.min(100, (total.kcal / goals.kcal) * 100) : 0;
-  const left = goals.kcal - total.kcal;
+// Riepilogo stile "Mangiate · Rimanenti · Bruciate" con arco e barre dei macro.
+export function Summary({ total, goals, name, burned, onBurned }: Props) {
+  const [editBurned, setEditBurned] = useState(false);
+  const budget = goals.kcal + burned;
+  const left = budget - total.kcal;
+  const pct = budget > 0 ? Math.min(1, total.kcal / budget) : 0;
+  // Arco di 270 gradi, aperto in basso.
   const R = 52;
   const C = 2 * Math.PI * R;
+  const ARC = C * 0.75;
+
   return (
-    <section className="bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200/70 dark:border-neutral-800 shadow-sm p-4 sm:p-5">
-      <div className="flex items-center gap-5">
-        <div className="relative w-32 h-32 shrink-0">
-          <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90">
-            <circle cx="60" cy="60" r={R} fill="none" strokeWidth="10" className="stroke-neutral-200 dark:stroke-neutral-700" />
-            <defs>
-              <linearGradient id="anello-oro" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#FFE29A" />
-                <stop offset="50%" stopColor="#FFC857" />
-                <stop offset="100%" stopColor="#E6A800" />
-              </linearGradient>
-            </defs>
-            <circle cx="60" cy="60" r={R} fill="none" strokeWidth="10" strokeLinecap="round" stroke={left < 0 ? '#ef4444' : 'url(#anello-oro)'} strokeDasharray={C} strokeDashoffset={C - (C * pct) / 100} />
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-2xl font-extrabold">{total.kcal}</span>
-            <span className="text-[11px] text-neutral-400 font-semibold">/ {goals.kcal} kcal</span>
-          </div>
-        </div>
-        <div>
-          <div className="text-xs font-bold uppercase tracking-wide text-neutral-400">{name ? `Ciao ${name} · ` : ''}{goals.plan ? PLAN_LABEL[goals.plan] : 'Calorie del giorno'}</div>
-          <div className={`text-xl font-extrabold mt-1 ${left < 0 ? 'text-red-500' : 'text-blue-600 dark:text-gold-400'}`}>{left < 0 ? `${-left} kcal oltre` : `${left} kcal rimaste`}</div>
-          <p className="text-xs text-neutral-400 mt-1">Ogni giorno riparte da 0 a mezzanotte.</p>
-        </div>
+    <section>
+      <div className="flex items-end justify-between px-1 mb-2">
+        <h2 className="text-2xl font-extrabold">Riepilogo</h2>
+        <span className="text-xs font-bold text-blue-600 dark:text-gold-400 uppercase tracking-wide">
+          {name ? `${name} · ` : ''}
+          {goals.plan ? PLAN_LABEL[goals.plan] : `${fmt(goals.kcal)} kcal`}
+        </span>
       </div>
-      <div className="grid grid-cols-3 gap-2 mt-4">
-        <Bar label="Carboidrati" value={total.carbs} goal={goals.carbs} color="bg-gold" />
-        <Bar label="Proteine" value={total.pro} goal={goals.pro} color="bg-blu" />
-        <Bar label="Grassi" value={total.fats} goal={goals.fats} color="bg-neutral-400 dark:bg-white" />
+      <div className="bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200/70 dark:border-neutral-700 shadow-sm p-4 sm:p-5">
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center">
+          <div className="text-center">
+            <div className="text-2xl font-extrabold">{fmt(total.kcal)}</div>
+            <div className="text-sm text-neutral-500 dark:text-neutral-300">Mangiate</div>
+          </div>
+          <div className="relative w-40 h-40 sm:w-44 sm:h-44">
+            <svg viewBox="0 0 120 120" className="w-full h-full rotate-[135deg]">
+              <defs>
+                <linearGradient id="arco-oro" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stopColor="#FFE29A" />
+                  <stop offset="50%" stopColor="#FFC857" />
+                  <stop offset="100%" stopColor="#E6A800" />
+                </linearGradient>
+              </defs>
+              <circle cx="60" cy="60" r={R} fill="none" strokeWidth="9" strokeLinecap="round" className="stroke-neutral-200 dark:stroke-neutral-700" strokeDasharray={`${ARC} ${C}`} />
+              {total.kcal > 0 && (
+                <circle cx="60" cy="60" r={R} fill="none" strokeWidth="9" strokeLinecap="round" stroke={left < 0 ? '#ef4444' : 'url(#arco-oro)'} strokeDasharray={`${Math.max(ARC * pct, 0.1)} ${C}`} />
+              )}
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className={`text-3xl font-extrabold ${left < 0 ? 'text-red-500' : ''}`}>{fmt(Math.abs(left))}</span>
+              <span className="text-sm text-neutral-500 dark:text-neutral-300">{left < 0 ? 'Oltre' : 'Rimanenti'}</span>
+            </div>
+          </div>
+          <button onClick={() => setEditBurned(true)} className="text-center" aria-label="Kcal bruciate">
+            <div className="text-2xl font-extrabold">{fmt(burned)}</div>
+            <div className="text-sm text-neutral-500 dark:text-neutral-300 underline decoration-dotted underline-offset-4">Bruciate</div>
+          </button>
+        </div>
+        {editBurned && (
+          <div className="mt-2 rounded-2xl bg-neutral-100 dark:bg-neutral-800 p-3 flex items-center gap-2">
+            <span className="text-xs font-semibold flex-1">Kcal bruciate oggi con l'attività (si aggiungono alle rimanenti)</span>
+            <NumberInput
+              decimals={false}
+              value={burned || undefined}
+              placeholder="0"
+              onChange={(n) => onBurned(n ?? 0)}
+              className="w-20 text-center font-extrabold bg-white dark:bg-neutral-900 rounded-xl py-1.5 border border-neutral-200 dark:border-neutral-700"
+            />
+            <button onClick={() => setEditBurned(false)} className="text-xs font-bold rounded-xl px-3 py-1.5 bg-blu text-white">
+              OK
+            </button>
+          </div>
+        )}
+        <div className="grid grid-cols-3 gap-4 mt-3">
+          <Macro label="Carboidrati" value={total.carbs} goal={goals.carbs} color="bg-gold" />
+          <Macro label="Proteine" value={total.pro} goal={goals.pro} color="bg-blu" />
+          <Macro label="Grassi" value={total.fats} goal={goals.fats} color="bg-neutral-400 dark:bg-white" />
+        </div>
       </div>
     </section>
   );

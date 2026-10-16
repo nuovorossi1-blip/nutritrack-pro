@@ -2,7 +2,7 @@ import { Flame, Mic, Moon, Plus, RotateCcw, Sun, Target, Wand2 } from 'lucide-re
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Food, MealItem, MealKey } from './types';
 import { MEALS } from './types';
-import { buildItem, sumMacros, type Portion } from './lib/nutrition';
+import { buildItem, newId, sumMacros, type Portion } from './lib/nutrition';
 import { allFoods, getDay, useAppData, useToday, withDay } from './lib/store';
 import { longLabel } from './lib/dates';
 import { mealFromText, parseFoodText, unknownWords, type ParsedEntry } from './lib/parser';
@@ -183,7 +183,13 @@ export default function App() {
             <div className="text-xs text-blue-100 mt-0.5">Età, peso, altezza e attività: l'app stima il tuo mantenimento e calcola calorie e macro per il tuo obiettivo.</div>
           </button>
         )}
-        <Summary total={total} goals={data.goals} name={data.profile?.name} />
+        <Summary
+          total={total}
+          goals={data.goals}
+          name={data.profile?.name}
+          burned={data.burned?.[selected] || 0}
+          onBurned={(kcal) => update((d) => ({ ...d, burned: { ...(d.burned || {}), [selected]: kcal } }))}
+        />
 
         <section className="rounded-3xl p-4 sm:p-5 text-white bg-gradient-to-br from-blue-900 via-blue-950 to-neutral-950 shadow-xl">
           <div className="flex items-center gap-2">
@@ -243,6 +249,7 @@ export default function App() {
       {openMeal && (
         <MealSheet
           meal={openMeal}
+          day={selected}
           dayLabel={longLabel(selected)}
           items={day[openMeal]}
           data={data}
@@ -252,6 +259,11 @@ export default function App() {
           onAdd={(food: Food, p: Portion) => {
             setMeal(openMeal, (l) => [...l, buildItem(food, p)]);
             toast(`Aggiunto: ${food.name}`);
+          }}
+          onAddItems={(items) => {
+            const copies = items.map((i) => ({ ...i, id: newId('it'), addedAt: new Date().toISOString() }));
+            setMeal(openMeal, (l) => [...l, ...copies]);
+            toast(`Aggiunto: ${copies.map((i) => `${i.name.split(' (')[0]} ${i.label}`).join(' + ')}`);
           }}
           onUpdate={(itemId, food, p) => setMeal(openMeal, (l) => l.map((i) => (i.id === itemId ? buildItem(food, p, itemId) : i)))}
           onRemove={(itemId) => setMeal(openMeal, (l) => l.filter((i) => i.id !== itemId))}

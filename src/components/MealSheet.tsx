@@ -3,7 +3,8 @@ import { useMemo, useState } from 'react';
 import type { AppData, Food, MealItem, MealKey } from '../types';
 import { MEALS } from '../types';
 import { sumMacros, type Portion } from '../lib/nutrition';
-import { allFoods, frequentFor } from '../lib/store';
+import { allFoods, frequentFor, lastMealBefore } from '../lib/store';
+import { longLabel } from '../lib/dates';
 import { normalize } from '../lib/parser';
 import { findByBarcode, searchByName, type OffResult } from '../lib/off';
 import { PortionEditor } from './PortionEditor';
@@ -15,10 +16,14 @@ type Tab = 'frequenti' | 'cerca' | 'barcode' | 'crea';
 
 interface Props {
   meal: MealKey;
+  /** Giorno mostrato (AAAA-MM-GG). */
+  day: string;
   dayLabel: string;
   items: MealItem[];
   data: AppData;
   onAdd: (food: Food, p: Portion) => void;
+  /** Copia voci gia' pronte (stessi grammi e valori), es. "ripeti l'ultimo pranzo". */
+  onAddItems: (items: MealItem[]) => void;
   onUpdate: (itemId: string, food: Food, p: Portion) => void;
   onRemove: (itemId: string) => void;
   onSaveFood: (food: Food) => void;
@@ -28,10 +33,12 @@ interface Props {
 
 const emptyFood = (): Food => ({ id: `cust_${Date.now().toString(36)}`, name: '', kcal: 0, pro: 0, carbs: 0, fats: 0, source: 'personale' });
 
-export function MealSheet({ meal, dayLabel, items, data, onAdd, onUpdate, onRemove, onSaveFood, onClose, toast }: Props) {
+export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems, onUpdate, onRemove, onSaveFood, onClose, toast }: Props) {
   const info = MEALS.find((m) => m.key === meal)!;
   const foods = useMemo(() => allFoods(data), [data]);
   const frequent = useMemo(() => frequentFor(data, meal), [data, meal]);
+  const last = useMemo(() => lastMealBefore(data, meal, day), [data, meal, day]);
+  const lastKcal = last ? sumMacros(last.items).kcal : 0;
   const total = sumMacros(items);
 
   const [tab, setTab] = useState<Tab>(frequent.length ? 'frequenti' : 'cerca');
@@ -165,12 +172,42 @@ export function MealSheet({ meal, dayLabel, items, data, onAdd, onUpdate, onRemo
 
           {tab === 'frequenti' &&
             (frequent.length === 0 ? (
-              <p className="text-xs text-neutral-400 text-center py-4">Qui compariranno gli alimenti che usi più spesso a {info.label.toLowerCase()}.</p>
+              <p className="text-xs text-neutral-400 text-center py-4">Qui compariranno gli alimenti che usi più spesso a {info.label.toLowerCase()}, con un + per aggiungerli con un tocco.</p>
             ) : (
-              <div>
-                {frequent.map((fr) =>
-                  foodRow(fr.food, `${fr.count}× · ultima ${fr.last.label}`, () => setPicking({ food: fr.food, initial: { mode: fr.last.mode, qty: fr.last.qty, cooked: fr.last.cooked } })),
+              <div className="space-y-1">
+                {last && (
+                  <button
+                    onClick={() => onAddItems(last.items)}
+                    className="w-full text-left rounded-2xl border border-gold-400/50 bg-gold-400/10 px-3 py-2.5 mb-1"
+                  >
+                    <div className="text-sm font-extrabold text-blue-600 dark:text-gold-400">
+                      ↻ Ripeti {info.label.toLowerCase()} di {longLabel(last.day).split(' ').slice(0, 3).join(' ')} · {lastKcal} kcal
+                    </div>
+                    <div className="text-[11px] text-neutral-500 truncate">{last.items.map((i) => `${i.name.split(' (')[0]} ${i.label}`).join(' + ')}</div>
+                  </button>
                 )}
+                {frequent.map((fr) => (
+                  <div key={fr.food.id} className="flex items-center gap-1 rounded-2xl hover:bg-neutral-50 dark:hover:bg-neutral-800/60">
+                    <button
+                      onClick={() => setPicking({ food: fr.food, initial: { mode: fr.last.mode, qty: fr.last.qty, cooked: fr.last.cooked } })}
+                      className="flex-1 min-w-0 text-left px-3 py-2.5"
+                    >
+                      <div className="text-sm font-semibold truncate">{fr.food.name}</div>
+                      <div className="text-[11px] text-neutral-400 truncate">
+                        {fr.last.label} · {fr.last.kcal} kcal · usato {fr.count}×
+                      </div>
+                    </button>
+                    {/* Il + aggiunge subito la stessa quantita' dell'ultima volta; toccando il nome si cambia la quantita'. */}
+                    <button
+                      aria-label={`Aggiungi ${fr.food.name} ${fr.last.label}`}
+                      onClick={() => onAdd(fr.food, { mode: fr.last.mode, qty: fr.last.qty, cooked: fr.last.cooked })}
+                      className="shrink-0 w-11 h-11 mr-1 rounded-2xl bg-blu text-white flex items-center justify-center text-xl font-bold"
+                    >
+                      +
+                    </button>
+                  </div>
+                ))}
+                <p className="text-[10px] text-neutral-400 px-1 pt-1">Il + aggiunge la stessa quantità dell'ultima volta. Tocca il nome per cambiarla.</p>
               </div>
             ))}
 

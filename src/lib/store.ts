@@ -56,6 +56,14 @@ export interface Frequent {
   last: MealItem;
 }
 
+/** Ultimo pasto dello stesso tipo in un altro giorno (il piu' recente prima di `day`, altrimenti dopo). */
+export function lastMealBefore(d: AppData, meal: MealKey, day: string): { day: string; items: MealItem[] } | null {
+  const days = Object.keys(d.days).filter((k) => k !== day && (d.days[k][meal] || []).length > 0);
+  const before = days.filter((k) => k < day).sort();
+  const pick = before.length ? before[before.length - 1] : days.sort()[0];
+  return pick ? { day: pick, items: d.days[pick][meal] } : null;
+}
+
 /** Alimenti piu' usati in quel pasto, calcolati dallo storico vero. */
 export function frequentFor(d: AppData, meal: MealKey, limit = 8): Frequent[] {
   const foods = allFoods(d);
