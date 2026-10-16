@@ -4,16 +4,16 @@ function Bar({ label, value, goal, color }: { label: string; value: number; goal
   const pct = goal > 0 ? Math.min(100, (value / goal) * 100) : 0;
   const left = Math.round((goal - value) * 10) / 10;
   return (
-    <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/60 p-3">
-      <div className="text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</div>
+    <div className="rounded-2xl bg-neutral-50 dark:bg-neutral-800/60 p-3">
+      <div className="text-[11px] font-bold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{label}</div>
       <div className="mt-1 text-lg font-extrabold">
         {value}
-        <span className="text-xs font-semibold text-slate-400"> / {goal}g</span>
+        <span className="text-xs font-semibold text-neutral-400"> / {goal}g</span>
       </div>
-      <div className="h-1.5 rounded-full bg-slate-200 dark:bg-slate-700 mt-1.5 overflow-hidden">
+      <div className="h-1.5 rounded-full bg-neutral-200 dark:bg-neutral-700 mt-1.5 overflow-hidden">
         <div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
       </div>
-      <div className={`text-[11px] mt-1 font-semibold ${left < 0 ? 'text-rose-500' : 'text-slate-400'}`}>{left < 0 ? `+${-left}g oltre` : `${left}g rimasti`}</div>
+      <div className={`text-[11px] mt-1 font-semibold ${left < 0 ? 'text-red-500' : 'text-neutral-400'}`}>{left < 0 ? `+${-left}g oltre` : `${left}g rimasti`}</div>
     </div>
   );
 }
@@ -24,28 +24,28 @@ export function Summary({ total, goals }: { total: Macros; goals: Goals }) {
   const R = 52;
   const C = 2 * Math.PI * R;
   return (
-    <section className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/70 dark:border-slate-800 shadow-sm p-4 sm:p-5">
+    <section className="bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200/70 dark:border-neutral-800 shadow-sm p-4 sm:p-5">
       <div className="flex items-center gap-5">
         <div className="relative w-32 h-32 shrink-0">
           <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90">
-            <circle cx="60" cy="60" r={R} fill="none" strokeWidth="10" className="stroke-slate-200 dark:stroke-slate-700" />
-            <circle cx="60" cy="60" r={R} fill="none" strokeWidth="10" strokeLinecap="round" className={left < 0 ? 'stroke-rose-500' : 'stroke-indigo-600'} strokeDasharray={C} strokeDashoffset={C - (C * pct) / 100} />
+            <circle cx="60" cy="60" r={R} fill="none" strokeWidth="10" className="stroke-neutral-200 dark:stroke-neutral-700" />
+            <circle cx="60" cy="60" r={R} fill="none" strokeWidth="10" strokeLinecap="round" className={left < 0 ? 'stroke-red-500' : 'stroke-blue-600'} strokeDasharray={C} strokeDashoffset={C - (C * pct) / 100} />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-2xl font-extrabold">{total.kcal}</span>
-            <span className="text-[11px] text-slate-400 font-semibold">/ {goals.kcal} kcal</span>
+            <span className="text-[11px] text-neutral-400 font-semibold">/ {goals.kcal} kcal</span>
           </div>
         </div>
         <div>
-          <div className="text-xs font-bold uppercase tracking-wide text-slate-400">Calorie del giorno</div>
-          <div className={`text-xl font-extrabold mt-1 ${left < 0 ? 'text-rose-500' : 'text-indigo-600 dark:text-indigo-400'}`}>{left < 0 ? `${-left} kcal oltre` : `${left} kcal rimaste`}</div>
-          <p className="text-xs text-slate-400 mt-1">Ogni giorno riparte da 0 a mezzanotte.</p>
+          <div className="text-xs font-bold uppercase tracking-wide text-neutral-400">Calorie del giorno</div>
+          <div className={`text-xl font-extrabold mt-1 ${left < 0 ? 'text-red-500' : 'text-blue-600 dark:text-blue-400'}`}>{left < 0 ? `${-left} kcal oltre` : `${left} kcal rimaste`}</div>
+          <p className="text-xs text-neutral-400 mt-1">Ogni giorno riparte da 0 a mezzanotte.</p>
         </div>
       </div>
       <div className="grid grid-cols-3 gap-2 mt-4">
-        <Bar label="Carboidrati" value={total.carbs} goal={goals.carbs} color="bg-amber-500" />
-        <Bar label="Proteine" value={total.pro} goal={goals.pro} color="bg-rose-500" />
-        <Bar label="Grassi" value={total.fats} goal={goals.fats} color="bg-sky-500" />
+        <Bar label="Carboidrati" value={total.carbs} goal={goals.carbs} color="bg-yellow-500" />
+        <Bar label="Proteine" value={total.pro} goal={goals.pro} color="bg-red-500" />
+        <Bar label="Grassi" value={total.fats} goal={goals.fats} color="bg-green-500" />
       </div>
     </section>
   );

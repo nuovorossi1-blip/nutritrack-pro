@@ -32,17 +32,17 @@ export function SettingsModal({ data, onSaveGoals, onImport, onClose, toast }: P
   const permRow = (d: Device, label: string, Icon: typeof Camera, use: string) => {
     const st = perm[d];
     const text = { granted: 'Consentito', denied: 'Bloccato', prompt: 'Da consentire', unknown: 'Da verificare', unsupported: 'Non disponibile' }[st];
-    const color = st === 'granted' ? 'text-emerald-600' : st === 'denied' ? 'text-rose-500' : 'text-slate-400';
+    const color = st === 'granted' ? 'text-green-600' : st === 'denied' ? 'text-red-500' : 'text-neutral-400';
     return (
       <div className="flex items-center gap-3 py-2">
-        <Icon size={18} className="text-slate-400" />
+        <Icon size={18} className="text-neutral-400" />
         <div className="flex-1">
           <div className="text-sm font-semibold">{label}</div>
-          <div className="text-[11px] text-slate-400">{use}</div>
+          <div className="text-[11px] text-neutral-400">{use}</div>
         </div>
         <span className={`text-[11px] font-bold ${color}`}>{text}</span>
         {st !== 'granted' && st !== 'unsupported' && (
-          <button onClick={() => ask(d)} className="text-xs font-bold rounded-xl px-3 py-1.5 bg-indigo-600 text-white">
+          <button onClick={() => ask(d)} className="text-xs font-bold rounded-xl px-3 py-1.5 bg-blue-600 text-white">
             Consenti
           </button>
         )}
@@ -51,12 +51,12 @@ export function SettingsModal({ data, onSaveGoals, onImport, onClose, toast }: P
   };
   const field = (key: keyof Goals, label: string) => (
     <label className="block">
-      <span className="text-[11px] font-bold text-slate-500">{label}</span>
+      <span className="text-[11px] font-bold text-neutral-500">{label}</span>
       <NumberInput
         decimals={false}
         value={g[key]}
         onChange={(n) => setG({ ...g, [key]: n ?? 0 })}
-        className="w-full mt-0.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm font-semibold"
+        className="w-full mt-0.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl px-3 py-2 text-sm font-semibold"
       />
     </label>
   );
@@ -87,17 +87,17 @@ export function SettingsModal({ data, onSaveGoals, onImport, onClose, toast }: P
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/60 flex items-end sm:items-center justify-center" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="bg-white dark:bg-slate-900 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4 max-h-[92vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-neutral-950/60 flex items-end sm:items-center justify-center" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="bg-white dark:bg-neutral-900 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4 max-h-[92vh] overflow-y-auto">
         <div className="flex items-start justify-between">
           <h3 className="font-extrabold">Obiettivi e impostazioni</h3>
-          <button aria-label="Chiudi" onClick={onClose} className="text-slate-400 p-1">
+          <button aria-label="Chiudi" onClick={onClose} className="text-neutral-400 p-1">
             <X size={20} />
           </button>
         </div>
         <div className="flex gap-2">
           {PRESETS.map((p) => (
-            <button key={p.label} onClick={() => setG(p.goals)} className="flex-1 text-xs font-bold rounded-xl py-2 bg-slate-100 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-950">
+            <button key={p.label} onClick={() => setG(p.goals)} className="flex-1 text-xs font-bold rounded-xl py-2 bg-neutral-100 dark:bg-neutral-800 hover:bg-blue-50 dark:hover:bg-blue-950">
               {p.label}
             </button>
           ))}
@@ -114,26 +114,26 @@ export function SettingsModal({ data, onSaveGoals, onImport, onClose, toast }: P
             toast('Obiettivi salvati');
             onClose();
           }}
-          className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl py-3"
+          className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl py-3"
         >
           Salva obiettivi
         </button>
 
-        <div className="border-t border-slate-100 dark:border-slate-800 pt-4">
+        <div className="border-t border-neutral-100 dark:border-neutral-800 pt-4">
           <h4 className="text-sm font-extrabold">Permessi</h4>
           {permRow('camera', 'Fotocamera', Camera, 'Per leggere i codici a barre')}
           {permRow('microphone', 'Microfono', Mic, 'Per dettare cosa hai mangiato')}
-          {(perm.camera === 'denied' || perm.microphone === 'denied') && <p className="text-[11px] text-rose-500 mt-1">{DENIED_HELP}</p>}
+          {(perm.camera === 'denied' || perm.microphone === 'denied') && <p className="text-[11px] text-red-500 mt-1">{DENIED_HELP}</p>}
         </div>
 
-        <div className="border-t border-slate-100 dark:border-slate-800 pt-4">
+        <div className="border-t border-neutral-100 dark:border-neutral-800 pt-4">
           <h4 className="text-sm font-extrabold">Backup dei dati</h4>
-          <p className="text-xs text-slate-500 mt-1">Per ora i dati stanno solo in questo browser. Con il login verranno salvati sul tuo account.</p>
+          <p className="text-xs text-neutral-500 mt-1">Per ora i dati stanno solo in questo browser. Con il login verranno salvati sul tuo account.</p>
           <div className="flex gap-2 mt-3">
-            <button onClick={exportBackup} className="flex-1 flex items-center justify-center gap-1.5 text-xs font-bold rounded-xl py-2.5 bg-slate-100 dark:bg-slate-800">
+            <button onClick={exportBackup} className="flex-1 flex items-center justify-center gap-1.5 text-xs font-bold rounded-xl py-2.5 bg-neutral-100 dark:bg-neutral-800">
               <Download size={14} /> Scarica backup
             </button>
-            <label className="flex-1 flex items-center justify-center gap-1.5 text-xs font-bold rounded-xl py-2.5 bg-slate-100 dark:bg-slate-800 cursor-pointer">
+            <label className="flex-1 flex items-center justify-center gap-1.5 text-xs font-bold rounded-xl py-2.5 bg-neutral-100 dark:bg-neutral-800 cursor-pointer">
               <Upload size={14} /> Ripristina
               <input type="file" accept="application/json" className="hidden" onChange={(e) => importBackup(e.target.files?.[0])} />
             </label>

@@ -114,26 +114,26 @@ export default function App() {
 
   return (
     <div className="min-h-screen pb-16">
-      <header className="bg-white/90 dark:bg-slate-900/90 backdrop-blur sticky top-0 z-30 border-b border-slate-200/80 dark:border-slate-800">
+      <header className="bg-white/90 dark:bg-neutral-900/90 backdrop-blur sticky top-0 z-30 border-b border-neutral-200/80 dark:border-neutral-800">
         <div className="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-blue-500 flex items-center justify-center text-white shadow-md">
               <Flame size={20} />
             </div>
             <div>
-              <h1 className="text-lg font-extrabold tracking-tight text-indigo-600 dark:text-indigo-400">NutriTrack PRO</h1>
-              <p className="text-[11px] text-slate-400 font-medium">Pasti, macro, crudo/cotto</p>
+              <h1 className="text-lg font-extrabold tracking-tight whitespace-nowrap text-blue-600 dark:text-blue-400">NutriTrack PRO</h1>
+              <p className="hidden sm:block text-[11px] text-neutral-400 font-medium">Pasti, macro, crudo/cotto</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => setSettings(true)} className="h-10 px-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-xs font-bold flex items-center gap-1.5">
-              <Target size={16} /> Obiettivi
+            <button aria-label="Obiettivi e impostazioni" onClick={() => setSettings(true)} className="h-10 px-3 rounded-2xl bg-neutral-100 dark:bg-neutral-800 text-xs font-bold flex items-center gap-1.5">
+              <Target size={16} /> <span className="hidden sm:inline">Obiettivi</span>
             </button>
-            <button aria-label="Azzera giorno" title="Azzera il giorno scelto" onClick={resetDay} className="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+            <button aria-label="Azzera giorno" title="Azzera il giorno scelto" onClick={resetDay} className="w-10 h-10 rounded-2xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
               <RotateCcw size={16} />
             </button>
-            <button aria-label="Tema" onClick={() => update((d) => ({ ...d, dark: !d.dark }))} className="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-              {data.dark ? <Sun size={16} className="text-amber-400" /> : <Moon size={16} />}
+            <button aria-label="Tema" onClick={() => update((d) => ({ ...d, dark: !d.dark }))} className="w-10 h-10 rounded-2xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
+              {data.dark ? <Sun size={16} className="text-yellow-400" /> : <Moon size={16} />}
             </button>
           </div>
         </div>
@@ -143,12 +143,12 @@ export default function App() {
         <DayStrip selected={selected} today={today} daysWithData={daysWithData} onSelect={setSelected} />
         <Summary total={total} goals={data.goals} />
 
-        <section className="rounded-3xl p-4 sm:p-5 text-white bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-950 shadow-xl">
+        <section className="rounded-3xl p-4 sm:p-5 text-white bg-gradient-to-br from-blue-900 via-blue-950 to-neutral-950 shadow-xl">
           <div className="flex items-center gap-2">
-            <Wand2 size={18} className="text-indigo-300" />
+            <Wand2 size={18} className="text-blue-300" />
             <h3 className="font-bold">Inserimento rapido a parole</h3>
           </div>
-          <p className="text-xs text-indigo-200/80 mt-1">Es. «200g di pasta cotta e 150g di pollo cotto a pranzo» oppure «2 uova e 1 fetta di pane a colazione». Se scrivi «cotto», l'app ricalcola i grammi a crudo.</p>
+          <p className="text-xs text-blue-200/80 mt-1">Es. «200g di pasta cotta e 150g di pollo cotto a pranzo» oppure «2 uova e 1 fetta di pane a colazione». Se scrivi «cotto», l'app ricalcola i grammi a crudo.</p>
           <div className="flex gap-2 mt-3">
             <div className="relative flex-1">
               <input
@@ -156,38 +156,38 @@ export default function App() {
                 onChange={(e) => setText(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && addQuick()}
                 placeholder="Cosa hai mangiato?"
-                className="w-full bg-slate-900/80 placeholder-slate-400 text-sm rounded-2xl px-4 py-3 pr-11 border border-indigo-700/50 focus:border-indigo-400 outline-none"
+                className="w-full bg-neutral-900/80 placeholder-neutral-400 text-sm rounded-2xl px-4 py-3 pr-11 border border-blue-700/50 focus:border-blue-400 outline-none"
               />
-              <button aria-label="Dettatura" onClick={dictate} className={`absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-xl flex items-center justify-center ${listening ? 'text-rose-400 animate-pulse' : 'text-slate-400'}`}>
+              <button aria-label="Dettatura" onClick={dictate} className={`absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-xl flex items-center justify-center ${listening ? 'text-red-400 animate-pulse' : 'text-neutral-400'}`}>
                 <Mic size={16} />
               </button>
             </div>
-            <button onClick={addQuick} className="bg-indigo-500 hover:bg-indigo-400 rounded-2xl px-4 text-sm font-bold">
+            <button onClick={addQuick} className="bg-blue-500 hover:bg-blue-400 rounded-2xl px-4 text-sm font-bold">
               Inserisci
             </button>
           </div>
         </section>
 
         <section>
-          <h2 className="text-xs font-bold uppercase tracking-wide text-slate-500 mb-2 px-1">Pasti del giorno</h2>
+          <h2 className="text-xs font-bold uppercase tracking-wide text-neutral-500 mb-2 px-1">Pasti del giorno</h2>
           <div className="grid sm:grid-cols-2 gap-3">
             {MEALS.map((m) => {
               const items = day[m.key];
               const t = sumMacros(items);
               return (
-                <button key={m.key} onClick={() => setOpenMeal(m.key)} className="text-left bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/70 dark:border-slate-800 shadow-sm p-4 hover:border-indigo-300 transition">
+                <button key={m.key} onClick={() => setOpenMeal(m.key)} className="text-left bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200/70 dark:border-neutral-800 shadow-sm p-4 hover:border-blue-300 transition">
                   <div className="flex items-center gap-3">
-                    <span className="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-lg">{m.emoji}</span>
+                    <span className="w-10 h-10 rounded-2xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-lg">{m.emoji}</span>
                     <div className="flex-1">
                       <div className="font-bold">{m.label}</div>
-                      <div className="text-[11px] text-slate-400">{items.length} {items.length === 1 ? 'alimento' : 'alimenti'}</div>
+                      <div className="text-[11px] text-neutral-400">{items.length} {items.length === 1 ? 'alimento' : 'alimenti'}</div>
                     </div>
-                    <Plus size={18} className="text-slate-400" />
+                    <Plus size={18} className="text-neutral-400" />
                   </div>
-                  {items.length > 0 && <p className="text-[11px] text-slate-500 mt-2 line-clamp-2">{items.map((i) => `${i.name} (${i.label})`).join(' • ')}</p>}
-                  <div className="flex items-end justify-between mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-                    <span className="text-lg font-extrabold text-indigo-600 dark:text-indigo-400">{t.kcal} kcal</span>
-                    <span className="text-[11px] text-slate-400">
+                  {items.length > 0 && <p className="text-[11px] text-neutral-500 mt-2 line-clamp-2">{items.map((i) => `${i.name} (${i.label})`).join(' • ')}</p>}
+                  <div className="flex items-end justify-between mt-3 pt-3 border-t border-neutral-100 dark:border-neutral-800">
+                    <span className="text-lg font-extrabold text-blue-600 dark:text-blue-400">{t.kcal} kcal</span>
+                    <span className="text-[11px] text-neutral-400">
                       C {t.carbs} · P {t.pro} · G {t.fats}
                     </span>
                   </div>
@@ -220,7 +220,7 @@ export default function App() {
 
       <div className="fixed bottom-4 inset-x-0 z-[60] flex flex-col items-center gap-2 pointer-events-none px-4">
         {toasts.map((t) => (
-          <div key={t.id} className={`px-4 py-2.5 rounded-2xl text-xs font-bold text-white shadow-xl ${t.error ? 'bg-rose-600' : 'bg-slate-900 border border-slate-700'}`}>
+          <div key={t.id} className={`px-4 py-2.5 rounded-2xl text-xs font-bold text-white shadow-xl ${t.error ? 'bg-red-600' : 'bg-neutral-900 border border-neutral-700'}`}>
             {t.msg}
           </div>
         ))}

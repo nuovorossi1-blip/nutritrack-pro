@@ -61,9 +61,9 @@ export function BarcodeScanner({ onDetected, onClose }: Props) {
       <div className="relative flex-1 flex items-center justify-center overflow-hidden">
         <video ref={video} className="w-full h-full object-cover" muted playsInline />
         {!error && <div className="absolute w-3/4 max-w-sm h-32 border-2 border-white/80 rounded-2xl shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]" />}
-        {error && <p className="absolute mx-6 bg-white text-slate-800 text-sm font-semibold rounded-2xl p-4 text-center">{error}</p>}
+        {error && <p className="absolute mx-6 bg-white text-neutral-800 text-sm font-semibold rounded-2xl p-4 text-center">{error}</p>}
       </div>
-      <p className="text-center text-xs text-slate-300 p-4">Tieni il telefono fermo a 10-20 cm dalla confezione, con buona luce.</p>
+      <p className="text-center text-xs text-neutral-300 p-4">Tieni il telefono fermo a 10-20 cm dalla confezione, con buona luce.</p>
     </div>
   );
 }
