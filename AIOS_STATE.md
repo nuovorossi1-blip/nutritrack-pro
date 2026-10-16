@@ -30,7 +30,7 @@ si apre la creazione del profilo prima del diario: nome, data di nascita, sesso,
 peso, altezza, attività e obiettivo. Calcolo automatico di età, TDEE, calorie e macro;
 modifica successiva da Profilo e obiettivi. I profili completi precedenti restano validi.
 SMTP Gmail e testi italiani configurati; l'utente ha confermato la registrazione.
-Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Android 1.0.2/code2 con microfono integrato pubblicato e download verificato. Pipeline automatica e prove su telefono ancora aperte.
+Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Android1.0.3/code3 pubblicato e download verificato, con servizio Google preferito/punteggiatura e nuova UI. Pipeline automatica e prove su telefono ancora aperte.
 
 **Online (Vercel, account smaugdrago@gmail.com, team Decisione):** https://nutritrack-pro-zeta.vercel.app
 **Sul PC (stessa app e stesso database):** https://nutritrack.redapp.dev (tunnel Cloudflare) e http://127.0.0.1:5180
@@ -40,11 +40,16 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Andr
 
 ## 3. Cosa funziona
 
+- [FACT] Revisione16/10 sera: calendario custom bubble con mese/anno, giorni tondi, futuro disabilitato, tastiera/Escape/focus e320px; bordi piu morbidi nell'app. C azzurro/P arancione/G giallo,100%verde e oltre rosso; macro nelle card pasti centrati. Browser locale e LIVE positivi anche per soglie di completamento/superamento.
+- [FACT] Porzioni: peso totale in grammi + pezzi contenuti separati dai pezzi/grammi da mangiare.14g/2fette=7g per fetta; valori100g invariati, preview e salvataggio personalizzato. Nessun fallback100g per pezzo sconosciuto. OFF usa serving_size/serving_quantity e mai peso confezione come porzione. Test logici e browser locale/LIVE/cloud7g28kcal con fixture400kcal/100g positivi. Decimali nel cambio unita preservati; conteggi senza peso pezzo chiedono grammi, mai1g inventato.
+- [FACT] Prodotti salvati: alias locali proteine in polvere, marca e sottotipo, ultimo uso poi ordine salvataggio (cloud updated_at desc). Egg White PROZIS viene riusato con ID e macro originali, zero chiamataAI nel test; barrette/yogurt/albume liquido esclusi dalla categoria. Supportati nomi100% e marca. Se marca/tipo espliciti non coincidono non vengono sostituiti silenziosamente. Nessun alimento reale dell'utente letto/modificato: QA su account temporanei.
+- [FACT]35schede comuni da record ufficiali USDA: carote/patate crude e bollite, pasta normale/integrale e formati penne/spaghetti/fusilli/rigatoni/farfalle/tortiglioni/linguine/maccheroni, preparazioni crude/cotte distinte; frutta e pane tostato. Mela/banana trovabili anche al plurale, ricerca frutta. Counterpart crudo/cotto usa valori della preparazione scelta allo stesso peso misurato, senza doppia conversione o resa universale inventata. Pane normale gia cotto, tostato distinto; non equiparare impasto crudo al pane. Dataset ridotto generato da scripts/generate-common-foods.mjs, fonte/link in UI. Storico e valori legacy invariati, parser cotto usa nuove schede quando riconosciute.
+
 - [FACT] Pane bianco, casereccio tipo0 e integrale come3nuove voci con alias fetta/fette. Dati CREA000530 bianco e000550 integrale, link fonte nella porzione; casereccio usa tipo0 come riferimento esplicitamente indicativo, non composizione universale. Fetta30g marcata circa e alternativa grammi; peso personalizzabile. Parser riconosce tipi/alias prima di pane generico, App chiede quale tipo per pane non specificato invece di scegliere integrale. Legacyf16 e storico invariati.36test/build e QA browser locale/LIVE positivi: ricerca3voci, bianco100g268kcal, integrale2fette60g134kcal senzaAI, casereccio fonte indicativa, persistenza cloud. Utenti temporanei eliminati.
 
-- [FACT] Preferenza utente: sotto il campo di inserimento mostrare solo un grande simbolo microfono. Pulsante circolare72px con Mic34px sia spento sia acceso, rosso durante ascolto, secondo tocco stop. Nessuna scritta visiva Parla/Ferma/Microfono spento; stato e label restano accessibili agli screen reader. Inserisci separato. Build e QA locale/LIVE ponte nativo simulato positivi; deploy dpl_J1MibMnYsarp9dAnHqV2HFfq1cGU READY.
+- [FACT] Ultima preferenza voce: campo compatto con microfono44px DENTRO a destra e Inserisci sotto (44px), niente pulsante grande a sinistra. Stato acceso rosso/secondo tocco stop; testo parziale e finale conservati. APK1.0.3 preferisce servizio Google installato e richiede punteggiatura quality daAndroid13; evita activity esterna Google, che non puo essere nascosta o ridimensionata dalla UI web. Qualita voce/punteggiatura da confermare su telefono.
 
-- [FACT] Conferme aggiunta in alto per2secondi. VoiceInput con pulsante Parla/Ferma, testo live e microfono spento al secondo tocco, stop in background; Android SpeechRecognizer inline richiede APK1.0.2/code2 pubblicato e firmato stessa chiave. Build/33test/QA browser e bridge nativo simulato locale e LIVE positivi. Voce acustica, permessi hardware e installazione update sul telefono ancora da confermare.
+- [FACT] Conferme aggiunta in alto2secondi, Annulla eliminazione7secondi. Motore voce inline con start/stop/cancel e stato accessibile; Google quando presente in APK1.0.3. Prove UI e bridge simulato positive, nessun test acustico/installazione update fisico.
 
 - [FACT] Aggiungi altro e conferma alimento/rapida maggiori (64px, testo18px), footer e pannelli rispettano barra Android usando sia env sia variabili Capacitor, contenuto scrollabile e pannelli protetti. Le notifiche, compreso Annulla, ora sono in alto. Rimossa nota didattica swipe. Build e browser mobile locale/LIVE con inset0/24/48px e top28px, portrait/landscape e flusso pasti/cloud positivi. Conferma sul telefono utente ancora attesa; nessun nuovo APK, UI remota.
 
@@ -72,7 +77,7 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Andr
 - [FACT] AI vera nell'inserimento a parole: se nella frase restano parole che l'elenco non conosce (`unknownWords`), la frase va a POST /api/ai-parse → `server/aiParse.mjs` → OpenRouter `openai/gpt-4o-mini` (~3-6 s, ~0,0003 $ a frase). Chiave SOLO sul server (variabile `OPENROUTER_KEY_NUOVOROSSI1_GMAIL_COM` sul PC, `OPENROUTER_API_KEY` su Vercel), tetti 300 frasi/giorno e 40 per IP (in memoria, si azzerano al riavvio). Le frasi complete con pasto esplicito, quantità e macro completi/coerenti si inseriscono direttamente con Annulla e dicitura stima AI; altrimenti si apre il riquadro (badge AI, valori per 100 g); gli alimenti nuovi vengono salvati e la volta dopo si riconoscono senza AI. Provato: "a cena lasagne e un cornetto" → lasagne (porzione 300 g, quantità da scrivere) + 1 cornetto 60 g; poi "un cornetto a merenda" aggiunto subito senza AI. Se l'AI non risponde si usa solo l'elenco locale.
 - [FACT] Avviso «⚠ valori da controllare» (`src/lib/plausibility.ts`): kcal oltre 900, macro oltre 100 g, kcal che non tornano con i macro (scarto > 25% e > 40 kcal), «0%» con grassi > 3 g, «magro/light» > 12 g, intervalli tipici per tonno, yogurt, latte, pasta secca, riso, pane, pollo, uova, frutta, bevande (esclusi i piatti misti). Nei risultati di ricerca, nella scheda prodotto e nel riquadro dell'AI; non blocca il salvataggio. Prova "tonno rio mare": 7 schede su 28 segnalate, tutte con dati davvero sbagliati (403/401 kcal; Rio Mare leggero 107 kcal ma i macro danno 167; latte di giumenta 205 kcal ma i macro danno 44); nessun alimento di base segnalato.
 - [FACT] Correzione dei valori: nel riquadro dell'avviso istruzioni in 3 passi (valori dall'etichetta / pulsante «Valori tipici dall'AI» che chiede «100 g di <nome> <marca>» e riempie i campi / scegliere un'altra scheda) e, se le kcal non tornano, «Usa N kcal (dai macro)». Dalla schermata della quantità «Correggi i valori per 100 g» anche per alimenti già salvati: dopo il salvataggio si torna alla stessa voce. Provato: tonno 403 → AI 132 kcal (P 29,9, G 1), poi corretto a mano 190 sulla voce già inserita.
-- [FACT] Riepilogo come lo screenshot dell'utente del 16/10: titolo «Riepilogo», Mangiate · arco di 270° con Rimanenti (oro) · Eccesso; sotto barre Carboidrati (oro) / Proteine (blu) / Grassi (bianco) con «x / y g». Oltre l'obiettivo: Rimanenti 0, arco pieno rosso, Eccesso «+N» rosso, bordo rosso e frase «Hai superato l'obiettivo di N kcal (X%)»; macro oltre l'obiettivo con barra rossa e «+N g». «Bruciate» tolto su richiesta dell'utente (non esiste un conteggio dell'attività).
+- [FACT] Riepilogo come lo screenshot dell'utente del 16/10: titolo «Riepilogo», Mangiate · arco di 270° con Rimanenti (oro) · Eccesso; sotto barre Carboidrati (azzurro) / Proteine (arancione) / Grassi (giallo) con «x / y g». Oltre l'obiettivo: Rimanenti 0, arco pieno rosso, Eccesso «+N» rosso, bordo rosso e frase «Hai superato l'obiettivo di N kcal (X%)»; macro oltre l'obiettivo con barra rossa e «+N g». «Bruciate» tolto su richiesta dell'utente (non esiste un conteggio dell'attività).
 - [FACT] Frequenti del pasto: + blu che aggiunge subito stesso alimento e stessa quantità dell'ultima volta (tocco sul nome = cambia quantità) e riquadro «↻ Ripeti <pasto> di <giorno>» che copia l'ultimo pasto dello stesso tipo (`lastMealBefore`). Provato: ieri 60 g riso + 200 g pollo → oggi + riso = 60 g 213 kcal; Ripeti = riso 60 g + pollo 200 g.
 - [FACT] Piatti e marche (frasi utente 16/10): istruzioni AI = piatti unici non divisi («pizza tonno e cipolle» un solo elemento), nome con tipo/marca («cornetto (bar)» ≠ «Cornetto Algida (gelato)»), pizza senza «fetta» = intera 330 g. Nel riconoscimento locale i nomi salvati con «e/con» vengono protetti prima di dividere la frase (`protectNames`), così «una pizza tonno e cipolle» la seconda volta si aggiunge subito senza AI. Server: secondo tentativo automatico se OpenRouter non risponde in 12 s. Provato: pizza tonno e cipolle 825 kcal, cornetto bar 240, Cornetto Algida 150, seconda pizza aggiunta in 0,3 s.
 - [FACT] Fase 3: login Supabase (email + password ≥ 8, conferma via email obbligatoria, «password dimenticata» e nuova password), registrazione con spunte obbligatorie per privacy + condizioni d'uso e consenso ai dati sulla salute (salvati in `profiles.accepted_terms_at / terms_version / health_consent_at` dal trigger `nuovo_utente`), testi in `src/components/Legal.tsx` (da far rivedere al titolare, non consulenza legale). Dati per utente in `profiles` / `day_logs` / `foods` con RLS (`supabase/schema.sql`); salvataggio solo delle differenze 1,5 s dopo l'ultima modifica (`src/lib/cloud.ts`), indicatore «☁ Salvato»; copia locale per utente; al primo accesso i dati della fase 1 del dispositivo vengono portati nel cloud una volta. Impostazioni → Account: Esci, Cancella i miei dati. AI solo per utenti registrati (token verificato da Supabase, limite per utente). Verificato il 16/10 con 2 utenti di prova (poi cancellati): dati ritrovati dopo aver svuotato il browser, utente 2 non vede né può scrivere i dati dell'utente 1 (RLS 403), senza login 0 righe, AI 401 senza login o con token falso; stesse prove su Vercel.
@@ -83,7 +88,7 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Andr
 
 ## 4. Cosa e in lavorazione
 
-- APK 1.0.1 compilato con JDK21/SDK36, firma v2 verificata da apksigner, package app.nutritrack.pro, minSDK24 e target36. File public/nutritrack.apk (4.129.416 byte), version.json code1. Pubblicazione completata: https://nutritrack-pro-zeta.vercel.app/nutritrack.apk . Download pubblico SHA256 identico al build firmato. Shell Capacitor carica il sito Vercel: API/OFF restano sullo stesso dominio. Plugin aggiornamenti legge versione installata da PackageManager; dettatura nativa italiana. Installazione/fotocamera/microfono/update su telefono ancora da verificare.
+- APK1.0.3/code3 pubblicato: JDK21/SDK36, firma identica a1.0.2 verificata apksigner; app.nutritrack.pro, minSDK24/target36,4.133.592byte. Download pubblico SHA256 identico al build firmato. API/OFF restano sul sito Vercel remoto. Test fisici installazione/Google/voce/fotocamera/aggiornamento ancora da confermare.
 - Pipeline pronta in scripts/android-build.workflow.yml ma NON ATTIVA: push del workflow rifiutato da GitHub per scope workflow mancante. Segreti cifrati firma stabile e Vercel impostati; nessun keystore nel repository. Per attivarla rinnovare autorizzazione GitHub con scope workflow, poi spostare template in .github/workflows/build-apk.yml. Nessun rinnovo richiesto per scaricare questo APK.
 
 ## 5. Cosa manca ancora
@@ -112,6 +117,8 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Andr
 
 | Problema | Causa vera | Soluzione |
 |---|---|---|
+| Nome generico proteine generava stime invece di usare prodotto salvato | Solo nomi interi, nessuna priorita recenza/alias | recognitionFoods con prodotti realmente salvati e ultimo uso, marca/sottotipo; ID e macro originali verificati senzaAI. |
+| Porzione confusa con grammi o confezione | Mancava conteggio pezzi nella porzione e OFF usava anche peso confezione | servingGrams/servingUnits separati, pieceWeight=grammi/pezzi; UI quantit? mangiata distinta, nessun default100g per pezzo ignoto, OFF solo porzione dichiarata. |
 | Eliminazione del cibo solo tramite icona, mancava il gesto mostrato dall’utente | Riga statica senza riconoscimento swipe e senza ripristino | SwipeFoodRow con blocco direzione, azione rossa e swipe lungo; Annulla ripristina singola voce, posizione e totali. Scroll verticale/touchCancel sicuri, prova touch/cloud locale riuscita. |
 | Frase AI completa sempre da confermare e rischio confusione crudo/cotto | aiEntries ignorava cotto nel riuso omonimo; App confermava sempre e ripiegava sul parser parziale in errore | Preparazione e ID distinti, riuso solo stessa preparazione, grammi senza doppia conversione; frase completa inserita con Annulla e stima AI; errore senza aggiunta parziale. |
 | Petto di tacchino e generici difficili da trovare | Catalogo base limitato, nome fesa ambiguo e ricerca online solo prodotti Open Food Facts | Nome locale chiarito; aggiunta ricerca USDA in italiano con descrizioni originali, 8.104 record ufficiali, scheda di conferma e salvataggio persistente sull’account. |
@@ -186,26 +193,34 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Andr
 
 **Modello:** Codex (GPT-6) · **Data:** 2026-10-16
 
-Aggiunte voci richieste pane bianco/casereccio/integrale e ricerca fetta/fette di pane.
-Fonte CREA000530/000550 con valori per100g verificati il16/10; casereccio tipo0
-usa riferimento bianco indicativo, per ricetta precisa serve etichetta/alimento personale.
-Porzione fetta30g indicativa, label circa, alternativa grammi; edit peso annulla flag stima.
-Riferimento fonte rimosso dopo modifica macro manuale/AI per non attribuire valori cambiati a CREA.
-Parser usa nomi/alias completi prima della regola pane; App chiede tipo se solo pane.
-ID legacyf16 e storico preservati.36test e build positivi; browser locale e LIVE:
-3tipi in ricerca fette, bianco100g268kcal, casereccio30g80kcal e fonte indicativa,
-integrale2fette60g134kcal senzaAI; pane generico non aggiunto alla cieca, cloud3voci.
-Account test eliminati, zero erroriJS. Deploy dpl_3UxidkvLGpD8MnDsh5aPgzs9xM3U READY.
-Nessun nuovoAPK: riaprire app per catalogo. APK1.0.2 e microfono solo icona conservati.
-Prova acustica sul telefono e installazione update ancora da confermare; workflow scope ancora aperto.
+Richieste consolidate: riuso proteine salvate + stile iPhone/bubble + porzioni per pezzo
++ voce Google compatta + catalogo comune crudo/cotto + colori macro e centratura.
+Implementate tutte,46test e build positivi. QA browser locale con account temporaneo:
+Egg White originale riusata senzaAI, porzioni14g/2=7g con macro100g invariati e cloud;
+modifica porzione7g/1 e quantita mangiata; patate/pasta integrale crude/cotte senza
+doppie conversioni; frutta/plurali/formati pasta/pane tostato; colori C/P/G e soglie
+verde/rosso; microfono nel campo a destra e Inserisci sotto; calendario bubble320px.
+Bridge voce simulato positivo (start/stop/parziali/finale/errori/background); non acustico.
+APK1.0.3/code3 compilato, firma identica precedente,4.133.592byte. Servizio Google
+preferito quando disponibile e EXTRA_ENABLE_FORMATTING suAPI33+, nessuna activity Google.
+Non promettere stessa accuratezza/punteggiatura su tutti i telefoni; richiede prova fisica.
+Vocale allegato1792181263446-file_3.oga2.04s: solo 'Stavamo continuando con'.
+Tentativo STT locale bloccato da controllo applicazioni DLL av, non aggirato;
+trascrizione via OpenRouter gia collegato, nessuna credenziale inviata al modello.
+Pubblicazione finale dpl_GL5Ah1K3TNgZneqV4LvtogwLXjad READY sul dominio canonico.
+Prova completa LIVE riuscita, anche 7.5g preservati nel cambio unita e misurino senza
+peso che chiede grammi senza aggiungere1g. Verde100%/rossooltre verificati in UI.
+Utenti temporanei eliminati. Download APK1.0.3/code3 SHA256 identico al build firmato:
+87A3C5B5D15EE4BDE2748E7D6CE6C32BFD579C514E0791CBE9E079E7166DA982.
+46test/build positivi; nessuna credenziale nel codice o nei test. Nessun nuovo account/costo fisso.
+Workflow GitHub NON attivo per scope workflow mancante; template pronto gia conservato.
 
 ---
 
 ## 11. Prossimi passi
 
-0. [utente] Riaprire app, cercare fette di pane o tipo specifico; provare 2 fette di pane integrale a colazione. Fette indicative, pesare in grammi per precisione.
+1. [utente] Installare APK1.0.3 senza disinstallare: provare Google/punteggiatura, microfono a destra, stop e Inserisci sotto. Controllare porzione14g/2pezzi=7g, prodotto Egg White salvato, calendario e colori. Test fisici installazione/audio/fotocamera ancora da confermare.
 
-1. [utente] Su APK1.0.2 riaprire app: sotto inserimento deve esserci solo icona microfono grande; primo tocco accende/rosso, secondo spegne, poi Inserisci. Conferma alimento alta2s. Test voce/fotocamera sul telefono ancora da confermare.
 2. Decidere con l'utente se nutritrack.redapp.dev deve puntare a Vercel (CNAME) e spegnere la copia sul PC, o restare sul PC.
 3. Valutare CIQUAL come ampliamento del catalogo USDA già disponibile; migliorare traduzioni e sinonimi con esempi reali.
 4. Autorizzazione GitHub scope workflow e attivazione template; test aggiornamento tra due versionCode sul telefono.
@@ -218,6 +233,7 @@ Prova acustica sul telefono e installazione update ancora da confermare; workflo
 
 | Data | Modello | Cosa è stato fatto |
 |---|---|---|
+| 2026-10-16 | Codex (GPT-6) | Revisione serale: prodotti salvati prima AI, porzioni grammi/pezzi, calendario bubble, voce Google preferita con UI compatta,35schede USDA crudo/cotto, colori macro e centratura;46test e QA locale ok. APK1.0.3 firma stabile, pubblicazione/LIVE/SHA256 verificati; prove fisiche aperte. |
 | 2026-10-16 | Codex (GPT-6) | APK Android1.0.1 compilato/firma verificata, download pubblico SHA256 identico e banner mobile LIVE ok,33 test. Capacitor remoto, updater e dettatura nativa. Workflow solo template per scope mancante; prove telefono ancora aperte. |
 | 2026-10-16 | Codex (GPT-6) | Nuovo dettaglio pasto come screenshot: hero, griglia2×2 macro, elenco swipe, barre giornaliere e Aggiungi altro con picker separato. Build/browser locale/cloud320px ok; prova completa sul sito pubblico riuscita, account temporaneo eliminato. |
 | 2026-10-16 | Codex (GPT-6) | Swipe breve/lungo per eliminare alimenti con azione rossa e Annulla; scroll verticale sicuro. Build e browser touch/cloud locale ok; prova touch completa riuscita anche sul sito pubblico; utente temporaneo eliminato. |

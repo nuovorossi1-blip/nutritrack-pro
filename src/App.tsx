@@ -5,7 +5,7 @@ import { needsProfileSetup } from './lib/metabolism';
 import { saveDiff } from './lib/cloud';
 import { MEALS } from './types';
 import { buildItem, newId, sumMacros, type Portion } from './lib/nutrition';
-import { allFoods, getDay, useAppData, useToday, withDay } from './lib/store';
+import { getDay, useAppData, useToday, withDay } from './lib/store';
 import { longLabel } from './lib/dates';
 import { mealFromText, normalize, parseFoodText, unknownWords, type ParsedEntry } from './lib/parser';
 import { aiEntries, askAi } from './lib/ai';
@@ -18,6 +18,7 @@ import { ProfileGoals } from './components/ProfileGoals';
 import { plausibilityWarnings } from './lib/plausibility';
 import { VoiceInput } from './components/VoiceInput';
 import { AndroidDownloadBanner } from './components/AndroidTools';
+import { recognitionFoods } from './lib/savedFoodRecognition';
 
 interface Toast {
   id: number;
@@ -100,7 +101,7 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
 
   const addQuick = async () => {
     if (!text.trim() || thinking) return;
-    const foods = allFoods(data);
+    const foods = recognitionFoods(data);
     const entries = parseFoodText(text, foods);
     const meal = mealFromText(text);
     if (entries.some((entry) => entry.food.id === 'f16') && !/\bsegale\b/.test(normalize(text))) {
@@ -269,11 +270,13 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
                     <Plus size={18} className="text-neutral-400" />
                   </div>
                   {items.length > 0 && <p className="text-[11px] text-neutral-500 mt-2 line-clamp-2">{items.map((i) => `${i.name} (${i.label})`).join(' • ')}</p>}
-                  <div className="flex items-end justify-between mt-3 pt-3 border-t border-neutral-100 dark:border-neutral-800">
+                  <div className="flex flex-col items-center gap-2 mt-3 pt-3 border-t border-neutral-100 dark:border-neutral-800">
                     <span className="text-lg font-extrabold text-blue-600 dark:text-gold-400">{t.kcal} kcal</span>
-                    <span className="text-[11px] text-neutral-400">
-                      C {t.carbs} · P {t.pro} · G {t.fats}
-                    </span>
+                    <div className="grid grid-cols-3 gap-2 w-full max-w-xs text-center text-xs" aria-label="Macro del pasto">
+                      <span><b className="text-sky-400">C</b> {t.carbs} g</span>
+                      <span><b className="text-orange-400">P</b> {t.pro} g</span>
+                      <span><b className="text-yellow-400">G</b> {t.fats} g</span>
+                    </div>
                   </div>
                 </button>
               );

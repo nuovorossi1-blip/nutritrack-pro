@@ -4,6 +4,7 @@ import type { Food } from '../types';
 import { NumberInput } from './NumberInput';
 import { kcalFromMacros, plausibilityWarnings } from '../lib/plausibility';
 import { askAi } from '../lib/ai';
+import { withServing } from '../lib/nutrition';
 
 // Peso cotto / peso crudo, come negli alimenti di base. I valori della scheda restano quelli a crudo.
 const COOKING = [
@@ -25,6 +26,8 @@ interface Props {
 // i dati di Open Food Facts li inseriscono gli utenti e possono sbagliare.
 export function FoodReview({ food, missing = [], title, onSave, onClose }: Props) {
   const [f, setF] = useState<Food>(food);
+  const [servingGrams, setServingGrams] = useState<number | undefined>(food.servingGrams ?? food.pieceWeight);
+  const [servingUnits, setServingUnits] = useState<number | undefined>(food.servingUnits ?? 1);
   const [aiBusy, setAiBusy] = useState(false);
   const [aiNote, setAiNote] = useState('');
   const warnings = plausibilityWarnings(f);
@@ -56,7 +59,7 @@ export function FoodReview({ food, missing = [], title, onSave, onClose }: Props
       />
     </label>
   );
-  const valid = f.name.trim().length > 1 && f.kcal >= 0;
+  const valid = f.name.trim().length > 1 && f.kcal >= 0 && (servingGrams === undefined || (servingGrams > 0 && !!servingUnits && servingUnits > 0));
 
   return (
     <div className="safe-sheet-overlay fixed inset-0 z-50 bg-neutral-950/60 flex items-end sm:items-center justify-center" onClick={(e) => e.target === e.currentTarget && onClose()}>
@@ -117,16 +120,18 @@ export function FoodReview({ food, missing = [], title, onSave, onClose }: Props
           {numField('pro', 'Proteine')}
           {numField('fats', 'Grassi')}
         </div>
-        <label className="block">
-          <span className="text-[11px] font-bold text-neutral-500">Peso di una porzione / confezione in g (facoltativo, es. vasetto 150)</span>
-          <NumberInput
-            value={f.pieceWeight}
-            onChange={(v) => {
-              setF(v && v > 0 ? { ...f, pieceWeight: v, pieceWeightEstimated: false, unitName: f.unitName || 'porzione', unitPlural: f.unitPlural || 'porzioni' } : { ...f, pieceWeight: undefined, pieceWeightEstimated: false });
-            }}
-            className="w-full mt-0.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl px-3 py-2 text-sm"
-          />
-        </label>
+        <fieldset className="rounded-2xl bg-neutral-100 dark:bg-neutral-800 p-3 space-y-3">
+          <legend className="text-sm font-bold px-1">Porzione della confezione</legend>
+          <div className="grid grid-cols-2 gap-3">
+            <label className="block text-xs">Peso porzione (g)
+              <NumberInput value={servingGrams} placeholder="Es. 7 o 14" onChange={(value) => { setServingGrams(value); setF(withServing(f, value, servingUnits)); }} className="w-full mt-1 rounded-xl p-3 bg-white dark:bg-neutral-900" />
+            </label>
+            <label className="block text-xs">Pezzi nella porzione
+              <NumberInput value={servingUnits} placeholder="Es. 1 o 2" onChange={(value) => { setServingUnits(value); setF(withServing(f, servingGrams, value)); }} className="w-full mt-1 rounded-xl p-3 bg-white dark:bg-neutral-900" />
+            </label>
+          </div>
+          {f.pieceWeight && <p className="text-xs font-semibold">1 {f.unitName || 'pezzo'} = {Number(f.pieceWeight.toFixed(2))} g</p>}
+        </fieldset>
         <label className="block">
           <span className="text-[11px] font-bold text-neutral-500">Conversione del peso crudo/cotto (facoltativa)</span>
           <select

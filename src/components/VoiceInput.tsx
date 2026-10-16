@@ -128,22 +128,22 @@ export function VoiceInput({ text, onText, onInsert, busy, onError }: {
 
   return (
     <div className="mt-3 space-y-3">
+      <div ref={controls} className="relative">
       <textarea ref={input} value={text} onChange={(event) => onText(event.target.value)}
         onFocus={() => requestAnimationFrame(() => controls.current?.scrollIntoView({ block: 'center' }))}
         onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); if (phase === 'idle') onInsert(); } }}
         placeholder="Cosa hai mangiato?" rows={2}
-        className="w-full resize-y bg-neutral-900/80 placeholder-neutral-400 text-base rounded-2xl px-4 py-3 border border-blue-700/50 focus:border-blue-400 outline-none" />
-      <div ref={controls} className="flex items-center gap-4">
+        className="block w-full resize-none bg-neutral-900/80 placeholder-neutral-400 text-base rounded-2xl pl-4 pr-14 py-3 border border-blue-700/50 focus:border-blue-400 outline-none" />
         <button type="button" onClick={() => void toggle()} disabled={busy || phase === 'finishing'}
           aria-label={active ? 'Ferma microfono' : 'Attiva microfono'} aria-pressed={active}
-          className={`w-[72px] h-[72px] shrink-0 rounded-full flex items-center justify-center disabled:opacity-60 ${active ? 'bg-red-600 text-white ring-4 ring-red-500/25' : 'bg-neutral-800 text-white border border-neutral-600'}`}>
-          <Mic size={34} aria-hidden="true" />
-        </button>
-        <button onClick={onInsert} disabled={busy || phase !== 'idle' || !text.trim()}
-          className="min-h-14 flex-1 bg-blu hover:brightness-110 disabled:opacity-50 rounded-2xl px-4 py-3 font-bold">
-          {busy ? 'Leggo…' : 'Inserisci'}
+          className={`absolute right-2 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full flex items-center justify-center disabled:opacity-60 ${active ? 'bg-red-600 text-white ring-4 ring-red-500/25' : 'text-neutral-300 hover:bg-neutral-700'}`}>
+          <Mic size={23} aria-hidden="true" />
         </button>
       </div>
+        <button onClick={onInsert} disabled={busy || phase !== 'idle' || !text.trim()}
+          className="w-full min-h-11 bg-blu hover:brightness-110 disabled:opacity-50 rounded-full px-4 py-2.5 font-bold">
+          {busy ? 'Leggo…' : 'Inserisci'}
+        </button>
       <p role="status" className="sr-only">
         {phase === 'starting' ? 'Avvio microfono…' : phase === 'listening' ? 'Microfono acceso' : phase === 'finishing' ? 'Microfono spento · completo il testo' : 'Microfono spento'}
       </p>

@@ -3,7 +3,7 @@ import { useMemo, useRef, useState } from 'react';
 import type { AppData, Food, MealItem, MealKey } from '../types';
 import { MEALS } from '../types';
 import { sumMacros, type Portion } from '../lib/nutrition';
-import { allFoods, frequentFor, lastMealBefore } from '../lib/store';
+import { frequentFor, lastMealBefore } from '../lib/store';
 import { longLabel } from '../lib/dates';
 import { normalize } from '../lib/parser';
 import { findByBarcode, searchByName, type OffResult } from '../lib/off';
@@ -14,6 +14,7 @@ import { BarcodeScanner } from './BarcodeScanner';
 import { searchUsda, type UsdaResult } from '../lib/usda';
 import { SwipeFoodRow } from './SwipeFoodRow';
 import { MealSummary, MealProgress } from './MealSummary';
+import { recognitionFoods } from '../lib/savedFoodRecognition';
 
 type Tab = 'frequenti' | 'cerca' | 'barcode' | 'crea';
 
@@ -38,7 +39,7 @@ const emptyFood = (): Food => ({ id: `cust_${Date.now().toString(36)}`, name: ''
 
 export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems, onUpdate, onRemove, onSaveFood, onClose, toast }: Props) {
   const info = MEALS.find((m) => m.key === meal)!;
-  const foods = useMemo(() => allFoods(data), [data]);
+  const foods = useMemo(() => recognitionFoods(data), [data]);
   const frequent = useMemo(() => frequentFor(data, meal), [data, meal]);
   const last = useMemo(() => lastMealBefore(data, meal, day), [data, meal, day]);
   const lastKcal = last ? sumMacros(last.items).kcal : 0;
@@ -65,7 +66,7 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
     const q = normalize(query).trim();
     if (!q) return foods.slice(0, 30);
     const parts = q.split(/\s+/);
-    return foods.filter((f) => parts.every((p) => normalize(`${f.name} ${f.brand || ''} ${(f.aliases || []).join(' ')}`).includes(p))).slice(0, 30);
+    return foods.filter((f) => parts.every((p) => normalize(`${f.name} ${f.brand || ''} ${f.category || ''} ${(f.aliases || []).join(' ')}`).includes(p))).slice(0, 30);
   }, [foods, query]);
 
   const searchOnline = async () => {
@@ -356,16 +357,18 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
       {picking && (
         <PortionEditor
           food={picking.food}
+          alternatives={foods}
           initial={picking.initial}
           confirmLabel={picking.itemId ? 'Salva modifica' : `Aggiungi a ${info.label.toLowerCase()}`}
           onClose={() => setPicking(null)}
-          onEditFood={() => {
-            setReview({ food: picking.food, missing: [], title: 'Correggi i valori', back: { initial: picking.initial, itemId: picking.itemId } });
+          onEditFood={(food, portion) => {
+            setReview({ food, missing: [], title: 'Correggi i valori', back: { initial: portion, itemId: picking.itemId } });
             setPicking(null);
           }}
-          onConfirm={(p) => {
-            if (picking.itemId) onUpdate(picking.itemId, picking.food, p);
-            else onAdd(picking.food, p);
+          onConfirm={(p, food) => {
+            if (food.id === picking.food.id && (food.pieceWeight !== picking.food.pieceWeight || food.servingGrams !== picking.food.servingGrams || food.servingUnits !== picking.food.servingUnits)) onSaveFood(food);
+            if (picking.itemId) onUpdate(picking.itemId, food, p);
+            else onAdd(food, p);
             setPicking(null);
             changeView(false);
           }}

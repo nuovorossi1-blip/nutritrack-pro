@@ -2,12 +2,16 @@ package app.nutritrack.pro;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.ComponentName;
+import android.content.pm.ResolveInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import android.speech.RecognitionService;
 import com.getcapacitor.*;
 import com.getcapacitor.annotation.*;
 import java.util.ArrayList;
@@ -24,11 +28,22 @@ public class SpeechInputPlugin extends Plugin {
     private String latest = "";
     private Runnable deadline;
 
+    private ComponentName googleService() {
+        for (ResolveInfo service : getContext().getPackageManager().queryIntentServices(new Intent(RecognitionService.SERVICE_INTERFACE), 0)) {
+            String name = service.serviceInfo.packageName;
+            if ("com.google.android.googlequicksearchbox".equals(name)) {
+                return new ComponentName(name, service.serviceInfo.name);
+            }
+        }
+        return null;
+    }
+
     @PluginMethod public void getCapabilities(PluginCall call) {
         main.post(() -> {
             JSObject result = new JSObject();
             result.put("inline", true);
             result.put("available", SpeechRecognizer.isRecognitionAvailable(getContext()));
+            result.put("google", googleService() != null);
             call.resolve(result);
         });
     }
@@ -60,7 +75,9 @@ public class SpeechInputPlugin extends Plugin {
             return;
         }
         try {
-            recognizer = SpeechRecognizer.createSpeechRecognizer(getContext());
+            ComponentName google = googleService();
+            recognizer = google == null ? SpeechRecognizer.createSpeechRecognizer(getContext())
+                : SpeechRecognizer.createSpeechRecognizer(getContext(), google);
             recognizer.setRecognitionListener(new RecognitionListener() {
                 @Override public void onReadyForSpeech(Bundle params) {
                     if (pending != call) return;
@@ -101,6 +118,9 @@ public class SpeechInputPlugin extends Plugin {
             intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "it-IT");
             intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
             intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                intent.putExtra(RecognizerIntent.EXTRA_ENABLE_FORMATTING, RecognizerIntent.FORMATTING_OPTIMIZE_QUALITY);
+            }
             recognizer.startListening(intent);
             awaitResult(call, 120000);
         } catch (Exception error) {

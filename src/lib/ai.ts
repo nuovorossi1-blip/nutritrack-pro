@@ -46,7 +46,7 @@ export async function askAi(text: string): Promise<AiResult> {
 
 const slug = (s: string) => normalize(s).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const r1 = (n: number | null) => Math.round((n ?? 0) * 10) / 10;
-const cookingName = /\b(pollo|tacchino|vitello|manzo|scottona|carne|bistecca|fettina|coscia|cosce|pesce|salmone|merluzzo|riso|pasta|spaghetti)\b/i;
+const cookingName = /\b(pollo|tacchino|vitello|manzo|scottona|carne|bistecca|fettina|coscia|cosce|pesce|salmone|merluzzo|riso|pasta|spaghetti|penne|fusilli|rigatoni|carota|carote|patata|patate)\b/i;
 const baseName = (s: string) => slug(s.replace(/\b(crud[oaie]|cott[oaie])\b/gi, '').replace(/[(),]/g, ' '));
 function preparation(f: Food): Food['preparation'] {
   if (f.preparation) return f.preparation;
@@ -61,7 +61,7 @@ function preparation(f: Food): Food['preparation'] {
 export function aiEntries(r: AiResult, foods: Food[]): ParsedEntry[] {
   return r.alimenti.map((a) => {
     const state: Food['preparation'] = a.cotto ? 'cooked' : cookingName.test(a.nome) ? 'raw' : undefined;
-    const known = foods.find((f) => baseName(f.name) === baseName(a.nome)
+    const known = foods.find((f) => [f.name, `${f.name} ${f.brand || ''}`, ...(f.aliases || [])].some((name) => baseName(name) === baseName(a.nome))
       && (state ? preparation(f) === state : !preparation(f)));
     const name = state && !/\b(crud[oaie]|cott[oaie])\b/i.test(a.nome)
       ? `${a.nome} (${state === 'cooked' ? 'cotto' : 'crudo'})` : a.nome;

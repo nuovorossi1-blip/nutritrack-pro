@@ -41,7 +41,7 @@ const NUMBER_WORDS: Record<string, number> = {
 };
 
 const COOKED = /^(cott[oaie]|bollit[oaie]|piastrat[oaie]|less[oaie]|grigliat[oaie]|al forno)$/;
-const UNIT_WORDS = /^(fett[ae]|pezz[oi]|porzion[ei]|tranc[io]|filett[oi]|scatolett[ae]|vasett[oi]|cucchia(io|i|ino|ini)|tazz[ae]|manciat[ae])$/;
+const UNIT_WORDS = /^(fett[ae]|pezz[oi]|porzion[ei]|misurin[oi]|scoop|tranc[io]|filett[oi]|scatolett[ae]|vasett[oi]|cucchia(io|i|ino|ini)|tazz[ae]|manciat[ae])$/;
 
 export function normalize(text: string): string {
   return text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/['’]/g, ' ');
@@ -83,8 +83,8 @@ function protectNames(text: string, foods: Food[]): { text: string; held: Map<st
   let t = text;
   const named = foods
     .filter((f) => f.source !== 'base')
-    .map((f) => ({ f, n: normalize(f.name).split(/[^a-z0-9]+/).filter(Boolean).join(' ') }))
-    .filter((x) => SEP.test(` ${x.n} `))
+    .flatMap((f) => [f.name, f.brand ? `${f.name} ${f.brand}` : f.name].map((name) => ({ f, n: normalize(name).split(/[^a-z0-9]+/).filter(Boolean).join(' ') })))
+    .filter((x) => SEP.test(` ${x.n} `) || /^\d/.test(x.n))
     .sort((a, b) => b.n.length - a.n.length);
   named.forEach(({ f, n }, i) => {
     const re = new RegExp(`(^|[^a-z0-9])${n.replace(/ /g, '[^a-z0-9]+')}(?=[^a-z0-9]|$)`, 'g');
@@ -105,7 +105,7 @@ function foodAt(words: string[], i: number, foods: Food[], held?: Map<string, Fo
     // Le voci base con alias espliciti (es. pane bianco/integrale) precedono
     // le regole generiche, senza cambiare il comportamento delle altre basi.
     if (f.source === 'base' && !f.aliases?.length) continue;
-    for (const candidate of [f.name, ...(f.aliases || [])]) {
+    for (const candidate of [f.name, `${f.name} ${f.brand || ''}`, ...(f.aliases || [])]) {
       const name = normalize(candidate).split(/[^a-z0-9]+/).filter(Boolean);
       if (name.length && name.join(' ').length >= 3 && name.every((w, k) => words[i + k] === w) && (!best || name.length > best.len)) best = { food: f, len: name.length };
     }
@@ -179,9 +179,10 @@ export function parseFoodText(text: string, foods: Food[]): ParsedEntry[] {
       const pw = t.food.pieceWeight;
       let portion: Portion;
       if (qty?.grams) portion = { mode: 'grams', qty: qty.value, cooked };
+      else if (qty && !pw && (unit || (qty.value <= 10 && ['frutta', 'verdure'].includes(t.food.category || '')))) portion = { mode: 'grams', qty: 0, cooked };
       else if (qty) portion = pw && (unit || t.rule?.mode === 'pieces' || qty.value <= 10) ? { mode: 'pieces', qty: qty.value, cooked } : { mode: 'grams', qty: qty.value, cooked };
       else portion = { mode: pw && (unit || t.rule?.mode === 'pieces') ? 'pieces' : 'grams', qty: 0, cooked };
-      out.push({ food: t.food, portion, qtyGiven: !!qty });
+      out.push({ food: t.food, portion, qtyGiven: !!qty && portion.qty > 0 });
     }
   }
   return out;

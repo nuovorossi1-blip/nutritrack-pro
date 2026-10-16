@@ -1,11 +1,12 @@
 import type { Goals, Macros } from '../types';
+import { progressColor } from '../lib/macroStyle';
 
 const format = new Intl.NumberFormat('it-IT', { maximumFractionDigits: 1 });
 const fields: { key: keyof Macros; label: string; unit: string; color: string }[] = [
   { key: 'kcal', label: 'Calorie', unit: 'kcal', color: 'bg-gold' },
-  { key: 'carbs', label: 'Carboidrati', unit: 'g', color: 'bg-gold' },
-  { key: 'pro', label: 'Proteine', unit: 'g', color: 'bg-blu' },
-  { key: 'fats', label: 'Grassi', unit: 'g', color: 'bg-neutral-500 dark:bg-white' },
+  { key: 'carbs', label: 'Carboidrati', unit: 'g', color: 'bg-sky-400' },
+  { key: 'pro', label: 'Proteine', unit: 'g', color: 'bg-orange-400' },
+  { key: 'fats', label: 'Grassi', unit: 'g', color: 'bg-yellow-400' },
 ];
 
 export function MealSummary({ emoji, total }: { emoji: string; total: Macros }) {
@@ -46,7 +47,7 @@ export function MealProgress({ total, goals }: { total: Macros; goals: Goals }) 
               <div role="progressbar" aria-label={`${field.label} del pasto rispetto all'obiettivo giornaliero`}
                 aria-valuemin={0} aria-valuemax={Math.max(1, goal)} aria-valuenow={Math.min(Math.max(0, value), Math.max(1, goal))}
                 className="h-2.5 rounded-full bg-neutral-200 dark:bg-neutral-700 overflow-hidden">
-                <div className={`h-full rounded-full transition-[width] motion-reduce:transition-none ${excess ? 'bg-red-500' : field.color}`}
+                <div className={`h-full rounded-full transition-[width] motion-reduce:transition-none ${progressColor(field.key,value,goal)}`}
                   style={{ width: `${goal > 0 ? Math.min(100, Math.max(0, value / goal * 100)) : 0}%` }} />
               </div>
             </div>

@@ -1,4 +1,5 @@
 import type { Food } from '../types';
+import { COMMON_FOODS } from './commonFoods';
 
 // Alimenti di base del prototipo (valori per 100 g, a crudo dove c'e' cookedFactor).
 // Verranno sostituiti dai dati ufficiali CIQUAL nella fase 2.
@@ -25,6 +26,7 @@ export const BASE_FOODS: Food[] = [
   { id: 'f23', name: 'Mandorle / noci sgusciate', kcal: 600, pro: 21, carbs: 4, fats: 53, pieceWeight: 30, unitName: 'manciata', unitPlural: 'manciate', source: 'base' },
   { id: 'f26', name: 'Yogurt greco 0%', kcal: 56, pro: 10.3, carbs: 3.8, fats: 0, pieceWeight: 150, unitName: 'vasetto', unitPlural: 'vasetti', source: 'base' },
   { id: 'f27', name: 'Latte parzialmente scremato', kcal: 46, pro: 3.3, carbs: 4.9, fats: 1.5, pieceWeight: 200, unitName: 'tazza', unitPlural: 'tazze', source: 'base' },
-  { id: 'f28', name: 'Mela', kcal: 52, pro: 0.3, carbs: 12, fats: 0.2, pieceWeight: 160, unitName: 'mela', unitPlural: 'mele', source: 'base' },
-  { id: 'f29', name: 'Banana', kcal: 89, pro: 1.1, carbs: 22, fats: 0.3, pieceWeight: 150, unitName: 'banana', unitPlural: 'banane', source: 'base' },
+  { id: 'f28', name: 'Mela', aliases: ['mele'], category: 'frutta', kcal: 52, pro: 0.3, carbs: 12, fats: 0.2, pieceWeight: 160, pieceWeightEstimated: true, unitName: 'mela', unitPlural: 'mele', source: 'base' },
+  { id: 'f29', name: 'Banana', aliases: ['banane'], category: 'frutta', kcal: 89, pro: 1.1, carbs: 22, fats: 0.3, pieceWeight: 150, pieceWeightEstimated: true, unitName: 'banana', unitPlural: 'banane', source: 'base' },
+  ...COMMON_FOODS,
 ];

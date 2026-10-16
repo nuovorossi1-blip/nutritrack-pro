@@ -6,6 +6,7 @@ interface Props {
   className?: string;
   decimals?: boolean;
   placeholder?: string;
+  ariaLabel?: string;
 }
 
 const fmt = (n: number | undefined) => (n === undefined ? '' : String(n));
@@ -14,7 +15,7 @@ const parse = (t: string) => (t.trim() === '' ? undefined : parseFloat(t.replace
 // Campo numerico che si puo' svuotare: con <input type="number"> e valore 0
 // forzato, scrivendo "100" su un campo vuoto usciva "0100". Il testo resta
 // quello digitato, a ogni tocco si seleziona tutto, la virgola vale come punto.
-export function NumberInput({ value, onChange, className, decimals = true, placeholder }: Props) {
+export function NumberInput({ value, onChange, className, decimals = true, placeholder, ariaLabel }: Props) {
   const [text, setText] = useState(fmt(value));
   const [seen, setSeen] = useState(value);
   // Valore cambiato da fuori (pulsanti +/-, obiettivo scelto): testo aggiornato nello
@@ -26,6 +27,7 @@ export function NumberInput({ value, onChange, className, decimals = true, place
   return (
     <input
       type="text"
+      aria-label={ariaLabel}
       inputMode={decimals ? 'decimal' : 'numeric'}
       value={text}
       placeholder={placeholder}

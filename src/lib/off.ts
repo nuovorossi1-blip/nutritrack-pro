@@ -6,7 +6,7 @@ import type { Food } from '../types';
 //   /off-search (inoltro di Vite in locale, rewrite in vercel.json online).
 // Le risposte restano in cache sul dispositivo: la stessa ricerca non riparte.
 
-const FIELDS = 'code,product_name,product_name_it,brands,nutriments,serving_quantity,product_quantity,countries_tags,completeness';
+const FIELDS = 'code,product_name,product_name_it,brands,nutriments,serving_quantity,serving_size,product_quantity,countries_tags,completeness';
 const CACHE_KEY = 'nutritrack:off-cache:v1';
 const CACHE_DAYS = 7;
 const CACHE_MAX = 80;
@@ -26,6 +26,7 @@ interface OffProduct {
   brands?: string | string[];
   nutriments?: Record<string, number | string | undefined>;
   serving_quantity?: number | string;
+  serving_size?: string;
   product_quantity?: number | string;
   countries_tags?: string[];
   completeness?: number;
@@ -53,9 +54,12 @@ export function mapProduct(p: OffProduct): OffResult | null {
     carbs === undefined && 'carboidrati',
     fats === undefined && 'grassi',
   ].filter(Boolean) as string[];
-  const serving = num(p.serving_quantity);
-  const pack = num(p.product_quantity);
-  const pieceWeight = serving && serving > 0 && serving <= 1000 ? Math.round(serving) : pack && pack > 0 && pack <= 500 ? Math.round(pack) : undefined;
+  const servingText = p.serving_size || '';
+  const serving = num(p.serving_quantity) ?? num(servingText.match(/(\d+(?:[.,]\d+)?)\s*g\b/i)?.[1]?.replace(',', '.'));
+  const units = num(servingText.match(/^(\d+(?:[.,]\d+)?)\s*(?:fett[ae]|biscott[oi]|pezz[oi]|slice[s]?|piece[s]?|biscuit[s]?)\b/i)?.[1]?.replace(',', '.')) || 1;
+  // Peso della confezione NON significa peso di una porzione.
+  const portion = serving && serving > 0 && serving <= 1000 ? serving : undefined;
+  const pieceWeight = portion ? portion / units : undefined;
   const brand = Array.isArray(p.brands) ? p.brands[0] : p.brands?.split(',')[0];
   return {
     food: {
@@ -67,8 +71,10 @@ export function mapProduct(p: OffProduct): OffResult | null {
       carbs: r1(carbs ?? 0),
       fats: r1(fats ?? 0),
       pieceWeight,
-      unitName: pieceWeight ? 'porzione' : undefined,
-      unitPlural: pieceWeight ? 'porzioni' : undefined,
+      servingGrams: portion,
+      servingUnits: portion ? units : undefined,
+      unitName: pieceWeight ? /fett|slice/i.test(servingText) ? 'fetta' : units > 1 ? 'pezzo' : 'porzione' : undefined,
+      unitPlural: pieceWeight ? /fett|slice/i.test(servingText) ? 'fette' : units > 1 ? 'pezzi' : 'porzioni' : undefined,
       source: 'off',
       barcode: p.code,
     },

@@ -1,16 +1,17 @@
 import type { Goals, Macros } from '../types';
+import { progressColor } from '../lib/macroStyle';
 
 const PLAN_LABEL = { dieta: 'Dieta', mantenimento: 'Mantenimento', massa: 'Massa' };
 const fmt = (n: number) => Math.round(n).toLocaleString('it-IT');
 
-function Macro({ label, value, goal, color }: { label: string; value: number; goal: number; color: string }) {
+function Macro({ label, value, goal, kind }: { label: string; value: number; goal: number; kind: keyof Macros }) {
   const pct = goal > 0 ? Math.min(100, (value / goal) * 100) : 0;
   const over = value > goal;
   return (
     <div className="flex flex-col items-center gap-1.5">
       <span className="text-sm text-neutral-500 dark:text-neutral-300">{label}</span>
-      <div className="w-full h-2 rounded-full bg-neutral-200 dark:bg-neutral-700 overflow-hidden">
-        <div className={`h-full rounded-full ${over ? 'bg-red-500' : color}`} style={{ width: `${Math.max(pct, value > 0 ? 6 : 0)}%` }} />
+      <div role="progressbar" aria-label={label} aria-valuenow={Math.min(value,goal)} aria-valuemin={0} aria-valuemax={goal} className="w-full h-2 rounded-full bg-neutral-200 dark:bg-neutral-700 overflow-hidden">
+        <div className={`h-full rounded-full ${progressColor(kind,value,goal)}`} style={{ width: `${Math.max(0,pct)}%` }} />
       </div>
       <span className={`text-sm font-extrabold ${over ? 'text-red-500' : ''}`}>
         {fmt(value)} / {fmt(goal)} g
@@ -65,7 +66,7 @@ export function Summary({ total, goals, name }: Props) {
               </defs>
               <circle cx="60" cy="60" r={R} fill="none" strokeWidth="9" strokeLinecap="round" className="stroke-neutral-200 dark:stroke-neutral-700" strokeDasharray={`${ARC} ${C}`} />
               {total.kcal > 0 && (
-                <circle cx="60" cy="60" r={R} fill="none" strokeWidth="9" strokeLinecap="round" stroke={over ? '#ef4444' : 'url(#arco-oro)'} strokeDasharray={`${Math.max(ARC * pct, 0.1)} ${C}`} />
+                <circle data-calorie-progress cx="60" cy="60" r={R} fill="none" strokeWidth="9" strokeLinecap="round" stroke={over ? '#ef4444' : total.kcal === goals.kcal ? '#34d399' : 'url(#arco-oro)'} strokeDasharray={`${Math.max(ARC * pct, 0.1)} ${C}`} />
               )}
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -84,9 +85,9 @@ export function Summary({ total, goals, name }: Props) {
           </p>
         )}
         <div className="grid grid-cols-3 gap-4 mt-3">
-          <Macro label="Carboidrati" value={total.carbs} goal={goals.carbs} color="bg-gold" />
-          <Macro label="Proteine" value={total.pro} goal={goals.pro} color="bg-blu" />
-          <Macro label="Grassi" value={total.fats} goal={goals.fats} color="bg-neutral-400 dark:bg-white" />
+          <Macro label="Carboidrati" value={total.carbs} goal={goals.carbs} kind="carbs" />
+          <Macro label="Proteine" value={total.pro} goal={goals.pro} kind="pro" />
+          <Macro label="Grassi" value={total.fats} goal={goals.fats} kind="fats" />
         </div>
       </div>
     </section>

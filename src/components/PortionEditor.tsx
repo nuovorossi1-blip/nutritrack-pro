@@ -1,7 +1,7 @@
 import { Minus, Plus, X } from 'lucide-react';
 import { useState } from 'react';
 import type { Food, QtyMode } from '../types';
-import { macrosFor, portionLabel, rawGrams, type Portion } from '../lib/nutrition';
+import { macrosFor, portionLabel, rawGrams, withServing, type Portion } from '../lib/nutrition';
 import { NumberInput } from './NumberInput';
 import { plausibilityWarnings } from '../lib/plausibility';
 
@@ -9,17 +9,22 @@ interface Props {
   food: Food;
   initial?: Portion;
   confirmLabel: string;
-  onConfirm: (p: Portion) => void;
+  onConfirm: (p: Portion, food: Food) => void;
+  alternatives?: Food[];
   onClose: () => void;
   /** Apre la scheda per correggere i valori per 100 g dell'alimento. */
-  onEditFood?: () => void;
+  onEditFood?: (food: Food, portion: Portion) => void;
 }
 
 export function defaultPortion(food: Food): Portion {
   return food.pieceWeight ? { mode: 'pieces', qty: 1, cooked: false } : { mode: 'grams', qty: 100, cooked: false };
 }
 
-export function PortionEditor({ food, initial, confirmLabel, onConfirm, onClose, onEditFood }: Props) {
+export function PortionEditor({ food: originalFood, initial, confirmLabel, onConfirm, onClose, onEditFood, alternatives = [] }: Props) {
+  const [food, setFood] = useState(originalFood);
+  const [editingServing, setEditingServing] = useState(false);
+  const [servingGrams, setServingGrams] = useState<number | undefined>(originalFood.servingGrams ?? originalFood.pieceWeight);
+  const [servingUnits, setServingUnits] = useState<number | undefined>(originalFood.servingUnits ?? 1);
   const [p, setP] = useState<Portion>(initial || defaultPortion(food));
   const grams = rawGrams(food, p);
   const m = macrosFor(food, grams);
@@ -27,8 +32,10 @@ export function PortionEditor({ food, initial, confirmLabel, onConfirm, onClose,
 
   const setMode = (mode: QtyMode) => {
     if (mode === p.mode) return;
-    const pw = food.pieceWeight || 100;
-    setP(mode === 'grams' ? { ...p, mode, qty: Math.round(p.qty * pw) } : { ...p, mode, qty: Math.max(1, Math.round(p.qty / pw)) });
+    const pw = food.pieceWeight;
+    if (!pw && mode === 'pieces') { setP({mode:'pieces',qty:1,cooked:false}); setEditingServing(true); return; }
+    if (!pw) return;
+    setP(mode === 'grams' ? { ...p, mode, qty: Math.round(p.qty * pw * 100) / 100 } : { ...p, mode, qty: Math.round(p.qty / pw * 100) / 100 });
   };
 
   const tab = (active: boolean) =>
@@ -44,8 +51,9 @@ export function PortionEditor({ food, initial, confirmLabel, onConfirm, onClose,
               {food.brand ? `${food.brand} · ` : ''}per 100g{food.cookedFactor ? ' a crudo' : ''}: {food.kcal} kcal · C {food.carbs} · P {food.pro} · G {food.fats}
             </p>
             {food.nutritionReference && <a href={food.nutritionReference.url} target="_blank" rel="noreferrer" className="text-[11px] underline text-blue-600 dark:text-gold-400">Fonte: {food.nutritionReference.label}</a>}
+            {food.usda && <a href={food.usda.url} target="_blank" rel="noreferrer" className="text-[11px] underline text-blue-600 dark:text-gold-400">Fonte: USDA FoodData Central</a>}
             {onEditFood && (
-              <button onClick={onEditFood} className="text-[11px] font-bold text-blue-600 dark:text-gold-400 mt-0.5">
+              <button onClick={() => onEditFood(food,p)} className="text-[11px] font-bold text-blue-600 dark:text-gold-400 mt-0.5">
                 {plausibilityWarnings(food).length ? '⚠ Valori da controllare: correggi' : 'Correggi i valori per 100 g'}
               </button>
             )}
@@ -55,16 +63,26 @@ export function PortionEditor({ food, initial, confirmLabel, onConfirm, onClose,
           </button>
         </div>
 
-        {food.pieceWeight ? (
+        {(
           <div className="flex bg-neutral-100 dark:bg-neutral-800 rounded-2xl p-1 gap-1">
             <button className={tab(p.mode === 'pieces')} onClick={() => setMode('pieces')}>
-              A {food.unitPlural || 'pezzi'} ({food.pieceWeightEstimated ? 'circa ' : ''}{food.pieceWeight}g)
+              A {food.unitPlural || 'pezzi'}{food.pieceWeight ? ` (${food.pieceWeightEstimated ? 'circa ' : ''}${Number(food.pieceWeight.toFixed(2))}g)` : ''}
             </button>
             <button className={tab(p.mode === 'grams')} onClick={() => setMode('grams')}>
               A grammi
             </button>
           </div>
-        ) : null}
+        )}
+        {p.mode === 'pieces' && <div className="space-y-2">
+          <button onClick={() => setEditingServing(!editingServing)} className="text-xs font-bold text-blue-500">{food.pieceWeight ? 'Modifica peso della porzione' : 'Definisci il peso della porzione'}</button>
+          {(editingServing || !food.pieceWeight) && <div className="grid grid-cols-2 gap-3 rounded-2xl bg-neutral-100 dark:bg-neutral-800 p-3">
+            <label className="text-xs">Peso porzione (g)<NumberInput value={servingGrams} placeholder="Es. 7 o 14" onChange={(value) => { setServingGrams(value); setFood(withServing(food,value,servingUnits)); }} className="w-full mt-1 p-3 rounded-xl bg-white dark:bg-neutral-900" /></label>
+            <label className="text-xs">Pezzi nella porzione<NumberInput value={servingUnits} placeholder="Es. 1 o 2" onChange={(value) => { setServingUnits(value); setFood(withServing(food,servingGrams,value)); }} className="w-full mt-1 p-3 rounded-xl bg-white dark:bg-neutral-900" /></label>
+          </div>}
+        </div>}
+        {food.counterpartId && <div className="flex rounded-2xl bg-neutral-100 dark:bg-neutral-800 p-1 gap-1">
+          {(['raw','cooked'] as const).map((state) => <button key={state} className={tab(food.preparation === state)} onClick={() => { const next=alternatives.find((candidate) => candidate.id === food.counterpartId); if(next && next.preparation === state) {setFood(next);setP({...p,cooked:false});} }}>{state === 'raw' ? 'Pesato crudo' : 'Pesato cotto'}</button>)}
+        </div>}
 
         {food.cookedFactor ? (
           <div>
@@ -80,6 +98,7 @@ export function PortionEditor({ food, initial, confirmLabel, onConfirm, onClose,
           </div>
         ) : null}
 
+        <div className="text-xs font-bold text-neutral-500">Quantità da mangiare</div>
         <div className="flex items-center gap-3">
           <button aria-label="Meno" onClick={() => setP({ ...p, qty: Math.max(0, Math.round((p.qty - step) * 10) / 10) })} className="w-11 h-11 rounded-2xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
             <Minus size={18} />
@@ -87,6 +106,7 @@ export function PortionEditor({ food, initial, confirmLabel, onConfirm, onClose,
           <div className="flex-1 relative">
             <NumberInput
               value={p.qty}
+              ariaLabel={p.mode === 'pieces' ? 'Pezzi da mangiare' : 'Grammi da mangiare'}
               onChange={(n) => setP({ ...p, qty: n ?? 0 })}
               className="w-full text-center text-2xl font-extrabold bg-neutral-50 dark:bg-neutral-800 rounded-2xl py-2 border border-neutral-200 dark:border-neutral-700"
             />
@@ -100,11 +120,11 @@ export function PortionEditor({ food, initial, confirmLabel, onConfirm, onClose,
         <div className="rounded-2xl bg-blue-50 dark:bg-blue-950/40 p-3">
           <div className="text-xs font-semibold text-blue-700 dark:text-blue-300">{portionLabel(food, p)}</div>
           <div className="text-sm font-extrabold mt-1">
-            {m.kcal} kcal <span className="text-xs font-semibold text-neutral-500">· C {m.carbs}g · P {m.pro}g · G {m.fats}g</span>
+            {p.mode === 'pieces' && !food.pieceWeight ? '?' : m.kcal} kcal <span className="text-xs font-semibold text-neutral-500">· C {m.carbs}g · P {m.pro}g · G {m.fats}g</span>
           </div>
         </div>
 
-        <button disabled={grams <= 0} onClick={() => onConfirm(p)} className="add-button w-full bg-blu hover:brightness-110 disabled:opacity-40 text-white font-bold rounded-2xl">
+        <button disabled={grams <= 0 || (p.mode === 'pieces' && !food.pieceWeight)} onClick={() => onConfirm(p, food)} className="add-button w-full bg-blu hover:brightness-110 disabled:opacity-40 text-white font-bold rounded-2xl">
           {confirmLabel}
         </button>
       </div>

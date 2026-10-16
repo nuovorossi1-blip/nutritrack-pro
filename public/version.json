@@ -1,7 +1,7 @@
 {
-    "apkUrl":  "https://nutritrack-pro-zeta.vercel.app/nutritrack.apk?v=2",
+    "apkUrl":  "https://nutritrack-pro-zeta.vercel.app/nutritrack.apk?v=3",
     "mandatory":  false,
-    "versionCode":  2,
-    "version":  "1.0.2",
-    "notes":  "Microfono integrato: Parla per iniziare, Ferma per interrompere. Conferme alimento in alto per 2 secondi."
+    "versionCode":  3,
+    "version":  "1.0.3",
+    "notes":  "Voce Google quando disponibile, punteggiatura su Android compatibili, campo compatto. Porzioni per pezzo, calendario arrotondato, catalogo e colori macro aggiornati."
 }

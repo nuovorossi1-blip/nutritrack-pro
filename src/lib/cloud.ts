@@ -20,7 +20,7 @@ export async function loadCloud(userId: string): Promise<AppData | null> {
   const [p, d, f] = await Promise.all([
     supabase.from('profiles').select('data').eq('user_id', userId).maybeSingle(),
     supabase.from('day_logs').select('day, meals').eq('user_id', userId),
-    supabase.from('foods').select('food').eq('user_id', userId),
+    supabase.from('foods').select('food').eq('user_id', userId).order('updated_at', { ascending: false }),
   ]);
   const err = p.error || d.error || f.error;
   if (err) throw new Error(`Dati non caricati dal cloud: ${err.message}`);

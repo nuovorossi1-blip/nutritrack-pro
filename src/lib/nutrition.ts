@@ -26,17 +26,27 @@ export interface Portion {
   cooked: boolean;
 }
 
+export function withServing(food: Food, grams: number | undefined, units: number | undefined): Food {
+  const valid = !!grams && grams > 0 && !!units && units > 0;
+  const slice = /fett[ae]|biscottat/i.test(food.name);
+  return { ...food, servingGrams: grams, servingUnits: units,
+    pieceWeight: valid ? grams / units : undefined, pieceWeightEstimated: false,
+    unitName: slice ? 'fetta' : food.unitName && food.unitName !== 'porzione' ? food.unitName : 'pezzo',
+    unitPlural: slice ? 'fette' : food.unitPlural && food.unitPlural !== 'porzioni' ? food.unitPlural : 'pezzi' };
+}
+
 /** Grammi a crudo (o del prodotto) corrispondenti alla quantita' inserita. */
 export function rawGrams(food: Food, p: Portion): number {
-  const base = p.mode === 'pieces' ? p.qty * (food.pieceWeight || 100) : p.qty;
+  const base = p.mode === 'pieces' ? p.qty * (food.pieceWeight || 0) : p.qty;
   const g = p.cooked && food.cookedFactor ? base / food.cookedFactor : base;
-  return Math.max(0, Math.round(g));
+  return Math.max(0, p.cooked && food.cookedFactor ? Math.round(g) : Math.round(g * 100) / 100);
 }
 
 export function portionLabel(food: Food, p: Portion): string {
   const g = rawGrams(food, p);
   const qty = Math.round(p.qty * 100) / 100;
   if (p.mode === 'pieces') {
+    if (!food.pieceWeight) return 'Peso del pezzo da definire';
     const pieceG = Math.round(qty * (food.pieceWeight || 100));
     if (p.cooked && food.cookedFactor) return `${qty} ${unitWord(food, qty)} cotto (${pieceG}g = ${g}g crudo)`;
     return `${qty} ${unitWord(food, qty)} (${food.pieceWeightEstimated ? 'circa ' : ''}${g}g)`;

@@ -20,6 +20,11 @@ export interface Food {
   fats: number;
   /** Peso di un pezzo/porzione in grammi (uovo, vasetto, fetta...). */
   pieceWeight?: number;
+  /** Porzione dichiarata: grammi complessivi e quanti pezzi contiene. */
+  servingGrams?: number;
+  servingUnits?: number;
+  /** Alimento con stessa ricetta nell'altro stato di preparazione. */
+  counterpartId?: string;
   pieceWeightEstimated?: boolean;
   nutritionReference?: { label: string; url: string; approximate?: boolean };
   unitName?: string;
@@ -30,6 +35,7 @@ export interface Food {
   source: FoodSource;
   barcode?: string;
   aliases?: string[];
+  category?: string;
   /** Stato a cui si riferiscono i valori per 100 g, distinto dal peso della porzione. */
   preparation?: 'raw' | 'cooked';
   usda?: { fdcId: number; description: string; dataType: string; url: string };

@@ -1,5 +1,7 @@
 import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
 import { addDays, dayStrip, longLabel, parseISO, shortLabel } from '../lib/dates';
+import { useState } from 'react';
+import { CalendarSheet } from './CalendarSheet';
 
 interface Props {
   selected: string;
@@ -10,6 +12,7 @@ interface Props {
 
 export function DayStrip({ selected, today, daysWithData, onSelect }: Props) {
   const days = dayStrip(selected, today);
+  const [calendar, setCalendar] = useState(false);
   return (
     <section className="bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200/70 dark:border-neutral-800 shadow-sm p-3">
       <div className="flex items-center gap-1">
@@ -49,19 +52,12 @@ export function DayStrip({ selected, today, daysWithData, onSelect }: Props) {
               Torna a oggi
             </button>
           )}
-          <label className="relative text-xs font-bold text-neutral-500 dark:text-neutral-300 flex items-center gap-1 cursor-pointer bg-neutral-100 dark:bg-neutral-800 rounded-xl px-2.5 py-1.5">
+          <button onClick={() => setCalendar(true)} className="text-xs font-bold text-neutral-500 dark:text-neutral-300 flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 rounded-full px-3 py-2">
             <CalendarDays size={14} /> Calendario
-            <input
-              type="date"
-              aria-label="Scegli un giorno"
-              max={today}
-              value={selected}
-              onChange={(e) => e.target.value && onSelect(e.target.value > today ? today : e.target.value)}
-              className="absolute inset-0 opacity-0 cursor-pointer"
-            />
-          </label>
+          </button>
         </div>
       </div>
+      {calendar && <CalendarSheet selected={selected} today={today} daysWithData={daysWithData} onSelect={onSelect} onClose={() => setCalendar(false)} />}
     </section>
   );
 }
