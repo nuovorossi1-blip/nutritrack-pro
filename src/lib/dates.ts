@@ -40,9 +40,8 @@ export function longLabel(iso: string): string {
   return `${DAY_FULL[d.getDay()]} ${d.getDate()} ${MONTH_FULL[d.getMonth()]} ${d.getFullYear()}`;
 }
 
-/** 5 giorni attorno a quello scelto, mai oltre oggi. */
-export function dayStrip(selected: string, today: string): string[] {
-  let end = addDays(selected, 2);
-  if (end > today) end = today;
+/** 5 giorni attorno a quello scelto, anche per programmare date future. */
+export function dayStrip(selected: string, _today: string): string[] {
+  const end = addDays(selected, 2);
   return [-4, -3, -2, -1, 0].map((n) => addDays(end, n));
 }
