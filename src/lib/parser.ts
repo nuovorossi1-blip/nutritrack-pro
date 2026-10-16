@@ -102,9 +102,13 @@ function foodAt(words: string[], i: number, foods: Food[], held?: Map<string, Fo
   if (kept) return { food: kept, len: 1 };
   let best: { food: Food; len: number } | null = null;
   for (const f of foods) {
-    if (f.source === 'base') continue;
-    const name = normalize(f.name).split(/[^a-z0-9]+/).filter(Boolean);
-    if (name.length && name.join(' ').length >= 3 && name.every((w, k) => words[i + k] === w) && (!best || name.length > best.len)) best = { food: f, len: name.length };
+    // Le voci base con alias espliciti (es. pane bianco/integrale) precedono
+    // le regole generiche, senza cambiare il comportamento delle altre basi.
+    if (f.source === 'base' && !f.aliases?.length) continue;
+    for (const candidate of [f.name, ...(f.aliases || [])]) {
+      const name = normalize(candidate).split(/[^a-z0-9]+/).filter(Boolean);
+      if (name.length && name.join(' ').length >= 3 && name.every((w, k) => words[i + k] === w) && (!best || name.length > best.len)) best = { food: f, len: name.length };
+    }
   }
   if (best) return best;
   for (const r of RULES) {

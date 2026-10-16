@@ -20,6 +20,8 @@ export interface Food {
   fats: number;
   /** Peso di un pezzo/porzione in grammi (uovo, vasetto, fetta...). */
   pieceWeight?: number;
+  pieceWeightEstimated?: boolean;
+  nutritionReference?: { label: string; url: string; approximate?: boolean };
   unitName?: string;
   unitPlural?: string;
   /** Peso cotto / peso crudo (pasta 2.1, carne 0.74). */

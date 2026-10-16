@@ -40,6 +40,8 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Andr
 
 ## 3. Cosa funziona
 
+- [FACT] Pane bianco, casereccio tipo0 e integrale come3nuove voci con alias fetta/fette. Dati CREA000530 bianco e000550 integrale, link fonte nella porzione; casereccio usa tipo0 come riferimento esplicitamente indicativo, non composizione universale. Fetta30g marcata circa e alternativa grammi; peso personalizzabile. Parser riconosce tipi/alias prima di pane generico, App chiede quale tipo per pane non specificato invece di scegliere integrale. Legacyf16 e storico invariati.36test/build e QA browser locale/LIVE positivi: ricerca3voci, bianco100g268kcal, integrale2fette60g134kcal senzaAI, casereccio fonte indicativa, persistenza cloud. Utenti temporanei eliminati.
+
 - [FACT] Preferenza utente: sotto il campo di inserimento mostrare solo un grande simbolo microfono. Pulsante circolare72px con Mic34px sia spento sia acceso, rosso durante ascolto, secondo tocco stop. Nessuna scritta visiva Parla/Ferma/Microfono spento; stato e label restano accessibili agli screen reader. Inserisci separato. Build e QA locale/LIVE ponte nativo simulato positivi; deploy dpl_J1MibMnYsarp9dAnHqV2HFfq1cGU READY.
 
 - [FACT] Conferme aggiunta in alto per2secondi. VoiceInput con pulsante Parla/Ferma, testo live e microfono spento al secondo tocco, stop in background; Android SpeechRecognizer inline richiede APK1.0.2/code2 pubblicato e firmato stessa chiave. Build/33test/QA browser e bridge nativo simulato locale e LIVE positivi. Voce acustica, permessi hardware e installazione update sul telefono ancora da confermare.
@@ -184,33 +186,24 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Andr
 
 **Modello:** Codex (GPT-6) · **Data:** 2026-10-16
 
-Ultima rifinitura richiesta: microfono come sola icona grande sotto inserimento, senza testi Parla/Ferma/stato.
-VoiceInput aggiornato: pulsante72px con icona Mic34px sempre, rosso quando attivo.
-Build e QA locale (ponte nativo simulato) ok, verifica visiva screenshot ok; QA LIVE positivo e deploy dpl_J1MibMnYsarp9dAnHqV2HFfq1cGU READY.
-Nessun nuovo APK: modifica web remota, motore voce resta APK1.0.2 come sotto.
-
-Lavoro precedente: conferma alimento aggiunto in alto per2s e microfono toggle inline.
-Implementati toast top safe-area (successi2s, errori6s, Annulla eliminazione7s;
-aggiunta rapida con Annulla dura2s come richiesto). VoiceInput separa textarea,
-Parla/Ferma e Inserisci; testo parziale/finale, stato microfono, stop esplicito,
-permessi/errori e cancellazione background/unmount. Focus e resize tastiera centrano comandi.
-Plugin Android passa da RecognizerIntent activity a SpeechRecognizer inline,
-con start/stop/cancel/getCapabilities ed eventi text/state. APK vecchio viene invitato
-ad aggiornare senza aprire vecchio dialogo vocale. Manifest query RecognitionService.
-Viewport contain e SystemBars hint evitano app sotto barre di sistema; CSS safe area conservato.
-APK1.0.2/code2 compilato, firma verificata identica a1.0.1, config e assenza APK annidati verificate.
-33 test e build web positivi; QA browser e ponte Android MOCK: start/secondo stop,
-testo live/finale, errori/riprova, stop in background, toast alto2s,320px e inset positivi.
-Non testata la voce acustica, i permessi hardware o installazione aggiornamento su telefono.
-Pubblicato: dpl_3qZHRm35RmwGNQZPj96zws1b6PXy READY sul dominio canonico.
-QA browser e ponte nativo MOCK LIVE riusciti; utenti temporanei eliminati.
-Download APK4.142.356byte SHA256 identico al build firmato; version.json code2 verificato.
-Workflow GitHub NON attivo per scope mancante;
-preparato template che incrementa versionCode dal manifest per future build.
+Aggiunte voci richieste pane bianco/casereccio/integrale e ricerca fetta/fette di pane.
+Fonte CREA000530/000550 con valori per100g verificati il16/10; casereccio tipo0
+usa riferimento bianco indicativo, per ricetta precisa serve etichetta/alimento personale.
+Porzione fetta30g indicativa, label circa, alternativa grammi; edit peso annulla flag stima.
+Riferimento fonte rimosso dopo modifica macro manuale/AI per non attribuire valori cambiati a CREA.
+Parser usa nomi/alias completi prima della regola pane; App chiede tipo se solo pane.
+ID legacyf16 e storico preservati.36test e build positivi; browser locale e LIVE:
+3tipi in ricerca fette, bianco100g268kcal, casereccio30g80kcal e fonte indicativa,
+integrale2fette60g134kcal senzaAI; pane generico non aggiunto alla cieca, cloud3voci.
+Account test eliminati, zero erroriJS. Deploy dpl_3UxidkvLGpD8MnDsh5aPgzs9xM3U READY.
+Nessun nuovoAPK: riaprire app per catalogo. APK1.0.2 e microfono solo icona conservati.
+Prova acustica sul telefono e installazione update ancora da confermare; workflow scope ancora aperto.
 
 ---
 
 ## 11. Prossimi passi
+
+0. [utente] Riaprire app, cercare fette di pane o tipo specifico; provare 2 fette di pane integrale a colazione. Fette indicative, pesare in grammi per precisione.
 
 1. [utente] Su APK1.0.2 riaprire app: sotto inserimento deve esserci solo icona microfono grande; primo tocco accende/rosso, secondo spegne, poi Inserisci. Conferma alimento alta2s. Test voce/fotocamera sul telefono ancora da confermare.
 2. Decidere con l'utente se nutritrack.redapp.dev deve puntare a Vercel (CNAME) e spegnere la copia sul PC, o restare sul PC.

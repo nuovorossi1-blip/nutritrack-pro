@@ -43,6 +43,7 @@ export function PortionEditor({ food, initial, confirmLabel, onConfirm, onClose,
             <p className="text-xs text-neutral-400">
               {food.brand ? `${food.brand} · ` : ''}per 100g{food.cookedFactor ? ' a crudo' : ''}: {food.kcal} kcal · C {food.carbs} · P {food.pro} · G {food.fats}
             </p>
+            {food.nutritionReference && <a href={food.nutritionReference.url} target="_blank" rel="noreferrer" className="text-[11px] underline text-blue-600 dark:text-gold-400">Fonte: {food.nutritionReference.label}</a>}
             {onEditFood && (
               <button onClick={onEditFood} className="text-[11px] font-bold text-blue-600 dark:text-gold-400 mt-0.5">
                 {plausibilityWarnings(food).length ? '⚠ Valori da controllare: correggi' : 'Correggi i valori per 100 g'}
@@ -57,7 +58,7 @@ export function PortionEditor({ food, initial, confirmLabel, onConfirm, onClose,
         {food.pieceWeight ? (
           <div className="flex bg-neutral-100 dark:bg-neutral-800 rounded-2xl p-1 gap-1">
             <button className={tab(p.mode === 'pieces')} onClick={() => setMode('pieces')}>
-              A {food.unitPlural || 'pezzi'} ({food.pieceWeight}g)
+              A {food.unitPlural || 'pezzi'} ({food.pieceWeightEstimated ? 'circa ' : ''}{food.pieceWeight}g)
             </button>
             <button className={tab(p.mode === 'grams')} onClick={() => setMode('grams')}>
               A grammi

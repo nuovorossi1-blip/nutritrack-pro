@@ -39,7 +39,7 @@ export function portionLabel(food: Food, p: Portion): string {
   if (p.mode === 'pieces') {
     const pieceG = Math.round(qty * (food.pieceWeight || 100));
     if (p.cooked && food.cookedFactor) return `${qty} ${unitWord(food, qty)} cotto (${pieceG}g = ${g}g crudo)`;
-    return `${qty} ${unitWord(food, qty)} (${g}g)`;
+    return `${qty} ${unitWord(food, qty)} (${food.pieceWeightEstimated ? 'circa ' : ''}${g}g)`;
   }
   if (p.cooked && food.cookedFactor) return `${qty}g cotto (= ${g}g crudo)`;
   return food.cookedFactor ? `${g}g a crudo` : `${g}g`;

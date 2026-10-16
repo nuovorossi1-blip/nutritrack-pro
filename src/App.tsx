@@ -7,7 +7,7 @@ import { MEALS } from './types';
 import { buildItem, newId, sumMacros, type Portion } from './lib/nutrition';
 import { allFoods, getDay, useAppData, useToday, withDay } from './lib/store';
 import { longLabel } from './lib/dates';
-import { mealFromText, parseFoodText, unknownWords, type ParsedEntry } from './lib/parser';
+import { mealFromText, normalize, parseFoodText, unknownWords, type ParsedEntry } from './lib/parser';
 import { aiEntries, askAi } from './lib/ai';
 import { DayStrip } from './components/DayStrip';
 import { Summary } from './components/Summary';
@@ -103,6 +103,9 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
     const foods = allFoods(data);
     const entries = parseFoodText(text, foods);
     const meal = mealFromText(text);
+    if (entries.some((entry) => entry.food.id === 'f16') && !/\bsegale\b/.test(normalize(text))) {
+      return toast('Quale pane? Specifica bianco, casereccio o integrale.', true);
+    }
     // Frase completa: anche l'AI puo' inserire direttamente, con Annulla.
     if (unknownWords(text, foods).length) {
       setThinking(true);

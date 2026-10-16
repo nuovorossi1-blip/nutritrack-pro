@@ -38,7 +38,7 @@ export function FoodReview({ food, missing = [], title, onSave, onClose }: Props
       const r = await askAi(`100 g di ${f.name}${f.brand ? ` ${f.brand}` : ''}`);
       const a = r.alimenti[0];
       if (!a) throw new Error("L'AI non ha riconosciuto il prodotto");
-      setF({ ...f, kcal: Math.round(a.kcal_100g), pro: a.proteine_100g ?? f.pro, carbs: a.carboidrati_100g ?? f.carbs, fats: a.grassi_100g ?? f.fats });
+      setF({ ...f, nutritionReference: undefined, kcal: Math.round(a.kcal_100g), pro: a.proteine_100g ?? f.pro, carbs: a.carboidrati_100g ?? f.carbs, fats: a.grassi_100g ?? f.fats });
       setAiNote("Valori tipici stimati dall'AI: se hai la confezione, confrontali con l'etichetta.");
     } catch (e) {
       setAiNote((e as Error).message);
@@ -51,7 +51,7 @@ export function FoodReview({ food, missing = [], title, onSave, onClose }: Props
       <span className={`text-[11px] font-bold ${missing.includes(label.toLowerCase()) ? 'text-red-500' : 'text-neutral-500'}`}>{label}</span>
       <NumberInput
         value={f[key]}
-        onChange={(n) => setF({ ...f, [key]: n ?? 0 })}
+        onChange={(n) => setF({ ...f, nutritionReference: undefined, [key]: n ?? 0 })}
         className="w-full mt-0.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl px-3 py-2 text-sm font-semibold"
       />
     </label>
@@ -90,7 +90,7 @@ export function FoodReview({ food, missing = [], title, onSave, onClose }: Props
             <div>1. Hai la confezione? Scrivi qui sotto i valori «per 100 g» della tabella nutrizionale.</div>
             <div className="flex flex-wrap gap-2">
               {Math.abs(f.kcal - macroKcal) > Math.max(40, f.kcal * 0.25) && macroKcal > 0 && (
-                <button onClick={() => setF({ ...f, kcal: macroKcal })} className="rounded-xl px-3 py-1.5 font-bold bg-neutral-900 text-white dark:bg-white dark:text-neutral-900">
+                <button onClick={() => setF({ ...f, nutritionReference: undefined, kcal: macroKcal })} className="rounded-xl px-3 py-1.5 font-bold bg-neutral-900 text-white dark:bg-white dark:text-neutral-900">
                   Usa {macroKcal} kcal (dai macro)
                 </button>
               )}
@@ -122,7 +122,7 @@ export function FoodReview({ food, missing = [], title, onSave, onClose }: Props
           <NumberInput
             value={f.pieceWeight}
             onChange={(v) => {
-              setF(v && v > 0 ? { ...f, pieceWeight: v, unitName: f.unitName || 'porzione', unitPlural: f.unitPlural || 'porzioni' } : { ...f, pieceWeight: undefined });
+              setF(v && v > 0 ? { ...f, pieceWeight: v, pieceWeightEstimated: false, unitName: f.unitName || 'porzione', unitPlural: f.unitPlural || 'porzioni' } : { ...f, pieceWeight: undefined, pieceWeightEstimated: false });
             }}
             className="w-full mt-0.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl px-3 py-2 text-sm"
           />
