@@ -1,4 +1,4 @@
-import { Flame, Moon, Plus, RotateCcw, Sun, Target, Wand2 } from 'lucide-react';
+import { Flame, Moon, Plus, RotateCcw, Sun, Settings, Wand2 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { AppData, Food, Goals, MealItem, MealKey, Profile } from './types';
 import { needsProfileSetup } from './lib/metabolism';
@@ -200,14 +200,14 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
 
   return (
     <div className="app-screen min-h-screen">
-      <header className="bg-white/90 dark:bg-neutral-900/90 backdrop-blur sticky top-0 z-30 border-b border-neutral-200/80 dark:border-neutral-800">
-        <div className="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
+      <header className="bg-[#17181b]/95 dark:bg-[#17181b]/95 backdrop-blur sticky top-0 z-30 border-b border-[#23252c] text-white">
+        <div className="max-w-2xl mx-auto px-3 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded-2xl bg-gold flex items-center justify-center text-neutral-950 shadow-md shadow-gold-500/30">
+            <div className="w-10 h-10 shrink-0 rounded-full bg-[#f5b935] flex items-center justify-center text-neutral-950 shadow-md shadow-amber-400/30">
               <Flame size={20} />
             </div>
             <div>
-              <h1 className="text-sm sm:text-lg font-extrabold tracking-tight whitespace-nowrap text-neutral-900 dark:text-white">NutriTrack PRO</h1>
+              <h1 className="text-base sm:text-lg font-extrabold tracking-tight whitespace-nowrap text-white">NutriTrack PRO</h1>
               {userId && (
                 <p className={`text-[10px] font-semibold ${sync === 'errore' ? 'text-red-500' : 'text-neutral-400'}`}>
                   {sync === 'ok' ? '☁ Salvato' : sync === 'salvo' ? '☁ Salvataggio…' : '⚠ Non salvato: controlla la rete'}
@@ -217,20 +217,20 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
             </div>
           </div>
           <div className="flex items-center gap-1 sm:gap-2">
-            <button aria-label="Profilo e obiettivi" onClick={() => setSettings(true)} className="h-9 sm:h-10 px-2.5 sm:px-3 rounded-2xl bg-neutral-100 dark:bg-neutral-800 text-xs font-bold flex items-center gap-1.5">
-              <Target size={16} /> <span className="hidden sm:inline">Obiettivi</span>
+            <button aria-label="Profilo e obiettivi" onClick={() => setSettings(true)} className="w-10 h-10 rounded-full bg-[#26272b] flex items-center justify-center">
+              <Settings size={19} />
             </button>
-            <button aria-label="Azzera giorno" title="Azzera il giorno scelto" onClick={resetDay} className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
+            <button aria-label="Azzera giorno" title="Azzera il giorno scelto" onClick={resetDay} className="w-10 h-10 rounded-full bg-[#26272b] flex items-center justify-center">
               <RotateCcw size={16} />
             </button>
-            <button aria-label="Tema" onClick={() => update((d) => ({ ...d, dark: !d.dark }))} className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
+            <button aria-label="Tema" onClick={() => update((d) => ({ ...d, dark: !d.dark }))} className="w-10 h-10 rounded-full bg-[#26272b] flex items-center justify-center">
               {data.dark ? <Sun size={16} className="text-gold-400" /> : <Moon size={16} />}
             </button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 pt-4 space-y-4">
+      <main className="max-w-2xl mx-auto px-3 pt-3 space-y-4">
         <AndroidDownloadBanner />
         <DayStrip selected={selected} today={today} daysWithData={daysWithData} onSelect={setSelected} />
         {!data.profile && (
@@ -245,7 +245,7 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
           name={data.profile?.name}
         />
 
-        <section className="rounded-3xl p-4 sm:p-5 text-white bg-gradient-to-br from-blue-900 via-blue-950 to-neutral-950 shadow-xl">
+        <section className="rounded-[22px] p-4 text-white bg-gradient-to-br from-[#1d3267] via-[#17244b] to-[#101522] border border-[#24345c] shadow-xl">
           <div className="flex items-center gap-2">
             <Wand2 size={18} className="text-blue-300" />
             <h3 className="font-bold">Inserimento rapido a parole</h3>
@@ -255,26 +255,26 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
 
         <section>
           <h2 className="text-xs font-bold uppercase tracking-wide text-neutral-500 mb-2 px-1">Pasti del giorno</h2>
-          <div className="grid sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2.5">
             {MEALS.map((m) => {
               const items = day[m.key];
               const t = sumMacros(items);
               return (
-                <button key={m.key} onClick={() => setOpenMeal(m.key)} className="text-left bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200/70 dark:border-neutral-800 shadow-sm p-4 hover:border-blue-300 transition">
-                  <div className="flex items-center gap-3">
-                    <span className="w-10 h-10 rounded-2xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-lg">{m.emoji}</span>
-                    <div className="flex-1">
-                      <div className="font-bold">{m.label}</div>
+                <button key={m.key} onClick={() => setOpenMeal(m.key)} className="text-left bg-[#191a1c] text-white rounded-[22px] border border-[#343538] shadow-sm p-3 hover:border-[#f5b935] transition min-w-0 flex flex-col justify-between min-h-[155px]">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="w-9 h-9 shrink-0 rounded-full bg-[#292a2d] flex items-center justify-center text-lg">{m.emoji}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-sm sm:text-base truncate">{m.label}</div>
                       <div className="text-[11px] text-neutral-400">{items.length} {items.length === 1 ? 'alimento' : 'alimenti'}</div>
                     </div>
                     <Plus size={18} className="text-neutral-400" />
                   </div>
                   {items.length > 0 && <p className="text-[11px] text-neutral-500 mt-2 line-clamp-2">{items.map((i) => `${i.name} (${i.label})`).join(' • ')}</p>}
-                  <div className="flex flex-col items-center gap-2 mt-3 pt-3 border-t border-neutral-100 dark:border-neutral-800">
-                    <span className="text-lg font-extrabold text-blue-600 dark:text-gold-400">{t.kcal} kcal</span>
-                    <div className="grid grid-cols-3 gap-2 w-full max-w-xs text-center text-xs" aria-label="Macro del pasto">
+                  <div className="flex flex-col items-center gap-2 mt-3 pt-3 border-t border-[#343538]">
+                    <span className="text-xl font-extrabold text-[#f5b935]">{t.kcal} kcal</span>
+                    <div className="grid grid-cols-3 gap-0.5 w-full text-center text-[10px] sm:text-xs whitespace-nowrap" aria-label="Macro del pasto">
                       <span><b className="text-sky-400">C</b> {t.carbs} g</span>
-                      <span><b className="text-orange-400">P</b> {t.pro} g</span>
+                      <span><b className="text-red-500">P</b> {t.pro} g</span>
                       <span><b className="text-yellow-400">G</b> {t.fats} g</span>
                     </div>
                   </div>
