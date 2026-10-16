@@ -61,3 +61,6 @@ $$;
 drop trigger if exists nuovo_utente on auth.users;
 create trigger nuovo_utente after insert on auth.users
   for each row execute function public.nuovo_utente();
+
+-- La funzione serve solo al trigger: nessuno la puo' chiamare da fuori (avviso di sicurezza Supabase).
+revoke execute on function public.nuovo_utente() from public, anon, authenticated;
