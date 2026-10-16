@@ -31,12 +31,17 @@ const RANGES: Range[] = [
   { words: /\b(acqua|caffe|te)\b/, unless: /cocco|zucchero|latte/, min: 0, max: 15, label: 'bevanda senza zucchero' },
 ];
 
+/** Calorie che risultano da proteine, carboidrati e grassi (4/4/9 kcal per grammo). */
+export function kcalFromMacros(f: Pick<Food, 'pro' | 'carbs' | 'fats'>): number {
+  return Math.round(f.pro * 4 + f.carbs * 4 + f.fats * 9);
+}
+
 export function plausibilityWarnings(f: Pick<Food, 'name' | 'kcal' | 'pro' | 'carbs' | 'fats'>): string[] {
   const out: string[] = [];
   const grams = f.pro + f.carbs + f.fats;
   if (f.kcal > 900) out.push(`${f.kcal} kcal per 100 g è impossibile (il massimo, l'olio, è circa 900).`);
   if (grams > 101) out.push(`Proteine + carboidrati + grassi fanno ${Math.round(grams)} g su 100 g: impossibile.`);
-  const fromMacros = Math.round(f.pro * 4 + f.carbs * 4 + f.fats * 9);
+  const fromMacros = kcalFromMacros(f);
   if (f.kcal > 0 && Math.abs(f.kcal - fromMacros) > Math.max(40, f.kcal * 0.25)) {
     out.push(`Le calorie (${f.kcal}) non tornano con i macro, che danno circa ${fromMacros} kcal.`);
   }

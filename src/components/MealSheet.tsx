@@ -42,7 +42,8 @@ export function MealSheet({ meal, dayLabel, items, data, onAdd, onUpdate, onRemo
   const [scanning, setScanning] = useState(false);
 
   const [picking, setPicking] = useState<{ food: Food; initial?: Portion; itemId?: string } | null>(null);
-  const [review, setReview] = useState<{ food: Food; missing: string[]; title: string } | null>(null);
+  // back: da dove si e' arrivati (correzione dalla schermata della quantita'), per tornarci dopo il salvataggio.
+  const [review, setReview] = useState<{ food: Food; missing: string[]; title: string; back?: { initial?: Portion; itemId?: string } } | null>(null);
 
   const local = useMemo(() => {
     const q = normalize(query).trim();
@@ -257,8 +258,8 @@ export function MealSheet({ meal, dayLabel, items, data, onAdd, onUpdate, onRemo
           onClose={() => setReview(null)}
           onSave={(f) => {
             onSaveFood(f);
+            setPicking({ food: f, ...review.back });
             setReview(null);
-            setPicking({ food: f });
           }}
         />
       )}
@@ -268,6 +269,10 @@ export function MealSheet({ meal, dayLabel, items, data, onAdd, onUpdate, onRemo
           initial={picking.initial}
           confirmLabel={picking.itemId ? 'Salva modifica' : `Aggiungi a ${info.label.toLowerCase()}`}
           onClose={() => setPicking(null)}
+          onEditFood={() => {
+            setReview({ food: picking.food, missing: [], title: 'Correggi i valori', back: { initial: picking.initial, itemId: picking.itemId } });
+            setPicking(null);
+          }}
           onConfirm={(p) => {
             if (picking.itemId) onUpdate(picking.itemId, picking.food, p);
             else onAdd(picking.food, p);

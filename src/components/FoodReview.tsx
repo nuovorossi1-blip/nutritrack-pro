@@ -1,8 +1,9 @@
-import { X } from 'lucide-react';
+import { Sparkles, X } from 'lucide-react';
 import { useState } from 'react';
 import type { Food } from '../types';
 import { NumberInput } from './NumberInput';
-import { plausibilityWarnings } from '../lib/plausibility';
+import { kcalFromMacros, plausibilityWarnings } from '../lib/plausibility';
+import { askAi } from '../lib/ai';
 
 // Peso cotto / peso crudo, come negli alimenti di base. I valori della scheda restano quelli a crudo.
 const COOKING = [
@@ -24,6 +25,27 @@ interface Props {
 // i dati di Open Food Facts li inseriscono gli utenti e possono sbagliare.
 export function FoodReview({ food, missing = [], title, onSave, onClose }: Props) {
   const [f, setF] = useState<Food>(food);
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiNote, setAiNote] = useState('');
+  const warnings = plausibilityWarnings(f);
+  const macroKcal = kcalFromMacros(f);
+
+  // Valori tipici dall'AI per questo prodotto: riempiono i campi, poi si controlla e si salva.
+  const askTypical = async () => {
+    setAiBusy(true);
+    setAiNote('');
+    try {
+      const r = await askAi(`100 g di ${f.name}${f.brand ? ` ${f.brand}` : ''}`);
+      const a = r.alimenti[0];
+      if (!a) throw new Error("L'AI non ha riconosciuto il prodotto");
+      setF({ ...f, kcal: Math.round(a.kcal_100g), pro: a.proteine_100g ?? f.pro, carbs: a.carboidrati_100g ?? f.carbs, fats: a.grassi_100g ?? f.fats });
+      setAiNote("Valori tipici stimati dall'AI: se hai la confezione, confrontali con l'etichetta.");
+    } catch (e) {
+      setAiNote((e as Error).message);
+    } finally {
+      setAiBusy(false);
+    }
+  };
   const numField = (key: 'kcal' | 'pro' | 'carbs' | 'fats', label: string) => (
     <label className="block">
       <span className={`text-[11px] font-bold ${missing.includes(label.toLowerCase()) ? 'text-red-500' : 'text-neutral-500'}`}>{label}</span>
@@ -51,14 +73,28 @@ export function FoodReview({ food, missing = [], title, onSave, onClose }: Props
           </p>
         )}
         {missing.length > 0 && <p className="text-xs font-semibold text-red-500">Valori mancanti nella scheda: {missing.join(', ')}. Inseriscili dall'etichetta.</p>}
-        {plausibilityWarnings(f).length > 0 && (
-          <div className="rounded-2xl border border-gold-400/60 bg-gold-400/10 p-3 text-xs text-gold-700 dark:text-gold-300">
-            <div className="font-extrabold mb-1">⚠ Valori da controllare con l'etichetta</div>
-            {plausibilityWarnings(f).map((w) => (
+        {warnings.length > 0 && (
+          <div className="rounded-2xl border border-gold-400/60 bg-gold-400/10 p-3 text-xs text-gold-700 dark:text-gold-300 space-y-2">
+            <div className="font-extrabold">⚠ Valori da controllare</div>
+            {warnings.map((w) => (
               <div key={w}>• {w}</div>
             ))}
+            <div className="font-semibold">Come correggerli:</div>
+            <div>1. Hai la confezione? Scrivi qui sotto i valori «per 100 g» della tabella nutrizionale.</div>
+            <div className="flex flex-wrap gap-2">
+              {Math.abs(f.kcal - macroKcal) > Math.max(40, f.kcal * 0.25) && macroKcal > 0 && (
+                <button onClick={() => setF({ ...f, kcal: macroKcal })} className="rounded-xl px-3 py-1.5 font-bold bg-neutral-900 text-white dark:bg-white dark:text-neutral-900">
+                  Usa {macroKcal} kcal (dai macro)
+                </button>
+              )}
+              <button onClick={askTypical} disabled={aiBusy} className="rounded-xl px-3 py-1.5 font-bold bg-blu text-white flex items-center gap-1 disabled:opacity-60">
+                <Sparkles size={13} /> {aiBusy ? 'Chiedo…' : "2. Valori tipici dall'AI"}
+              </button>
+            </div>
+            <div>3. Oppure chiudi e scegli un'altra scheda dello stesso prodotto.</div>
           </div>
         )}
+        {aiNote && <p className="text-[11px] font-semibold text-blue-600 dark:text-gold-300">{aiNote}</p>}
         <label className="block">
           <span className="text-[11px] font-bold text-neutral-500">Nome</span>
           <input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} className="w-full mt-0.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl px-3 py-2 text-sm font-semibold" />

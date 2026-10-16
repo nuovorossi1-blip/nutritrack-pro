@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { Food, QtyMode } from '../types';
 import { macrosFor, portionLabel, rawGrams, type Portion } from '../lib/nutrition';
 import { NumberInput } from './NumberInput';
+import { plausibilityWarnings } from '../lib/plausibility';
 
 interface Props {
   food: Food;
@@ -10,13 +11,15 @@ interface Props {
   confirmLabel: string;
   onConfirm: (p: Portion) => void;
   onClose: () => void;
+  /** Apre la scheda per correggere i valori per 100 g dell'alimento. */
+  onEditFood?: () => void;
 }
 
 export function defaultPortion(food: Food): Portion {
   return food.pieceWeight ? { mode: 'pieces', qty: 1, cooked: false } : { mode: 'grams', qty: 100, cooked: false };
 }
 
-export function PortionEditor({ food, initial, confirmLabel, onConfirm, onClose }: Props) {
+export function PortionEditor({ food, initial, confirmLabel, onConfirm, onClose, onEditFood }: Props) {
   const [p, setP] = useState<Portion>(initial || defaultPortion(food));
   const grams = rawGrams(food, p);
   const m = macrosFor(food, grams);
@@ -40,6 +43,11 @@ export function PortionEditor({ food, initial, confirmLabel, onConfirm, onClose 
             <p className="text-xs text-neutral-400">
               {food.brand ? `${food.brand} · ` : ''}per 100g{food.cookedFactor ? ' a crudo' : ''}: {food.kcal} kcal · C {food.carbs} · P {food.pro} · G {food.fats}
             </p>
+            {onEditFood && (
+              <button onClick={onEditFood} className="text-[11px] font-bold text-blue-600 dark:text-gold-400 mt-0.5">
+                {plausibilityWarnings(food).length ? '⚠ Valori da controllare: correggi' : 'Correggi i valori per 100 g'}
+              </button>
+            )}
           </div>
           <button aria-label="Chiudi" onClick={onClose} className="text-neutral-400 p-1">
             <X size={20} />
