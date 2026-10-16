@@ -86,6 +86,7 @@ Fase 2 (CIQUAL) e fase 4 (APK) da fare.
 | 2 | Molti prodotti Open Food Facts senza peso porzione (es. Fage Total 0 → 100g). | 2026-10-16 | Campo "peso porzione" modificabile prima di salvare. |
 | 3 | Valori Open Food Facts a volte poco credibili (es. "tonno rio mare" 403 kcal/100 g). | 2026-10-16 | Avviso «⚠ valori da controllare» aggiunto il 16/10 (vedi sezione 3); i dati restano quelli di OFF, li corregge l'utente. Ordine dei risultati non ancora influenzato dall'avviso. |
 | 4 | Dettatura non provabile senza telefono vero (nel browser di prova: "Microfono non disponibile"). | 2026-10-16 | Da provare sul telefono con Chrome. |
+| 5 | Ricerca di alimenti generici incompleta: petto di tacchino/fesa ambiguo. | 2026-10-16 | Diagnosi Codex: unica voce locale f4 «Fesa di tacchino» (carne da cuocere), filtro con tutte le parole senza sinonimi; online solo Open Food Facts. Utente propone USDA FoodData Central. Documentazione USDA verificata: Foundation/SR Legacy per generici e CC0; importazione e traduzioni NON implementate. Distinguere crudo, cotto, con/senza pelle e affettato. |
 
 ## 7. Problemi risolti
 
@@ -112,6 +113,8 @@ Fase 2 (CIQUAL) e fase 4 (APK) da fare.
 ---
 
 ## 8. Decisioni prese
+
+- **Proposta utente da valutare per il catalogo generico:** USDA FoodData Central (link ricerca Turkey breast), 16/10/2026. Fonte verificata come riutilizzabile CC0; nessun cambio della precedente scelta CIQUAL/USDA eseguito in questa diagnosi. Possibile importazione selezionata in italiano senza richieste API a ogni ricerca.
 
 - **Profilo al primo accesso obbligatorio:** nome, data di nascita, sesso, peso, altezza necessaria al calcolo, attività e obiettivo (perdere peso/mantenere/mettere massa); calorie automatiche modificabili dalle impostazioni. Richiesta utente 16/10/2026, implementata da Codex.
 
