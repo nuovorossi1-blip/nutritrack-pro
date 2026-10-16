@@ -40,6 +40,8 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Andr
 
 ## 3. Cosa funziona
 
+- [FACT] Preferenza utente: sotto il campo di inserimento mostrare solo un grande simbolo microfono. Pulsante circolare72px con Mic34px sia spento sia acceso, rosso durante ascolto, secondo tocco stop. Nessuna scritta visiva Parla/Ferma/Microfono spento; stato e label restano accessibili agli screen reader. Inserisci separato. Build e QA locale/LIVE ponte nativo simulato positivi; deploy dpl_J1MibMnYsarp9dAnHqV2HFfq1cGU READY.
+
 - [FACT] Conferme aggiunta in alto per2secondi. VoiceInput con pulsante Parla/Ferma, testo live e microfono spento al secondo tocco, stop in background; Android SpeechRecognizer inline richiede APK1.0.2/code2 pubblicato e firmato stessa chiave. Build/33test/QA browser e bridge nativo simulato locale e LIVE positivi. Voce acustica, permessi hardware e installazione update sul telefono ancora da confermare.
 
 - [FACT] Aggiungi altro e conferma alimento/rapida maggiori (64px, testo18px), footer e pannelli rispettano barra Android usando sia env sia variabili Capacitor, contenuto scrollabile e pannelli protetti. Le notifiche, compreso Annulla, ora sono in alto. Rimossa nota didattica swipe. Build e browser mobile locale/LIVE con inset0/24/48px e top28px, portrait/landscape e flusso pasti/cloud positivi. Conferma sul telefono utente ancora attesa; nessun nuovo APK, UI remota.
@@ -182,7 +184,12 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Andr
 
 **Modello:** Codex (GPT-6) · **Data:** 2026-10-16
 
-Richiesta utente: conferma alimento aggiunto in alto per2s e microfono toggle inline.
+Ultima rifinitura richiesta: microfono come sola icona grande sotto inserimento, senza testi Parla/Ferma/stato.
+VoiceInput aggiornato: pulsante72px con icona Mic34px sempre, rosso quando attivo.
+Build e QA locale (ponte nativo simulato) ok, verifica visiva screenshot ok; QA LIVE positivo e deploy dpl_J1MibMnYsarp9dAnHqV2HFfq1cGU READY.
+Nessun nuovo APK: modifica web remota, motore voce resta APK1.0.2 come sotto.
+
+Lavoro precedente: conferma alimento aggiunto in alto per2s e microfono toggle inline.
 Implementati toast top safe-area (successi2s, errori6s, Annulla eliminazione7s;
 aggiunta rapida con Annulla dura2s come richiesto). VoiceInput separa textarea,
 Parla/Ferma e Inserisci; testo parziale/finale, stato microfono, stop esplicito,
@@ -205,7 +212,7 @@ preparato template che incrementa versionCode dal manifest per future build.
 
 ## 11. Prossimi passi
 
-1. [utente] Aggiornare APK a1.0.2 senza disinstallare; provare Parla, dettare alimento/quantita/pasto, Ferma e Inserisci. Verificare microfono chiuso e conferma alta2s. Confermare anche fotocamera su telefono.
+1. [utente] Su APK1.0.2 riaprire app: sotto inserimento deve esserci solo icona microfono grande; primo tocco accende/rosso, secondo spegne, poi Inserisci. Conferma alimento alta2s. Test voce/fotocamera sul telefono ancora da confermare.
 2. Decidere con l'utente se nutritrack.redapp.dev deve puntare a Vercel (CNAME) e spegnere la copia sul PC, o restare sul PC.
 3. Valutare CIQUAL come ampliamento del catalogo USDA già disponibile; migliorare traduzioni e sinonimi con esempi reali.
 4. Autorizzazione GitHub scope workflow e attivazione template; test aggiornamento tra due versionCode sul telefono.

@@ -56,6 +56,6 @@
   "last_session": {
     "model": "Codex (GPT-6)",
     "date": "2026-10-16",
-    "summary": "Toast aggiunta in alto2s e microfono inline Parla/Ferma pubblicati. APK1.0.2 firma stabile e download SHA256 verificati;33test/build/QA browser e bridge mock anche LIVE positivi. Voce hardware e installazione update da provare sul telefono; workflow ancora non attivo."
+    "summary": "Microfono come sola icona circolare72px sotto inserimento, rosso attivo e secondo tocco stop, senza testi Parla/Ferma/stato. Build/QA locale e LIVE ok, pubblicato. APK1.0.2 invariato; conferme in alto2s conservate."
   }
 }

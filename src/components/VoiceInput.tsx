@@ -1,4 +1,4 @@
-import { Mic, Square } from 'lucide-react';
+import { Mic } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import type { PluginListenerHandle } from '@capacitor/core';
 import { isAndroidApp, SpeechInput } from '../native/android';
@@ -133,19 +133,18 @@ export function VoiceInput({ text, onText, onInsert, busy, onError }: {
         onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); if (phase === 'idle') onInsert(); } }}
         placeholder="Cosa hai mangiato?" rows={2}
         className="w-full resize-y bg-neutral-900/80 placeholder-neutral-400 text-base rounded-2xl px-4 py-3 border border-blue-700/50 focus:border-blue-400 outline-none" />
-      <div ref={controls} className="flex gap-3">
+      <div ref={controls} className="flex items-center gap-4">
         <button type="button" onClick={() => void toggle()} disabled={busy || phase === 'finishing'}
           aria-label={active ? 'Ferma microfono' : 'Attiva microfono'} aria-pressed={active}
-          className={`min-h-14 flex-1 rounded-2xl px-4 py-3 font-bold flex items-center justify-center gap-2 disabled:opacity-60 ${active ? 'bg-red-600 text-white' : 'bg-neutral-800 text-white border border-neutral-600'}`}>
-          {active ? <Square size={22} fill="currentColor" /> : <Mic size={24} />}
-          {active ? 'Ferma' : phase === 'finishing' ? 'Elaboro…' : 'Parla'}
+          className={`w-[72px] h-[72px] shrink-0 rounded-full flex items-center justify-center disabled:opacity-60 ${active ? 'bg-red-600 text-white ring-4 ring-red-500/25' : 'bg-neutral-800 text-white border border-neutral-600'}`}>
+          <Mic size={34} aria-hidden="true" />
         </button>
         <button onClick={onInsert} disabled={busy || phase !== 'idle' || !text.trim()}
           className="min-h-14 flex-1 bg-blu hover:brightness-110 disabled:opacity-50 rounded-2xl px-4 py-3 font-bold">
           {busy ? 'Leggo…' : 'Inserisci'}
         </button>
       </div>
-      <p role="status" className={`text-xs ${active ? 'text-red-300' : 'text-neutral-400'}`}>
+      <p role="status" className="sr-only">
         {phase === 'starting' ? 'Avvio microfono…' : phase === 'listening' ? 'Microfono acceso' : phase === 'finishing' ? 'Microfono spento · completo il testo' : 'Microfono spento'}
       </p>
     </div>
