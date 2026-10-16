@@ -164,6 +164,21 @@ describe('frasi con piu alimenti', () => {
 });
 
 describe('parole sconosciute e risposta AI', () => {
+  it('200 g di vitello cotto usano valori cotti, senza riusare o riconvertire la scheda cruda', async () => {
+    const { aiEntries } = await import('../src/lib/ai');
+    const raw = { id: 'vitello_raw', name: 'Fettina di vitello', kcal: 110, pro: 21, carbs: 0, fats: 3, cookedFactor: 0.74, source: 'personale' as const };
+    const item = { nome:'fettina di vitello cotta',grammi:200,pezzi:null,peso_pezzo_g:150,cotto:true,kcal_100g:170,proteine_100g:29,carboidrati_100g:0,grassi_100g:6 };
+    const [cooked] = aiEntries({pasto:'pranzo',alimenti:[item]},[raw]);
+    expect(cooked.food.preparation).toBe('cooked');
+    expect(cooked.food.id).not.toBe(raw.id);
+    expect(rawGrams(cooked.food,cooked.portion)).toBe(200);
+    expect(buildItem(cooked.food,cooked.portion)).toMatchObject({kcal:340,pro:58,fats:12,grams:200});
+    const [again] = aiEntries({pasto:'pranzo',alimenti:[item]},[cooked.food,raw]);
+    expect(again.food.id).toBe(cooked.food.id);
+    const [uncooked] = aiEntries({pasto:'pranzo',alimenti:[{...item,nome:'fettina di vitello',cotto:false}]},[cooked.food,raw]);
+    expect(uncooked.food.id).toBe(raw.id);
+    expect(buildItem(uncooked.food,uncooked.portion).kcal).toBe(220);
+  });
   it('manda all AI solo se resta qualcosa che non conosco', async () => {
     const { unknownWords } = await import('../src/lib/parser');
     expect(unknownWords('ho mangiato a colazione 2 uova 100 g di albume e uno yogurt greco 0', BASE_FOODS)).toEqual([]);

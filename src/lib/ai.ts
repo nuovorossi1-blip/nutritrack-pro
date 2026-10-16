@@ -46,15 +46,30 @@ export async function askAi(text: string): Promise<AiResult> {
 
 const slug = (s: string) => normalize(s).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const r1 = (n: number | null) => Math.round((n ?? 0) * 10) / 10;
+const cookingName = /\b(pollo|tacchino|vitello|manzo|scottona|carne|bistecca|fettina|coscia|cosce|pesce|salmone|merluzzo|riso|pasta|spaghetti)\b/i;
+const baseName = (s: string) => slug(s.replace(/\b(crud[oaie]|cott[oaie])\b/gi, '').replace(/[(),]/g, ' '));
+function preparation(f: Food): Food['preparation'] {
+  if (f.preparation) return f.preparation;
+  if (f.usda) return /\braw\b/i.test(f.usda.description) ? 'raw' : /\bcooked|roasted|broiled|boiled|fried\b/i.test(f.usda.description) ? 'cooked' : undefined;
+  if (f.cookedFactor) return 'raw';
+  if (/\bcott[oaie]\b/i.test(f.name)) return 'cooked';
+  if (/\bcrud[oaie]\b/i.test(f.name)) return 'raw';
+  return undefined;
+}
 
 /** Trasforma la risposta dell'AI in voci da confermare; usa un alimento gia' noto se ha lo stesso nome. */
 export function aiEntries(r: AiResult, foods: Food[]): ParsedEntry[] {
   return r.alimenti.map((a) => {
-    const known = foods.find((f) => slug(f.name) === slug(a.nome));
+    const state: Food['preparation'] = a.cotto ? 'cooked' : cookingName.test(a.nome) ? 'raw' : undefined;
+    const known = foods.find((f) => baseName(f.name) === baseName(a.nome)
+      && (state ? preparation(f) === state : !preparation(f)));
+    const name = state && !/\b(crud[oaie]|cott[oaie])\b/i.test(a.nome)
+      ? `${a.nome} (${state === 'cooked' ? 'cotto' : 'crudo'})` : a.nome;
     const pw = a.peso_pezzo_g && a.peso_pezzo_g > 0 ? Math.round(a.peso_pezzo_g) : undefined;
     const food: Food = known || {
-      id: `ai_${slug(a.nome)}`,
-      name: a.nome.charAt(0).toUpperCase() + a.nome.slice(1),
+      id: `ai_${state ? baseName(a.nome) : slug(a.nome)}${state ? `_${state}` : ''}`,
+      name: name.charAt(0).toUpperCase() + name.slice(1),
+      preparation: state,
       kcal: Math.round(a.kcal_100g),
       pro: r1(a.proteine_100g),
       carbs: r1(a.carboidrati_100g),

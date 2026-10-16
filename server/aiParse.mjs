@@ -41,7 +41,9 @@ Regole:
 - Grammi di pasta, riso, cereali, legumi secchi SENZA la parola cotto/cotta: sono grammi A CRUDO, quindi valori per 100 g A CRUDO (pasta secca circa 355 kcal, riso circa 350). Solo se la frase dice "cotto/cotta" usa valori da cotto.
 - grammi: solo se la frase indica un peso. pezzi: numero di pezzi/porzioni. Articolo o numero davanti all'alimento = pezzi ("una birra" = 1, "un filo d'olio" = 1, "un'insalata" = 1, "due fette di pizza" = 2). Se non c'e' nessuna quantita' lascia grammi e pezzi null: NON inventare.
 - peso_pezzo_g: OBBLIGATORIO per ogni elemento, mai null: peso tipico di UN pezzo/porzione in grammi o ml (cornetto 60, fetta di pizza 120, vasetto di yogurt 125, birra media 400, porzione di lasagne 300, filo d'olio 5, cucchiaio d'olio 10, porzione di insalata 80, sugo di pomodoro 80, tazzina di caffe 30).
-- Valori nutrizionali per 100 g dell'alimento come indicato sopra, da tabelle affidabili (CREA, CIQUAL, USDA). Numeri, non stringhe.`;
+- Valori nutrizionali per 100 g dell'alimento come indicato sopra, da tabelle affidabili (CREA, CIQUAL, USDA). Numeri, non stringhe.
+- Carne, pesce, pasta e riso: il nome distingue crudo/cotto. Conserva taglio e pelle: cosce di pollo senza pelle NON sono petto di pollo, vitello NON è manzo.
+- "fettina di vitello 200 g cotta pranzo": pasto pranzo, grammi 200, cotto true, nome fettina di vitello cotta e valori per 100 g DA COTTO. Non convertire quei 200 g in peso crudo e non aggiungere olio/burro se non nominati.`;
 
 function num(v) {
   const n = typeof v === 'string' ? parseFloat(v.replace(',', '.')) : v;

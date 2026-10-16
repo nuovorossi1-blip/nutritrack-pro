@@ -16,6 +16,7 @@ import { MealSheet } from './components/MealSheet';
 import { SettingsModal } from './components/SettingsModal';
 import { QuickConfirm } from './components/QuickConfirm';
 import { ProfileGoals } from './components/ProfileGoals';
+import { plausibilityWarnings } from './lib/plausibility';
 
 interface Toast {
   id: number;
@@ -110,15 +111,19 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
     const foods = allFoods(data);
     const entries = parseFoodText(text, foods);
     const meal = mealFromText(text);
-    // Parole che l'elenco non conosce ("lasagne", "cornetto"): legge l'AI, e si conferma sempre.
+    // Frase completa: anche l'AI puo' inserire direttamente, con Annulla.
     if (unknownWords(text, foods).length) {
       setThinking(true);
       try {
         const r = await askAi(text);
         const aiList = aiEntries(r, foods);
-        if (aiList.length) return setQuick({ entries: aiList, meal: r.pasto || meal, ai: true });
+        if (!aiList.length) return toast('Alimento non riconosciuto: nessuna voce aggiunta.', true);
+        const complete = meal && aiList.every((e) => e.qtyGiven && e.portion.qty > 0 && !plausibilityWarnings(e.food).length)
+          && r.alimenti.every((a) => a.proteine_100g !== null && a.carboidrati_100g !== null && a.grassi_100g !== null);
+        if (complete) return confirmQuick(aiList, meal, true);
+        return setQuick({ entries: aiList, meal: meal || r.pasto, ai: true });
       } catch (e) {
-        toast(`${(e as Error).message}. Uso solo gli alimenti che conosco.`, true);
+        return toast(`${(e as Error).message}. Nessun alimento aggiunto: riprova.`, true);
       } finally {
         setThinking(false);
       }
@@ -145,7 +150,7 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
         return withDay(d, day, { ...log, [meal]: log[meal].filter((i) => !ids.has(i.id)) });
       });
     toast(
-      `Aggiunto a ${MEALS.find((m) => m.key === meal)!.label}: ${items.map((i) => `${i.name.split(' (')[0]} ${i.label}`).join(' + ')}`,
+      `Aggiunto a ${MEALS.find((m) => m.key === meal)!.label}: ${items.map((i) => `${i.name} ${i.label}`).join(' + ')}${entries.some((e) => e.food.source === 'ai') ? ' · stima AI' : ''}`,
       false,
       undoable ? { label: 'Annulla', run: undo } : undefined,
     );

@@ -28,6 +28,8 @@ export interface Food {
   source: FoodSource;
   barcode?: string;
   aliases?: string[];
+  /** Stato a cui si riferiscono i valori per 100 g, distinto dal peso della porzione. */
+  preparation?: 'raw' | 'cooked';
   usda?: { fdcId: number; description: string; dataType: string; url: string };
 }
 

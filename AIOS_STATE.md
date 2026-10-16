@@ -40,6 +40,8 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. Fase 4 (
 
 ## 3. Cosa funziona
 
+- [FACT] Frase completa «fettina di vitello 200 g cotta pranzo»: inserimento AI diretto con Annulla, senza chiedere di ridigitare quantità/pasto. Ingredienti e macro completi, nessun avviso plausibilità, pasto riconosciuto dalla frase necessari per l'inserimento diretto. Preparazione AI cruda/cotta persistita in `Food.preparation`, nome e ID distinti; non riusa una voce cruda per una cotta o un vecchio AI ambiguo. 200 g cotti usano valori per 100 g da cotto senza seconda conversione. Macro AI restano stime e sono indicati come tali nel messaggio. In errore AI nessun ripiego sul parser parziale (evita macinato di vitello → manzo). Prova browser locale riuscita: frase reale, peso cotto, macro calcolati, Annulla, quantità mancante e errore503 senza aggiunta; prova completa sul sito pubblico riuscita, utente temporaneo eliminato.
+
 - [FACT] Ricerca USDA: da Cerca → «Cerca su USDA (alimenti generici)», query in italiano, 8.104 voci ufficiali complete (Foundation aprile 2026 + SR Legacy aprile 2018, CC0) incluse SOLO sul server. Query comuni deterministiche; altrimenti AI traduce query inglese e poi nomi italiani. Macro copiati dal record FDC validato, mai dal modello. Scheda con fonte/link/descrizione originale, crudo/cotto e % grassi mantenuti; scelta e conferma prima del salvataggio tra alimenti personali, quindi quantità e pasto. Alimento e alias italiano ritrovati sul secondo dispositivo senza ricerca esterna. Nessuna API key USDA né scraping ad ogni ricerca; aggiornamenti del catalogo richiedono nuova importazione e deploy. 30 test, build e prova completa Edge mobile locale riusciti; prova completa riuscita anche sul sito pubblico, con utente temporaneo poi eliminato. Endpoint autenticato, limiti in memoria 200/giorno globali e 40/utente per istanza, cache query 24 ore (non un limite globale distribuito). Scottona segnalata come categoria non distinta da USDA, risultati di manzo generico; niente falsa equivalenza. «Petto / fesa di tacchino (carne fresca, cruda)» chiarisce la vecchia voce locale senza cambiarne i valori.
 
 - [FACT] Primo accesso: schermata «Creiamo il tuo profilo» per profili assenti/incompleti. Nome, data di nascita, sesso, peso, altezza, attività e obiettivo obbligatori; selezioni esplicite, niente sesso/attività scelti in automatico per utenti nuovi. Calorie e macro si aggiornano anche se si cambia peso dopo aver scelto l'obiettivo. Salvataggio iniziale attende conferma cloud; errore rete mostra riprova senza perdere i campi. Profili precedenti con età e senza data di nascita ancora utilizzabili. Profilo e calorie manuali persistono anche su un altro dispositivo. Test 27/27, build e prova Edge mobile locale riusciti il 16/10/2026.
@@ -55,7 +57,7 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. Fase 4 (
 - [FACT] Fotocamera: scansione del codice a barre nel browser (ZXing caricato solo all'apertura, EAN-13/8, UPC, Code128), messaggi chiari se il permesso è bloccato. Provato con fotocamera simulata (EAN 8076800195057 → Spaghetti n.5) in locale e su nutritrack.redapp.dev.
 - [FACT] Impostazioni → Permessi: stato di fotocamera e microfono, pulsante Consenti (fa comparire la richiesta del browser), istruzioni se bloccati. Dettatura con errori spiegati (permesso negato, nessuna voce).
 - [FACT] Inserimento a parole a "pezzi di frase": più alimenti nella stessa frase ("2 uova 100 g di albume e uno yogurt 0" → 2 uova 120 g + albume 100 g + yogurt 0% 1 vasetto 150 g, colazione, 308 kcal). Quantità/«cotto» vanno all'alimento che segue, altrimenti a quello prima; "0%" non è una quantità; "mezzo kg"; nomi di più parole degli alimenti salvati. Se pasto e quantità sono tutti detti aggiunge subito con «Annulla» nell'avviso, altrimenti apre il riquadro di conferma. Le frasi con alimenti sconosciuti passano all'AI (vedi sotto).
-- [FACT] AI vera nell'inserimento a parole: se nella frase restano parole che l'elenco non conosce (`unknownWords`), la frase va a POST /api/ai-parse → `server/aiParse.mjs` → OpenRouter `openai/gpt-4o-mini` (~3-6 s, ~0,0003 $ a frase). Chiave SOLO sul server (variabile `OPENROUTER_KEY_NUOVOROSSI1_GMAIL_COM` sul PC, `OPENROUTER_API_KEY` su Vercel), tetti 300 frasi/giorno e 40 per IP (in memoria, si azzerano al riavvio). Il risultato si conferma SEMPRE nel riquadro (badge AI, valori per 100 g); gli alimenti nuovi vengono salvati e la volta dopo si riconoscono senza AI. Provato: "a cena lasagne e un cornetto" → lasagne (porzione 300 g, quantità da scrivere) + 1 cornetto 60 g; poi "un cornetto a merenda" aggiunto subito senza AI. Se l'AI non risponde si usa solo l'elenco locale.
+- [FACT] AI vera nell'inserimento a parole: se nella frase restano parole che l'elenco non conosce (`unknownWords`), la frase va a POST /api/ai-parse → `server/aiParse.mjs` → OpenRouter `openai/gpt-4o-mini` (~3-6 s, ~0,0003 $ a frase). Chiave SOLO sul server (variabile `OPENROUTER_KEY_NUOVOROSSI1_GMAIL_COM` sul PC, `OPENROUTER_API_KEY` su Vercel), tetti 300 frasi/giorno e 40 per IP (in memoria, si azzerano al riavvio). Le frasi complete con pasto esplicito, quantità e macro completi/coerenti si inseriscono direttamente con Annulla e dicitura stima AI; altrimenti si apre il riquadro (badge AI, valori per 100 g); gli alimenti nuovi vengono salvati e la volta dopo si riconoscono senza AI. Provato: "a cena lasagne e un cornetto" → lasagne (porzione 300 g, quantità da scrivere) + 1 cornetto 60 g; poi "un cornetto a merenda" aggiunto subito senza AI. Se l'AI non risponde si usa solo l'elenco locale.
 - [FACT] Avviso «⚠ valori da controllare» (`src/lib/plausibility.ts`): kcal oltre 900, macro oltre 100 g, kcal che non tornano con i macro (scarto > 25% e > 40 kcal), «0%» con grassi > 3 g, «magro/light» > 12 g, intervalli tipici per tonno, yogurt, latte, pasta secca, riso, pane, pollo, uova, frutta, bevande (esclusi i piatti misti). Nei risultati di ricerca, nella scheda prodotto e nel riquadro dell'AI; non blocca il salvataggio. Prova "tonno rio mare": 7 schede su 28 segnalate, tutte con dati davvero sbagliati (403/401 kcal; Rio Mare leggero 107 kcal ma i macro danno 167; latte di giumenta 205 kcal ma i macro danno 44); nessun alimento di base segnalato.
 - [FACT] Correzione dei valori: nel riquadro dell'avviso istruzioni in 3 passi (valori dall'etichetta / pulsante «Valori tipici dall'AI» che chiede «100 g di <nome> <marca>» e riempie i campi / scegliere un'altra scheda) e, se le kcal non tornano, «Usa N kcal (dai macro)». Dalla schermata della quantità «Correggi i valori per 100 g» anche per alimenti già salvati: dopo il salvataggio si torna alla stessa voce. Provato: tonno 403 → AI 132 kcal (P 29,9, G 1), poi corretto a mano 190 sulla voce già inserita.
 - [FACT] Riepilogo come lo screenshot dell'utente del 16/10: titolo «Riepilogo», Mangiate · arco di 270° con Rimanenti (oro) · Eccesso; sotto barre Carboidrati (oro) / Proteine (blu) / Grassi (bianco) con «x / y g». Oltre l'obiettivo: Rimanenti 0, arco pieno rosso, Eccesso «+N» rosso, bordo rosso e frase «Hai superato l'obiettivo di N kcal (X%)»; macro oltre l'obiettivo con barra rossa e «+N g». «Bruciate» tolto su richiesta dell'utente (non esiste un conteggio dell'attività).
@@ -65,7 +67,7 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. Fase 4 (
 - [FACT] Profilo (nome, sesso, età, peso, altezza, attività: sedentario / 1-3 / 3-5 / 6-7 allenamenti / atleta / altro con mantenimento a mano) → metabolismo basale (Mifflin-St Jeor) e mantenimento (× 1,2-1,9), `src/lib/metabolism.ts`. Esempio provato: uomo 35 anni 80 kg 180 cm 1-3 allenamenti → basale 1755, mantenimento 2410.
 - [FACT] Obiettivo Dieta (-20%) / Mantenimento / Massa (+10%): calorie e macro suggeriti (proteine 2,2/1,8/2 g per kg, grassi 25%, carboidrati il resto). Calorie modificabili; l'utente scrive due macro e sceglie quale è «auto» (calcolato dalle kcal): 2000 kcal, 200 P, 200 C → grassi 44 g. Avviso se i due macro superano le kcal. Riquadro "Completa il tuo profilo" finché manca; nel riepilogo «Ciao Nome · Dieta».
 - [FACT] Crea alimento a mano. Obiettivi con profili rapidi. Backup/ripristino JSON. Tema scuro. Azzera il giorno scelto (con conferma).
-- [FACT] Test: 30 test logica e USDA (giorni, crudo/cotto, parole, Open Food Facts, storico, profilo, provenienza valori) ok; tsc ok; build ok; prova completa in Edge senza errori.
+- [FACT] Test: 31 test logica e USDA (giorni, crudo/cotto, parole, Open Food Facts, storico, profilo, provenienza valori) ok; tsc ok; build ok; prova completa in Edge senza errori.
 
 ## 4. Cosa è in lavorazione
 
@@ -97,6 +99,7 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. Fase 4 (
 
 | Problema | Causa vera | Soluzione |
 |---|---|---|
+| Frase AI completa sempre da confermare e rischio confusione crudo/cotto | aiEntries ignorava cotto nel riuso omonimo; App confermava sempre e ripiegava sul parser parziale in errore | Preparazione e ID distinti, riuso solo stessa preparazione, grammi senza doppia conversione; frase completa inserita con Annulla e stima AI; errore senza aggiunta parziale. |
 | Petto di tacchino e generici difficili da trovare | Catalogo base limitato, nome fesa ambiguo e ricerca online solo prodotti Open Food Facts | Nome locale chiarito; aggiunta ricerca USDA in italiano con descrizioni originali, 8.104 record ufficiali, scheda di conferma e salvataggio persistente sull’account. |
 | Primo accesso senza creazione profilo | Profilo e TDEE esistevano solo nelle impostazioni, senza passaggio iniziale; età scritta a mano | Schermata obbligatoria per profilo incompleto, birthDate con età calcolata, TDEE e calorie per obiettivo, salvataggio cloud prima del diario e modifica dalle impostazioni. Header adattato anche a 320 px. |
 | Scheda "Foto AI" finta: qualsiasi foto diventava sempre "Pollo, Riso e Verdure" 135 kcal/100g | Gemini aveva simulato l'analisi (funzione `analyzePhotoFood` con dati fissi) | Scheda, sezione e funzione tolte (16/10). Va rifatta solo con un modello vero. |
@@ -115,6 +118,8 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. Fase 4 (
 ---
 
 ## 8. Decisioni prese
+
+- **Frasi naturali complete da inserire direttamente**, richiesta utente 16/10/2026: «fettina di vitello 200 g cotta pranzo». Nessun obbligo di riformulare; pasto/quantità/qualificatori devono essere riconosciuti. Valori cotti separati dai crudi; niente promessa di esattezza assoluta per stime AI. Se mancano quantità/pasto o i valori sono da controllare si chiede conferma, negli altri casi Annulla disponibile.
 
 - **Ricerca USDA e salvataggio alimenti generici approvati dall'utente (16/10/2026):** catalogo ufficiale scaricabile incluso sul server per evitare nuova chiave/API e richieste ripetute a USDA. AI già autorizzata solo per traduzioni, valori dal record originale; conferma variante prima di salvare. Questa attuazione anticipa USDA rispetto alla precedente previsione CIQUAL → USDA di riserva. CIQUAL resta possibile estensione, non ancora importata.
 
@@ -161,18 +166,15 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. Fase 4 (
 
 **Modello:** Codex (GPT-6) · **Data:** 2026-10-16
 
-Ricerca USDA in italiano e salvataggio sull'account implementati. Catalogo generato con
-scripts/import-usda.py da download ufficiali CC0; 8.104 record completi in server/data/usda.mjs.
-Non è scraping in tempo reale: Foundation aprile 2026 e SR Legacy aprile 2018.
-AI traduce solo query e nomi, numeri dal catalogo e fonte visibile; conferma prima del salvataggio.
-Endpoint /api/usda-search solo autenticati, cache e limiti in memoria per istanza; stessa
-implementazione su Vite e Vercel. Server locale riavviato per caricare il nuovo endpoint.
-30 test e build riusciti. Prova reale dei sei esempi utente; patate inizialmente502,
-risolto con retry e query comuni senza traduzione AI. Glossario corretto per avena steel cut.
-Browser mobile locale: fonte, macro identici al catalogo, nessun salvataggio prima della
-conferma, cloud/pasto e secondo dispositivo senza nuova ricerca riusciti; utente test eliminato.
-Deploy manuale senza .git/.env come richiesto dagli account separati. Deploy dpl_4U9Beg5EEx7rxUqbhAECwcJazc2L READY; prova completa sul sito pubblico riuscita, utente temporaneo eliminato.
-APK ancora da realizzare; obiettivo finale web + APK con profilo e archivio personali.
+Utente chiarisce che vuole scrivere la frase naturale completa e ottenere l'inserimento,
+non istruzioni per formularla diversamente. Corretto il caso vitello200g cotto pranzo:
+preparazione persistita e ID/nome separati, nessun riuso di crudo come cotto, peso200g
+senza riconversione; frase completa con valori coerenti aggiunta direttamente con Annulla.
+Le stime restano esplicitamente AI; se quantità/pasto mancano o valori da controllare,
+resta il riepilogo. Errore AI non aggiunge più un sottoinsieme ambiguo dal parser locale.
+31 test e build riusciti, browser reale locale riuscito e utente temporaneo eliminato.
+Deploy manuale dpl_6sAj7LsECSkTTkD2UezJ8fB393ww READY; prova completa sul sito pubblico riuscita, utente temporaneo eliminato.
+Ricerca USDA e salvataggio già operativi; APK ancora da fare.
 
 ---
 
@@ -191,6 +193,7 @@ APK ancora da realizzare; obiettivo finale web + APK con profilo e archivio pers
 
 | Data | Modello | Cosa è stato fatto |
 |---|---|---|
+| 2026-10-16 | Codex (GPT-6) | Frasi AI complete aggiunte direttamente con Annulla; distinzione persistita crudo/cotto e nessun fallback ambiguo in errore. 31 test/build/browser locale ok, prova completa sul sito pubblico riuscita, utente temporaneo eliminato. |
 | 2026-10-16 | Codex (GPT-6) | Ricerca USDA in italiano, 8.104 record ufficiali, fonte e scheda di conferma, salvataggio cloud e riutilizzo senza ricerca. Tacchino locale chiarito. 30 test/build/Edge mobile locale ok; prova completa riuscita anche sul sito pubblico, con utente temporaneo poi eliminato. |
 | 2026-10-16 | Codex (GPT-6) | Creazione profilo al primo accesso, data nascita ed età automatica, TDEE e calorie per tre obiettivi, salvataggio cloud con riprova e modifica manuale persistita. 27 test e build ok, Edge mobile locale ok. Deploy Vercel READY; prova browser completa riuscita anche sul sito pubblico. |
 | 2026-10-16 | Codex (GPT-6) | SMTP Gmail e testi italiani configurati su Supabase; confronto PATCH/GET riuscito. Nessun codice o deploy modificato. Manca prova reale delle email. |
