@@ -56,6 +56,6 @@
   "last_session": {
     "model": "Codex (GPT-6)",
     "date": "2026-10-16",
-    "summary": "Voce/Testo nel pasto: scelta corrispondenze database (cornetto bar/Algida), grammi espliciti e riepilogo finale; ID/macro reali, zero macroAI per questo flusso.36schede comuni.59test/build e QA realeOFF/browser ok. APK invariato, pubblicazione web."
+    "summary": "Corretto microfono: nuove sessioni aggiungono testo con spazio al prefisso scritto/dettato, niente sovrascrittura o duplicazioni parziali/finale.59test/build e QA browser+bridge nativo simulati ok, home/pasto e clear dopo Inserisci verificati. Aggiornamento web, APK invariato."
   }
 }

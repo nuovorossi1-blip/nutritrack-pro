@@ -40,6 +40,8 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Andr
 
 ## 3. Cosa funziona
 
+- [FACT] Dettatura riprendibile: start/stop/start aggiunge al testo esistente con spazio, parziali/finale non duplicano, sessioni vuote/errori preservano campo. Home e pasto condividono correzione; browser+bridge nativo simulati positivi.
+
 - [FACT] Voce/Testo nel pasto mostra corrispondenze da alimenti salvati/catalogo/OFF/USDA, utente sceglie tipo e grammi, poi riepilogo finale. Cornetto bar genericoUSDA e prodottiAlgida reali distinti; zero macroAI in questo flusso.59test/build e QA realeOFF/browser positivi.
 
 - [FACT] Inserimento pasti dal riferimento utente: Ricerca/Foto/Barcode/Voce-Testo, placeholder per pasto, frequenti reali e Fine protetto. FotoAI propone solo nomi; grammi e conferma utente obbligatori, zero foto salvate.56test/build e QA reale vision/browser positivi; camera fisica da confermare.
@@ -205,40 +207,26 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Andr
 
 **Modello:** Codex (GPT-6) ? **Data:** 2026-10-16
 
-Richiesta Voce/Testo nel pasto: 'ho mangiato un cornetto' deve mostrare alternative
-database, non far decidere al modello bar/Algida; poi grammi e conferma utente.
-Implementati foodRequests (frasi semplici/liste, pesi solo espliciti g/kg, nessun
-peso da articolo un), matchingFoods (nome/marca/alias, plurali, dedup IDs) e dialog
-FoodChoices. Alimenti salvati/base immediati, ricerca OFF reale e USDA solo se
-nessuna voce locale, nessun macro generato da AI in questo flusso. USDA pu?
-tradurre query/nomi come prima ma i macro sono dal catalogo. Brand Algida non
-rimpiazzato con USDA generico. Eventuale fonte indisponibile segnalata, locali
-ancora usabili. Query modificabile e scelta esplicita prima di PortionEditor:
-quantit? iniziale0 salvo grammi gi? detti. Riepilogo finale Aggiungi al pasto;
-puoi cambiare scelta prima di confermare. Liste multiple scelgono una voce per
-riga, al termine nascondono risultati e mostrano subito conferma/riepilogo.
-Prodotti con nutrienti mancanti aprono FoodReview prima del peso; ID/macro originali
-conservati. Salvataggio prodotti scelti e modifiche porzioni al commit del pasto,
-non durante ricerca. AndroidBack priorit?45 lista/50 porzione/20 pasto.
-Aggiunta36esima voce comune: USDA174987 croissant butter,406kcal/100g, nome
-'Cornetto del bar / croissant al burro (generico)', fonte esplicitamente indicativa
-per ricette del bar. Generic cornetto NON aggiunto come alias al parser globale:
-prima versione aveva2regressioni test (riconosceva bar automaticamente), corretto
-restringendo alias a delbar/albar/croissant/brioche. Tutti59test/build positivi.
-Input rapido iniziale App.tsx conservato: questa revisione riguarda Voce/Testo
-nel pasto e il testo proposto dalla foto. Il vecchio parser principale non e
-riscritto. Estrazione richieste usa frasi semplici e nomi composti salvati; per
-liste complesse usare una riga per alimento o correggere query, non promettere
-comprensione universale senza errori.
-QA browser locale reale OFF: dettatura simulata 'ho mangiato un cornetto', bar e
-Algida mostrati, nessun peso implicito,100gbar406kcal; cambio sceltaAlgida50g,
-macro della scheda reale, conferma esplicita e reloadcloud conservati. Lista
-100gbanana50gmela115kcal,0erroriJS;320px e screenshot dialog verificati. Utenti
-prova eliminati. Nuova APK non necessaria. Pubblicazione e QA LIVE nel logDesktop.
+Bug utente: vocale della home sovrascriveva testo esistente riaccendendo dopoStop.
+VoiceInput ora cattura il prefisso del campo ad ogni nuova sessione e aggiunge
+uno spazio+trascrizione della sessione corrente. Parziali/finale aggiornano solo
+quel segmento, senza duplicazioni; eventi vuoti non cancellano il testo. Si
+preservano scrittura manuale e dettature precedenti tra sessioni. Cancellazione
+campo resta gestita dal genitore dopo inserimento riuscito, non dal microfono.
+Componente condiviso: correzione home e Voce/Testo nel pasto. Nessun cambio motore
+Google/pluginAPK.59test/build positivi. QA Edge mobile locale sia BrowserRecognition
+simulato che bridge nativo simulato: prefisso scritto,2sessioni, parziali multipli,
+finale senza duplicati, editing fra sessioni, sessione vuota/errore conserva testo,
+Inserisci riuscito svuota, nuova sessione pulita senza vecchio prefisso; campo nel
+pasto accumula anch esso.0erroriJS, account temporanei/dati eliminati. ScriptQA
+Temp/nutritrack-onboarding-qa/append-voice-check.mjs. Pubblicazione e verifiche LIVE
+nel registroDesktop. NuovaAPK non necessaria, riaprire1.0.3. Test acustico fisico
+non eseguito; la regressione e nella composizione testo web, verificata sui2percorsi.
 
-Conservati9fb2ea9 fotoAI/4schede/frequenti,ec46971 crudo-cotto/resa misurata,
-12525a5 navigazione e aeecf02 contributiClaude. APK1.0.3 invariato. Test fisici
-Google/camera/gesti/installazione e scope workflow ancora aperti.
+Conservati44e3fb2 scelta database nel Voce/Testo del pasto (bar/Algida, grammi e
+riepilogo),9fb2ea9 fotoAI/4schede/frequenti,ec46971 crudo-cotto/resa misurata,
+12525a5 navigazione e aeecf02 contributiClaude. Test fisici Google/camera/gesti/
+installazione e scope workflow ancora aperti.
 
 ---
 

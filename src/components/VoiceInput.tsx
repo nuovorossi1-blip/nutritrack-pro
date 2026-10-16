@@ -71,6 +71,13 @@ export function VoiceInput({ text, onText, onInsert, busy, onError, placeholder 
     session.current = current;
     setPhase('starting');
     const live = () => session.current === current && !current.cancelled;
+    // Every recognition event replaces this session's transcript only.
+    // Earlier typed/dictated text stays fixed across partial and final results.
+    const prefix = text.trimEnd();
+    const updateTranscript = (transcript: string) => {
+      const words = transcript.trim();
+      if (live() && words) onText(prefix ? `${prefix} ${words}` : words);
+    };
     const finish = () => {
       clearTimeout(current.timeout);
       if (session.current === current) { session.current = null; setPhase('idle'); }
@@ -85,7 +92,7 @@ export function VoiceInput({ text, onText, onInsert, busy, onError, placeholder 
         });
         if (!live() || current.stopped) return;
         if (!capabilities.inline || !capabilities.available) throw new Error('Attiva il servizio vocale nelle impostazioni del telefono.');
-        listeners.push(await SpeechInput.addListener('text', ({ text }) => { if (live()) onText(text); }));
+        listeners.push(await SpeechInput.addListener('text', ({ text }) => updateTranscript(text)));
         listeners.push(await SpeechInput.addListener('state', ({ listening }) => {
           if (live()) setPhase(listening && !current.stopped ? 'listening' : 'finishing');
         }));
@@ -93,7 +100,7 @@ export function VoiceInput({ text, onText, onInsert, busy, onError, placeholder 
         current.stop = () => { void SpeechInput.stop().catch(() => { void SpeechInput.cancel().catch(() => {}); finish(); }); };
         current.cancel = () => { void SpeechInput.cancel().catch(() => {}); };
         const result = await SpeechInput.start();
-        if (live() && result.text.trim()) onText(result.text);
+        updateTranscript(result.text);
       } catch (error) {
         if ((error as { code?: string }).code !== 'CANCELLED') report((error as Error).message || 'Microfono non disponibile.');
       } finally {
@@ -120,7 +127,7 @@ export function VoiceInput({ text, onText, onInsert, busy, onError, placeholder 
       current.cancel = () => recognition.abort();
       recognition.onstart = () => { if (live() && !current.stopped) setPhase('listening'); };
       recognition.onresult = ({ results }) => {
-        if (live()) onText(Array.from(results, (result) => result[0].transcript).join(' '));
+        updateTranscript(Array.from(results, (result) => result[0].transcript).join(' '));
       };
       recognition.onend = finish;
       recognition.onerror = ({ error }) => {
