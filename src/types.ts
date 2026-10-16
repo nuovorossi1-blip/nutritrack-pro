@@ -89,6 +89,4 @@ export interface AppData {
   /** Tema stile PronoBlast gia' applicato (scuro di partenza, una volta sola). */
   themeV2?: boolean;
   profile?: Profile;
-  /** Kcal bruciate con l'attivita', per giorno AAAA-MM-GG. */
-  burned?: Record<string, number>;
 }

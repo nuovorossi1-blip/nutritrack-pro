@@ -1,6 +1,4 @@
-import { useState } from 'react';
 import type { Goals, Macros } from '../types';
-import { NumberInput } from './NumberInput';
 
 const PLAN_LABEL = { dieta: 'Dieta', mantenimento: 'Mantenimento', massa: 'Massa' };
 const fmt = (n: number) => Math.round(n).toLocaleString('it-IT');
@@ -17,6 +15,7 @@ function Macro({ label, value, goal, color }: { label: string; value: number; go
       <span className={`text-sm font-extrabold ${over ? 'text-red-500' : ''}`}>
         {fmt(value)} / {fmt(goal)} g
       </span>
+      {over && <span className="text-[11px] font-bold text-red-500 -mt-1">+{fmt(value - goal)} g</span>}
     </div>
   );
 }
@@ -25,17 +24,15 @@ interface Props {
   total: Macros;
   goals: Goals;
   name?: string;
-  /** Kcal bruciate con l'attivita' del giorno (scritte dall'utente). */
-  burned: number;
-  onBurned: (kcal: number) => void;
 }
 
-// Riepilogo stile "Mangiate · Rimanenti · Bruciate" con arco e barre dei macro.
-export function Summary({ total, goals, name, burned, onBurned }: Props) {
-  const [editBurned, setEditBurned] = useState(false);
-  const budget = goals.kcal + burned;
-  const left = budget - total.kcal;
-  const pct = budget > 0 ? Math.min(1, total.kcal / budget) : 0;
+// Riepilogo stile "Mangiate · Rimanenti · Eccesso" con arco e barre dei macro.
+// Oltre l'obiettivo: rimanenti 0, arco pieno rosso, eccesso in rosso.
+export function Summary({ total, goals, name }: Props) {
+  const left = Math.max(0, goals.kcal - total.kcal);
+  const excess = Math.max(0, total.kcal - goals.kcal);
+  const over = excess > 0;
+  const pct = goals.kcal > 0 ? Math.min(1, total.kcal / goals.kcal) : 0;
   // Arco di 270 gradi, aperto in basso.
   const R = 52;
   const C = 2 * Math.PI * R;
@@ -47,10 +44,11 @@ export function Summary({ total, goals, name, burned, onBurned }: Props) {
         <h2 className="text-2xl font-extrabold">Riepilogo</h2>
         <span className="text-xs font-bold text-blue-600 dark:text-gold-400 uppercase tracking-wide">
           {name ? `${name} · ` : ''}
-          {goals.plan ? PLAN_LABEL[goals.plan] : `${fmt(goals.kcal)} kcal`}
+          {goals.plan ? `${PLAN_LABEL[goals.plan]} · ` : ''}
+          {fmt(goals.kcal)} kcal
         </span>
       </div>
-      <div className="bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200/70 dark:border-neutral-700 shadow-sm p-4 sm:p-5">
+      <div className={`bg-white dark:bg-neutral-900 rounded-3xl border shadow-sm p-4 sm:p-5 ${over ? 'border-red-500/70' : 'border-neutral-200/70 dark:border-neutral-700'}`}>
         <div className="grid grid-cols-[1fr_auto_1fr] items-center">
           <div className="text-center">
             <div className="text-2xl font-extrabold">{fmt(total.kcal)}</div>
@@ -67,33 +65,23 @@ export function Summary({ total, goals, name, burned, onBurned }: Props) {
               </defs>
               <circle cx="60" cy="60" r={R} fill="none" strokeWidth="9" strokeLinecap="round" className="stroke-neutral-200 dark:stroke-neutral-700" strokeDasharray={`${ARC} ${C}`} />
               {total.kcal > 0 && (
-                <circle cx="60" cy="60" r={R} fill="none" strokeWidth="9" strokeLinecap="round" stroke={left < 0 ? '#ef4444' : 'url(#arco-oro)'} strokeDasharray={`${Math.max(ARC * pct, 0.1)} ${C}`} />
+                <circle cx="60" cy="60" r={R} fill="none" strokeWidth="9" strokeLinecap="round" stroke={over ? '#ef4444' : 'url(#arco-oro)'} strokeDasharray={`${Math.max(ARC * pct, 0.1)} ${C}`} />
               )}
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className={`text-3xl font-extrabold ${left < 0 ? 'text-red-500' : ''}`}>{fmt(Math.abs(left))}</span>
-              <span className="text-sm text-neutral-500 dark:text-neutral-300">{left < 0 ? 'Oltre' : 'Rimanenti'}</span>
+              <span className="text-3xl font-extrabold">{fmt(left)}</span>
+              <span className="text-sm text-neutral-500 dark:text-neutral-300">Rimanenti</span>
             </div>
           </div>
-          <button onClick={() => setEditBurned(true)} className="text-center" aria-label="Kcal bruciate">
-            <div className="text-2xl font-extrabold">{fmt(burned)}</div>
-            <div className="text-sm text-neutral-500 dark:text-neutral-300 underline decoration-dotted underline-offset-4">Bruciate</div>
-          </button>
-        </div>
-        {editBurned && (
-          <div className="mt-2 rounded-2xl bg-neutral-100 dark:bg-neutral-800 p-3 flex items-center gap-2">
-            <span className="text-xs font-semibold flex-1">Kcal bruciate oggi con l'attività (si aggiungono alle rimanenti)</span>
-            <NumberInput
-              decimals={false}
-              value={burned || undefined}
-              placeholder="0"
-              onChange={(n) => onBurned(n ?? 0)}
-              className="w-20 text-center font-extrabold bg-white dark:bg-neutral-900 rounded-xl py-1.5 border border-neutral-200 dark:border-neutral-700"
-            />
-            <button onClick={() => setEditBurned(false)} className="text-xs font-bold rounded-xl px-3 py-1.5 bg-blu text-white">
-              OK
-            </button>
+          <div className="text-center">
+            <div className={`text-2xl font-extrabold ${over ? 'text-red-500' : 'text-neutral-400'}`}>{over ? `+${fmt(excess)}` : '0'}</div>
+            <div className={`text-sm ${over ? 'text-red-500 font-bold' : 'text-neutral-500 dark:text-neutral-300'}`}>Eccesso</div>
           </div>
+        </div>
+        {over && (
+          <p className="mt-2 text-center text-xs font-semibold text-red-500">
+            Hai superato l'obiettivo di {fmt(excess)} kcal ({Math.round((excess / goals.kcal) * 100)}%).
+          </p>
         )}
         <div className="grid grid-cols-3 gap-4 mt-3">
           <Macro label="Carboidrati" value={total.carbs} goal={goals.carbs} color="bg-gold" />

@@ -187,8 +187,6 @@ export default function App() {
           total={total}
           goals={data.goals}
           name={data.profile?.name}
-          burned={data.burned?.[selected] || 0}
-          onBurned={(kcal) => update((d) => ({ ...d, burned: { ...(d.burned || {}), [selected]: kcal } }))}
         />
 
         <section className="rounded-3xl p-4 sm:p-5 text-white bg-gradient-to-br from-blue-900 via-blue-950 to-neutral-950 shadow-xl">
