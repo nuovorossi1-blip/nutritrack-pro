@@ -56,6 +56,6 @@
   "last_session": {
     "model": "Codex (GPT-6)",
     "date": "2026-10-16",
-    "summary": "Crudo/cotto: resa misurata per porzione/cloud/edit/frequenti, precisione0.01g, schede gia cotte mai riconvertite e stato coerente, stime generiche esplicite.53test/build e QA browser ok, pubblicazione web senza nuovaAPK. Storico conservato."
+    "summary": "Inserimento pasti da screenshot: ricerca/fotoAI/barcode/voce-testo, placeholder per pasto e frequenti reali. Foto solo nomi, grammi utente e conferma; endpoint autenticato e nessun salvataggio immagine.56test/build, QA vision reale+browser ok. APK invariato, prove fisiche aperte."
   }
 }

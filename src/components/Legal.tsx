@@ -7,7 +7,7 @@ export const PRIVACY = [
   ['Quali dati', "Email e password (la password è conservata cifrata), profilo (nome, sesso, età, peso, altezza, livello di attività), obiettivi, pasti e alimenti che inserisci."],
   ['Dati sulla salute', "Peso, alimentazione e obiettivi possono rivelare informazioni sulla salute: li trattiamo solo con il tuo consenso esplicito, dato alla registrazione, e solo per far funzionare l'app."],
   ['Perché', "Solo per calcolare calorie e macro, mostrarti lo storico e salvare i tuoi dati fra un dispositivo e l'altro. Niente pubblicità, niente vendita a terzi."],
-  ['Dove', "Database Supabase in Europa (Francoforte); sito su Vercel. Le frasi che scrivi nell'inserimento a parole possono essere inviate a un servizio di intelligenza artificiale (OpenRouter) solo per riconoscere gli alimenti, senza il tuo nome né la tua email. La ricerca dei prodotti usa Open Food Facts."],
+  ['Dove', "Database Supabase in Europa (Francoforte); sito su Vercel. Le frasi che scrivi nell'inserimento a parole possono essere inviate a un servizio di intelligenza artificiale (OpenRouter) solo per riconoscere gli alimenti, senza il tuo nome né la tua email. Le foto inviate con Riconosci alimenti sono elaborate tramite OpenRouter per proporre i nomi: devi controllarli e indicare le quantita. L app non salva le foto nel diario. La ricerca dei prodotti usa Open Food Facts."],
   ['Per quanto', "Finché hai l'account. Dalle impostazioni puoi cancellare tutti i tuoi dati in qualsiasi momento; per chiudere anche l'account scrivi all'indirizzo sopra."],
   ['I tuoi diritti', "Accesso, rettifica, cancellazione, limitazione, portabilità (backup scaricabile dalle impostazioni), revoca del consenso e reclamo al Garante per la protezione dei dati personali."],
 ];

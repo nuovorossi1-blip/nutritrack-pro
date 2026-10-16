@@ -20,9 +20,10 @@ interface BrowserRecognition {
 }
 type Session = { stopped: boolean; cancelled: boolean; stop?: () => void; cancel?: () => void; timeout?: ReturnType<typeof setTimeout> };
 
-export function VoiceInput({ text, onText, onInsert, busy, onError }: {
+export function VoiceInput({ text, onText, onInsert, busy, onError, placeholder = 'Cosa hai mangiato?', multiline = false }: {
   text: string; onText: (text: string) => void; onInsert: () => void;
   busy: boolean; onError: (message: string) => void;
+  placeholder?: string; multiline?: boolean;
 }) {
   const [phase, setPhase] = useState<'idle' | 'starting' | 'listening' | 'finishing'>('idle');
   const session = useRef<Session | null>(null);
@@ -144,8 +145,8 @@ export function VoiceInput({ text, onText, onInsert, busy, onError }: {
       <div className="relative">
       <textarea ref={input} value={text} onChange={(event) => onText(event.target.value)}
         onFocus={() => requestAnimationFrame(() => controls.current?.scrollIntoView({ block: 'center' }))}
-        onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); if (phase === 'idle') onInsert(); } }}
-        placeholder="Cosa hai mangiato?" rows={1}
+        onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey && !multiline) { event.preventDefault(); if (phase === 'idle') onInsert(); } }}
+        placeholder={placeholder} rows={multiline ? 3 : 1}
         className="block w-full resize-none overflow-y-auto leading-6 bg-neutral-900/80 placeholder-neutral-400 text-base rounded-2xl pl-4 pr-14 py-3 border border-blue-700/50 focus:border-blue-400 outline-none" />
         <button type="button" onClick={() => void toggle()} disabled={busy || phase === 'finishing'}
           aria-label={active ? 'Ferma microfono' : 'Attiva microfono'} aria-pressed={active}

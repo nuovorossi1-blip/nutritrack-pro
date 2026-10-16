@@ -15,6 +15,7 @@ interface Props {
   meal: MealKey | null;
   /** Voci lette dall'AI: valori stimati, da controllare. */
   ai?: boolean;
+  fixedMeal?: boolean;
   dayLabel: string;
   onConfirm: (entries: ParsedEntry[], meal: MealKey) => void;
   onClose: () => void;
@@ -22,7 +23,7 @@ interface Props {
 
 // Riepilogo dell'inserimento a parole: niente viene aggiunto finche' pasto e
 // quantita' non sono chiari.
-export function QuickConfirm({ entries: initial, meal: initialMeal, ai, dayLabel, onConfirm, onClose }: Props) {
+export function QuickConfirm({ entries: initial, meal: initialMeal, ai, fixedMeal, dayLabel, onConfirm, onClose }: Props) {
   useAndroidBack(onClose);
   const [entries, setEntries] = useState(initial);
   const [meal, setMeal] = useState<MealKey | null>(initialMeal);
@@ -45,7 +46,7 @@ export function QuickConfirm({ entries: initial, meal: initialMeal, ai, dayLabel
           </button>
         </div>
 
-        <div>
+        {fixedMeal ? <p className="text-sm font-bold">{MEALS.find(m => m.key === meal)?.label}</p> : <div>
           <div className={`text-xs font-bold mb-1.5 ${meal ? 'text-neutral-500' : 'text-red-500'}`}>{meal ? 'Pasto' : 'In quale pasto?'}</div>
           <div className="grid grid-cols-4 gap-1.5">
             {MEALS.map((m) => (
@@ -54,7 +55,7 @@ export function QuickConfirm({ entries: initial, meal: initialMeal, ai, dayLabel
               </button>
             ))}
           </div>
-        </div>
+        </div>}
 
         {entries.map((e, i) => {
           const g = rawGrams(e.food, e.portion);

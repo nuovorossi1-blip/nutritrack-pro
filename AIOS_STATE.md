@@ -40,6 +40,8 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Andr
 
 ## 3. Cosa funziona
 
+- [FACT] Inserimento pasti dal riferimento utente: Ricerca/Foto/Barcode/Voce-Testo, placeholder per pasto, frequenti reali e Fine protetto. FotoAI propone solo nomi; grammi e conferma utente obbligatori, zero foto salvate.56test/build e QA reale vision/browser positivi; camera fisica da confermare.
+
 - [FACT] Resa crudo/cotto per porzione: pesi totali prima/dopo e grammi cotti da mangiare; misura persistita in cloud/edit/frequenti. Schede gia cotte mai convertite di nuovo; stato/etichette coerenti. Conversioni generiche marcate stime.53test/build e QA browser positivi; storico conservato.
 
 - [FACT] Navigazione Android pulsante/gesto Back gerarchica, radice minimizeApp, bordi swipe24px riservati e insets laterali landscape.50test/build e QA bridge mobile positivi; prova fisica delle due modalit? ancora da confermare. UI aggiornata remotamente, APK1.0.3 invariato.
@@ -201,32 +203,39 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Andr
 
 **Modello:** Codex (GPT-6) ? **Data:** 2026-10-16
 
-Peso crudo/cotto: fattori generici gi? presenti avevano arrotondamento intermedio
-al grammo e le schede cotte salvavano cooked=false. Corretto: precisione0.01g,
-stato/etichette espliciti a crudo/da cotto, foodPreparation condiviso AI/nutrition;
-nessuna conversione aggiuntiva se la scheda ? gi? cotta, anche con factor residuo.
-Factor mancante/invalido o resa incompleta non trattano peso cotto come crudo.
-In PortionEditor/QuickConfirm checkbox 'Ho pesato prima e dopo la cottura':
-Totale crudo(g), Totale cotto(g), quantit? cotta da mangiare. Resa per stessa
-partita/parte edibile senza condimenti, cotto/raw; si ripartiscono macro della
-scheda cruda sulla porzione cotta. Non misura perdite nutrienti/grassi/succhi;
-testo esplicito, ingredienti aggiunti separati. Generici factor indicati STIME,
-nessuna promessa che tutte le cotture conservino macro esatti.
-Per schede cotte USDA si usano direttamente i rispettivi valori100g; tasti
-crudo/cotto scelgono la scheda, non trasformano100g crudi in100g cotti.
-Resa opzionale MealItem.cookingYield persiste cloud/edit/frequenti/quickadd,
-non cambia valori100g dell'alimento, n? ricalcola storico precedente.
-53test/build ok; test misure pasta/riso/acqua e carne/pesce/perdita, scheda cotta
-senza doppio fattore, blocco resa incompleta, edit conservativo.
-QA browser locale positivo: pasta100crudi250cotti porzione125=186kcal,250=371;
-reload cloud/edit mantengono100/250/125; pollo200crudi150cotti75=110kcal.
-Primo QA secondo picker su Frequenti: selettore ricerca mancava, test corretto
-con tabCerca; nessun difetto app. Utenti prova eliminati. Pubblicazione remota
-senza nuova APK, verifica LIVE nel registro centrale.
+Richiesta screenshot file_4.jpg: nuova pagina Aggiungi al pasto con4schede grandi
+Ricerca/Foto/Codice a barre/Voce-Testo, placeholder contestuale per ciascuno
+4pasti e frequenti reali sotto la ricerca (select Frequenti/Tutti). Nessuna lista
+inventata. + riusa ultima porzione, nome apre modifica, storico e barcode/manuale
+conservati. Fine fisso protetto dalla barra Android, input riaperto su Ricerca.
+Voce/Testo interno al pasto: textarea multilinea, Enter va a capo, microfono
+Google a destra come prima, parser locale/salvati prima di AI, poi QuickConfirm
+con pasto bloccato al contesto; niente autoaggiunta senza conferma.
+Foto: FoodPhoto getUserMedia camera posteriore o upload JPEG/PNG/WebP; anteprima,
+invio esplicito Riconosci alimenti. Canvas riduce1280px e rimuove metadati,
+limite base641.8MB. Camera fermata a chiusura/cambio scheda/background e richieste
+abortite a unmount; nessuna immagine salvata nel diario/database/repository.
+Endpoint /api/photo-foods autenticato fail-closed, Vite+Vercel, gpt4o-mini vision
+tramite OpenRouter esistente. Restituisce SOLO nomi in italiano, zero grammi/macro,
+non indovina marche/tagli/ingredienti nascosti. Utente corregge nomi e indica peso
+in Voce/Testo o conferma. Draft foto senza grammi espliciti azzera eventuali quantita
+proposte dal parser AI. Valori AI successivi restano stime e visibili in conferma.
+Limiti in memoria per istanza20foto/utente/giorno,150globali/giorno; timeout25s;
+nessuna pretesa limite distribuito. Validazione dataURL/jpeg-png-webp/magic header,
+mai URL remoti arbitrari. Informativa aggiornata per invio foto a OpenRouter;
+revisione legale precedente resta aperta, non promesse su retention fornitori.
+56test/build positivi. QA browser locale con foto pubblica banana realmente inviata
+al modello: riconosciuta senza pesi, inserimento bloccato fino a quantita;
+lista100g banana+50g mela115kcal confermata solo a cena, frequenti reali,4placeholder,
+4schede, Fine sopra inset48 e320px senza overflow/erroriJS. Camera simulata si
+chiude al cambio tab. Utenti prova eliminati. Primo QA strict2Inserisci (home+
+pasto) risolto limitando selettore al pannello, nessun difetto app. Download foto
+Wikimedia429, usata immagine pubblica Independent inTemp soloQA, non app.
+Pubblicazione remota e verifica LIVE registrate nel log centrale. APK1.0.3 invariato.
 
-Conservato supporto Android3pulsanti/gesti del commit12525a5 e revisione aeecf02
-(con contributi Claude). APK1.0.3/code3 invariato; test fisici navigazione/voce/
-punteggiatura/installazione/fotocamera e scope workflow restano aperti.
+Conservate correzioni ec46971 crudo/cotto/resa misurata,12525a5 navigazione
+Android e aeecf02 con contributi Claude. Prove fisiche telefono camera/voce/
+punteggiatura/installazione/gesti e scope workflow restano aperti.
 
 ---
 

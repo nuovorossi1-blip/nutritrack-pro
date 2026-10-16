@@ -1,5 +1,5 @@
 import { useAndroidBack } from '../native/navigation';
-import { ArrowLeft, Barcode, Camera, Pencil, PlusCircle, Search, Star, Trash2 } from 'lucide-react';
+import { ArrowLeft, Barcode, Camera, MessageSquare, Pencil, PlusCircle, Search, Star, Trash2 } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
 import type { AppData, Food, MealItem, MealKey } from '../types';
 import { MEALS } from '../types';
@@ -15,9 +15,15 @@ import { BarcodeScanner } from './BarcodeScanner';
 import { searchUsda, type UsdaResult } from '../lib/usda';
 import { SwipeFoodRow } from './SwipeFoodRow';
 import { MealSummary, MealProgress } from './MealSummary';
+import { FoodPhoto } from './FoodPhoto';
+import { VoiceInput } from './VoiceInput';
+import { QuickConfirm } from './QuickConfirm';
+import { aiEntries, askAi } from '../lib/ai';
+import { buildItem } from '../lib/nutrition';
+import { parseFoodText, unknownWords, type ParsedEntry } from '../lib/parser';
 import { recognitionFoods } from '../lib/savedFoodRecognition';
 
-type Tab = 'frequenti' | 'cerca' | 'barcode' | 'crea';
+type Tab = 'cerca' | 'foto' | 'voce' | 'barcode';
 
 interface Props {
   meal: MealKey;
@@ -46,7 +52,13 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
   const lastKcal = last ? sumMacros(last.items).kcal : 0;
   const total = sumMacros(items);
 
-  const [tab, setTab] = useState<Tab>(frequent.length ? 'frequenti' : 'cerca');
+  const [tab, setTab] = useState<Tab>('cerca');
+  const prompt = meal === 'colazione' ? 'Cosa hai mangiato a colazione?' : meal === 'spuntini' ? 'Cosa hai mangiato come spuntino?' : `Cosa hai mangiato a ${info.label.toLowerCase()}?`;
+  const [list, setList] = useState<'frequenti' | 'tutti'>('frequenti');
+  const [text, setText] = useState('');
+  const [photoDraft, setPhotoDraft] = useState(false);
+  const [reading, setReading] = useState(false);
+  const [quick, setQuick] = useState<{entries: ParsedEntry[]; ai: boolean} | null>(null);
   const [query, setQuery] = useState('');
   const [online, setOnline] = useState<OffResult[] | null>(null);
   const [busy, setBusy] = useState(false);
@@ -57,7 +69,7 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
   const [openSwipe, setOpenSwipe] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const sheet = useRef<HTMLDivElement>(null);
-  const changeView = (add: boolean) => { setAdding(add); sheet.current?.scrollTo({ top: 0 }); };
+  const changeView = (add: boolean) => { if(add) {setTab('cerca');setQuery('');setList('frequenti');} setAdding(add); sheet.current?.scrollTo({ top: 0 }); };
 
   const [picking, setPicking] = useState<{ food: Food; initial?: Portion; itemId?: string } | null>(null);
   // back: da dove si e' arrivati (correzione dalla schermata della quantita'), per tornarci dopo il salvataggio.
@@ -118,12 +130,29 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
     else setReview({ food: r.food, missing: r.missing, title: 'Controlla il prodotto' });
   };
 
+  const insertText = async () => {
+    if (!text.trim() || reading) return;
+    if (text.length > 400) return toast('Inserisci al massimo 400 caratteri alla volta.', true);
+    setReading(true);
+    try {
+      const input = text.replace(/\r?\n/g, '; ');
+      let entries = unknownWords(input, foods).length
+        ? aiEntries(await askAi(`${input}; ${info.label.toLowerCase()}`), foods)
+        : parseFoodText(input, foods);
+      if (photoDraft && !/\d+(?:[.,]\d+)?\s*(?:g|gr|grammi|kg)\b/i.test(input)) entries = entries.map(e => ({...e, qtyGiven:false, portion:{mode:'grams',qty:0,cooked:e.portion.cooked}}));
+      if (!entries.length) return toast('Non riconosco alimenti. Scrivi il nome e i grammi.', true);
+      setQuick({entries, ai: entries.some(e => e.food.source === 'ai')});
+    } catch(e) { toast((e as Error).message, true); }
+    finally { setReading(false); }
+  };
+
   const tabBtn = (t: Tab, label: string, Icon: typeof Star) => (
     <button
       onClick={() => setTab(t)}
-      className={`px-3 py-2 border-b-2 text-xs font-bold flex items-center gap-1.5 whitespace-nowrap ${tab === t ? 'border-blue-600 text-blue-600 dark:text-blue-400' : 'border-transparent text-neutral-400'}`}
+      aria-pressed={tab === t}
+      className={`min-w-[72px] flex-1 min-h-24 rounded-3xl border-2 text-[11px] font-bold flex flex-col justify-center items-center gap-2 text-center ${tab === t ? 'border-blue-500 bg-blue-500/15 text-blue-600 dark:text-blue-300' : 'border-neutral-200 dark:border-neutral-700 text-neutral-500'}`}
     >
-      <Icon size={14} /> {label}
+      <Icon size={28} /> {label}
     </button>
   );
 
@@ -197,14 +226,24 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
         </>}
 
         {adding && <section className="bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200/70 dark:border-neutral-800 p-3 space-y-3">
-          <div className="flex border-b border-neutral-100 dark:border-neutral-800 gap-1 overflow-x-auto">
-            {tabBtn('frequenti', 'Frequenti', Star)}
-            {tabBtn('cerca', 'Cerca', Search)}
+          <div className="flex gap-2 overflow-x-auto pb-1" aria-label="Modalit? di inserimento">
+            {tabBtn('cerca', 'Ricerca', Search)}
+            {tabBtn('foto', 'Foto', Camera)}
             {tabBtn('barcode', 'Codice a barre', Barcode)}
-            {tabBtn('crea', 'Crea alimento', PlusCircle)}
+            {tabBtn('voce', 'Voce/Testo', MessageSquare)}
           </div>
+          {tab === 'foto' && <FoodPhoto onRecognised={names => {setPhotoDraft(true);setText(names.join('\n'));setTab('voce');toast('Controlla i nomi e indica i grammi di ogni alimento.');}} />}
+          {tab === 'voce' && <VoiceInput text={text} onText={setText} onInsert={() => void insertText()} busy={reading} onError={message => toast(message,true)} placeholder={prompt} multiline />}
+          {tab === 'cerca' && <div className="flex gap-2 items-center rounded-2xl border-2 border-blue-500 px-3 py-1">
+            <Search size={20} className="text-blue-500 shrink-0"/>
+            <input value={query} aria-label="Cerca alimenti" placeholder={prompt} onChange={event => {setQuery(event.target.value);setOnline(null);setUsda(null);}} className="min-w-0 w-full bg-transparent py-3 text-sm outline-none"/>
+          </div>}
+          {tab === 'cerca' && !query.trim() && <div className="flex items-center justify-between gap-3">
+            <span className="text-sm font-bold flex items-center gap-2"><Star size={16}/>Alimenti</span>
+            <select aria-label="Elenco alimenti" value={list} onChange={event => setList(event.target.value as 'frequenti' | 'tutti')} className="bg-neutral-100 dark:bg-neutral-800 rounded-2xl p-3 text-sm font-bold"><option value="frequenti">Frequenti</option><option value="tutti">Tutti gli alimenti</option></select>
+          </div>}
 
-          {tab === 'frequenti' &&
+          {tab === 'cerca' && !query.trim() && list === 'frequenti' &&
             (frequent.length === 0 ? (
               <p className="text-xs text-neutral-400 text-center py-4">Qui compariranno gli alimenti che usi più spesso a {info.label.toLowerCase()}, con un + per aggiungerli con un tocco.</p>
             ) : (
@@ -241,29 +280,12 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
                     </button>
                   </div>
                 ))}
-                <p className="text-[10px] text-neutral-400 px-1 pt-1">Il + aggiunge la stessa quantità dell'ultima volta. Tocca il nome per cambiarla.</p>
               </div>
             ))}
 
-          {tab === 'cerca' && (
+          {tab === 'cerca' && (query.trim() || list === 'tutti') && (
             <div className="space-y-2">
-              <div className="flex gap-2">
-                <input
-                  value={query}
-                  disabled={usdaBusy || busy}
-                  onChange={(e) => {
-                    setQuery(e.target.value);
-                    setOnline(null);
-                    setUsda(null);
-                  }}
-                  onKeyDown={(e) => e.key === 'Enter' && searchGeneric()}
-                  placeholder="Es. yogurt fage 0, pasta, pollo..."
-                  className="min-w-0 flex-1 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-2xl px-4 py-2.5 text-sm"
-                />
-                <button onClick={searchOnline} disabled={busy} className="bg-blu text-white text-xs font-bold rounded-2xl px-4 disabled:opacity-50">
-                  {busy ? 'Cerco…' : 'Cerca prodotti'}
-                </button>
-              </div>
+              <button onClick={searchOnline} disabled={busy} className="w-full bg-blu text-white text-xs font-bold rounded-2xl px-4 py-3 disabled:opacity-50">{busy ? 'Cerco?' : 'Cerca prodotti'}</button>
               <button onClick={searchGeneric} disabled={usdaBusy || busy} className="w-full rounded-2xl py-2.5 px-3 bg-blu text-white text-xs font-bold disabled:opacity-50">
                 {usdaBusy ? 'Cerco su USDA e traduco…' : 'Cerca su USDA (alimenti generici)'}
               </button>
@@ -319,25 +341,24 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
             </div>
           )}
 
-          {tab === 'crea' && (
-            <div className="text-center py-3">
-              <p className="text-xs text-neutral-500 mb-3">Inserisci a mano i valori per 100 g presi dall'etichetta.</p>
-              <button onClick={() => setReview({ food: emptyFood(), missing: [], title: 'Nuovo alimento' })} className="bg-blu text-white text-sm font-bold rounded-2xl px-5 py-2.5">
-                Crea alimento
-              </button>
-            </div>
-          )}
+          <button onClick={() => setReview({food:emptyFood(),missing:[],title:'Nuovo alimento'})} className="text-xs font-bold text-blue-500 py-2">Crea alimento manualmente</button>
+
         </section>}
       </div>
 
-      {!adding && <div className="meal-add-footer fixed bottom-0 inset-x-0 z-10 bg-white/95 dark:bg-neutral-950/95 backdrop-blur border-t border-neutral-200 dark:border-neutral-800 px-4 pt-3">
+      {<div className="meal-add-footer fixed bottom-0 inset-x-0 z-10 bg-white/95 dark:bg-neutral-950/95 backdrop-blur border-t border-neutral-200 dark:border-neutral-800 px-4 pt-3">
         <div className="max-w-2xl mx-auto">
-          <button onClick={() => changeView(true)} className="add-button w-full rounded-2xl bg-blu text-white font-extrabold flex items-center justify-center gap-2">
-            <PlusCircle size={24} /> Aggiungi altro
+          <button onClick={() => changeView(!adding)} className="add-button w-full rounded-2xl bg-blu text-white font-extrabold flex items-center justify-center gap-2">
+            {adding ? 'Fine' : <><PlusCircle size={24} /> Aggiungi altro</>}
           </button>
         </div>
       </div>}
 
+      {quick && <QuickConfirm fixedMeal entries={quick.entries} meal={meal} ai={quick.ai} dayLabel={dayLabel} onClose={() => setQuick(null)} onConfirm={entries => {
+        entries.filter(e => e.food.source === 'ai').forEach(e => onSaveFood(e.food));
+        onAddItems(entries.map(e => buildItem(e.food,e.portion)));
+        setQuick(null);setText('');setPhotoDraft(false);changeView(false);
+      }} />}
       {scanning && (
         <BarcodeScanner
           onClose={() => setScanning(false)}
