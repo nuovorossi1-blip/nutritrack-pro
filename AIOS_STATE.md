@@ -4,7 +4,7 @@
 > qui. Va **aggiornato** a ogni sessione di lavoro, non accodato all'infinito.
 > L'identità del progetto e il percorso di AI-OS stanno in `AIOS_PROJECT.json`.
 
-**Ultimo aggiornamento:** 2026-10-16 — Claude Opus 5.5
+**Ultimo aggiornamento:** 2026-10-16 - Codex (GPT-6)
 
 Etichette usate in questo file:
 `[FACT]` verificato nel codice · `[RICOSTRUITO]` dedotto da indizi ·
@@ -25,9 +25,11 @@ storico per giorno. Online su Vercel + Supabase (account smaugdrago@gmail.com).
 
 ## 2. Dove siamo adesso
 
-Fase 1 FATTA e fase 3 (login + cloud + Vercel) FATTA il 16/10/2026, con un limite aperto:
-le email di conferma arrivano solo agli indirizzi del team Supabase finché non si collega
-la casella Gmail (SMTP) — vedi problemi aperti. Fase 2 (CIQUAL) e fase 4 (APK) da fare.
+Fase 1 e fase 3 (login + cloud + Vercel) pubblicate. SMTP Gmail configurato il
+16/10/2026 con nuovorossi1@gmail.com e mittente NutriTrack PRO; testi italiani
+per conferma, recupero password e cambio email. PATCH e rilettura GET verificate.
+Resta da provare una registrazione reale con ricezione, conferma e login.
+Fase 2 (CIQUAL) e fase 4 (APK) da fare.
 
 **Online (Vercel, account smaugdrago@gmail.com, team Decisione):** https://nutritrack-pro-zeta.vercel.app
 **Sul PC (stessa app e stesso database):** https://nutritrack.redapp.dev (tunnel Cloudflare) e http://127.0.0.1:5180
@@ -67,7 +69,7 @@ la casella Gmail (SMTP) — vedi problemi aperti. Fase 2 (CIQUAL) e fase 4 (APK)
 ## 5. Cosa manca ancora
 
 - Fase 2: alimenti sfusi ufficiali CIQUAL tradotti in italiano (oggi 21 alimenti di base del prototipo), USDA come riserva.
-- Fase 3: login Supabase (registrazione con privacy/condizioni + mail di conferma), dati per utente con RLS, pubblicazione su Vercel. Account smaugdrago@gmail.com: l'utente lo collega con l'icona "Collega account" (token MAI in chat).
+- Fase 3: login, cloud e Vercel pubblicati; SMTP configurato, manca solo la verifica reale delle email (vedi problema 1).
 - Fase 4: APK Android auto-aggiornante (modulo AI-OS, come GymBuilder): permessi Android CAMERA e RECORD_AUDIO nel manifest + richiesta in app; ricerca Open Food Facts nell'APK tramite richiesta nativa (niente CORS).
 - Vera analisi del piatto da foto con un modello AI (tolta la versione finta).
 
@@ -77,7 +79,7 @@ la casella Gmail (SMTP) — vedi problemi aperti. Fase 2 (CIQUAL) e fase 4 (APK)
 
 | # | Problema | Da quando | Cosa si è già provato |
 |---|---|---|---|
-| 1 | Email di conferma/nuova password: senza SMTP proprio Supabase le manda SOLO agli indirizzi del team (smaugdrago@gmail.com), max poche all'ora, e non permette testi in italiano. Gli altri utenti NON possono completare la registrazione. | 2026-10-16 | Aggiunta la voce «14) Gmail» a Collega account (password per le app di Google, prova di invio). Quando l'utente l'ha fatta: impostare SMTP smtp.gmail.com:587 su Supabase (PATCH config/auth smtp_*) e i testi italiani delle email (già pronti, rifiutati senza SMTP). |
+| 1 | Verifica completa delle email di registrazione/recupero password ancora da fare. | 2026-10-16 | Codex: SMTP Gmail nuovorossi1@gmail.com configurato su Supabase (smtp.gmail.com:587, mittente NutriTrack PRO), conferma obbligatoria mantenuta e testi italiani salvati. PATCH riuscita e GET con confronto dei campi riuscito. Il collegamento Gmail aveva superato la prova di invio dello script. Nessuna nuova email inviata in questa sessione; manca prova dalla registrazione reale fino al login. |
 | 2 | Molti prodotti Open Food Facts senza peso porzione (es. Fage Total 0 → 100g). | 2026-10-16 | Campo "peso porzione" modificabile prima di salvare. |
 | 3 | Valori Open Food Facts a volte poco credibili (es. "tonno rio mare" 403 kcal/100 g). | 2026-10-16 | Avviso «⚠ valori da controllare» aggiunto il 16/10 (vedi sezione 3); i dati restano quelli di OFF, li corregge l'utente. Ordine dei risultati non ancora influenzato dall'avviso. |
 | 4 | Dettatura non provabile senza telefono vero (nel browser di prova: "Microfono non disponibile"). | 2026-10-16 | Da provare sul telefono con Chrome. |
@@ -106,6 +108,8 @@ la casella Gmail (SMTP) — vedi problemi aperti. Fase 2 (CIQUAL) e fase 4 (APK)
 ---
 
 ## 8. Decisioni prese
+
+- **Mittente email NutriTrack PRO: nuovorossi1@gmail.com** - scelto dall'utente in Collega account, opzione 14. Indipendente dagli account Supabase/Vercel smaugdrago@gmail.com. Configurazione SMTP e testi italiani verificati da Codex il 16/10/2026.
 
 - **React + TypeScript + Vite + Tailwind (Capacitor per l'APK)** — motivo: stesso codice per sito e APK, come GymBuilder (modulo Android già pronto), Vercel/Supabase nativi; scartati React Native/Expo (web peggiore, modulo da rifare), Flutter (linguaggio diverso), HTML unico (ingestibile con login/APK) — data: 2026-10-16
 - **Registrazione: privacy e condizioni d'uso + mail di conferma**, come il Gestionale Palestra (non approvazione manuale dell'amministratore) — data: 2026-10-16
@@ -142,18 +146,21 @@ la casella Gmail (SMTP) — vedi problemi aperti. Fase 2 (CIQUAL) e fase 4 (APK)
 
 ## 10. Dove si è fermato l'ultimo lavoro
 
-**Modello:** Claude Opus 5.5 · **Data:** 2026-10-16
+**Modello:** Codex (GPT-6) - **Data:** 2026-10-16
 
-Fase 3 pubblicata su https://nutritrack-pro-zeta.vercel.app e verificata con utenti di prova
-(cancellati: database vuoto). Manca solo l'SMTP: in attesa che l'utente usi «Collega account →
-14) Gmail» con smaugdrago@gmail.com; poi configurare SMTP + testi italiani su Supabase e provare
-una registrazione vera.
+Ripresa richiesta dopo il limite di Claude. Opzione 14 completata dall'utente con
+nuovorossi1@gmail.com e nome app NutriTrack: password per app Gmail valida,
+come confermato dal registro account (salvata solo dopo prova SMTP riuscita).
+Supabase/Vercel restano su smaugdrago@gmail.com; il mittente Gmail e' indipendente.
+SMTP smtp.gmail.com:587 e testi italiani configurati e verificati via API.
+Nessun invio email nuovo in questa sessione. Nessun codice o deploy modificato.
+Manca prova reale di registrazione, ricezione email, conferma e accesso.
 
 ---
 
 ## 11. Prossimi passi
 
-1. [utente] «Collega account» → 14) Gmail con smaugdrago@gmail.com (password per le app). Poi [AI]: SMTP su Supabase (smtp.gmail.com:587, mittente «NutriTrack PRO»), testi email italiani, prova di registrazione vera.
+1. [utente] Registrarsi su https://nutritrack-pro-zeta.vercel.app, controllare anche Spam, confermare la mail e completare il login. SMTP configurato: non rifare Collega account. Poi provare il recupero password.
 2. Decidere con l'utente se nutritrack.redapp.dev deve puntare a Vercel (CNAME) e spegnere la copia sul PC, o restare sul PC.
 3. Fase 2: CIQUAL in italiano negli alimenti di base.
 4. Fase 4: APK Android auto-aggiornante (modulo AI-OS) con permessi fotocamera/microfono e ricerca Open Food Facts nativa.
@@ -165,6 +172,7 @@ una registrazione vera.
 
 | Data | Modello | Cosa è stato fatto |
 |---|---|---|
+| 2026-10-16 | Codex (GPT-6) | SMTP Gmail e testi italiani configurati su Supabase; confronto PATCH/GET riuscito. Nessun codice o deploy modificato. Manca prova reale delle email. |
 | 2026-10-16 | Claude Opus 5.5 | Fase 3: Supabase (tabelle + RLS + login con conferma email + privacy/consensi), salvataggio cloud, AI solo registrati, pubblicazione Vercel; voce Gmail in Collega account |
 | 2026-10-16 | Claude Opus 5.5 | AI: piatti unici, marche, pizza intera; nomi salvati con «e» protetti; secondo tentativo |
 | 2026-10-16 | Claude Opus 5.5 | «Bruciate» sostituito da «Eccesso» in rosso oltre l'obiettivo |

@@ -18,7 +18,7 @@
       "upgraded_from_older_aios"
     ],
     "date": "2026-10-16",
-    "created_by_model": "Claude Opus 5.5",
+    "created_by_model": "Codex (GPT-6)",
     "previous_history_available": false,
     "_note": "Prototipo HTML unico generato con Gemini (file nutritrack_pro_calcolatore_macro_e_pasti_con_ai.html), adottato in AI-OS il 2026-10-16. Nessuna storia precedente."
   },
@@ -54,8 +54,8 @@
   ],
   "_secrets_note": "Nessun segreto nel repository. URL e chiave pubblica Supabase, se usati, li inserisce l'utente nella finestra Cloud Sync e restano nel suo browser.",
   "last_session": {
-    "model": "Claude Opus 5.5",
+    "model": "Codex (GPT-6)",
     "date": "2026-10-16",
-    "summary": "Fase 3: login, cloud Supabase con RLS, Vercel. Manca SMTP Gmail per le email agli utenti esterni."
+    "summary": "SMTP Gmail nuovorossi1@gmail.com e testi italiani configurati e verificati via API. Manca prova reale di registrazione e ricezione email."
   }
 }
