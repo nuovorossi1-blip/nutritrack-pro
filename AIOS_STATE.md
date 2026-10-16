@@ -163,6 +163,8 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Andr
 - **Chiave OpenRouter dell'AI su Vercel = quella di nuovorossi1 (OPENROUTER_API_KEY, tipo sensitive)**, già approvata dall'utente per l'AI — data: 2026-10-16
 - **Account nuovo per Vercel + Supabase: smaugdrago@gmail.com**, collegato dall'utente con "Collega account" — data: 2026-10-16
 
+- **Stile iPhone (16/10, richiesta utente)**: angoli più tondi in tutta l'app tramite `borderRadius` in tailwind.config.js (lg 0.875rem, xl 1.125rem, 2xl 1.5rem, 3xl 2rem: le classi `rounded-*` restano le stesse), font di sistema Apple prima di Inter, pulsanti che si rimpiccioliscono al tocco, campi a pillola, fogli dal basso animati (`.ios-sheet`). Calendario: `CalendarSheet.tsx` (foglio dal basso, griglia dal lunedì, cerchi, oggi con anello oro, scelto pieno oro, pallino sui giorni con pasti, futuri spenti) al posto del selettore data del telefono — data: 2026-10-16
+
 ---
 
 ## 9. Trappole di questo progetto

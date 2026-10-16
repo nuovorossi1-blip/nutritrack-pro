@@ -246,3 +246,13 @@ describe('piatti salvati con "e" nel nome', () => {
     expect(parseFoodText('a colazione un cornetto bar', foods).map((e) => e.food.id)).toEqual(['ai_cornetto-bar']);
   });
 });
+
+describe('calendario stile iPhone', () => {
+  it('griglia del mese dal lunedi', async () => {
+    const { monthGrid } = await import('../src/components/CalendarSheet');
+    const g = monthGrid(2026, 9); // ottobre 2026: il 1 e' giovedi
+    expect(g.slice(0, 4)).toEqual([null, null, null, '2026-10-01']);
+    expect(g.filter(Boolean)).toHaveLength(31);
+    expect(g.length % 7).toBe(0);
+  });
+});

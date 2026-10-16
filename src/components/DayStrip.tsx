@@ -1,5 +1,7 @@
 import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState } from 'react';
 import { addDays, dayStrip, longLabel, parseISO, shortLabel } from '../lib/dates';
+import { CalendarSheet } from './CalendarSheet';
 
 interface Props {
   selected: string;
@@ -10,10 +12,11 @@ interface Props {
 
 export function DayStrip({ selected, today, daysWithData, onSelect }: Props) {
   const days = dayStrip(selected, today);
+  const [calendar, setCalendar] = useState(false);
   return (
     <section className="bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200/70 dark:border-neutral-800 shadow-sm p-3">
       <div className="flex items-center gap-1">
-        <button aria-label="Giorno precedente" onClick={() => onSelect(addDays(selected, -1))} className="w-8 h-8 rounded-xl flex items-center justify-center text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800">
+        <button aria-label="Giorno precedente" onClick={() => onSelect(addDays(selected, -1))} className="w-9 h-9 rounded-full flex items-center justify-center text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 active:scale-90 transition">
           <ChevronLeft size={18} />
         </button>
         <div className="flex-1 grid grid-cols-5 gap-1.5">
@@ -23,7 +26,7 @@ export function DayStrip({ selected, today, daysWithData, onSelect }: Props) {
               <button
                 key={d}
                 onClick={() => onSelect(d)}
-                className={`rounded-2xl py-2 flex flex-col items-center transition ${active ? 'bg-gold text-neutral-950 shadow-md shadow-gold-500/30' : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'}`}
+                className={`rounded-[1.4rem] py-2 flex flex-col items-center transition active:scale-95 ${active ? 'bg-gold text-neutral-950 shadow-md shadow-gold-500/30' : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'}`}
               >
                 <span className={`text-[10px] font-bold tracking-wide ${active ? 'text-neutral-800' : 'text-neutral-400'}`}>{shortLabel(d, today)}</span>
                 <span className="text-lg font-extrabold leading-tight">{parseISO(d).getDate()}</span>
@@ -36,7 +39,7 @@ export function DayStrip({ selected, today, daysWithData, onSelect }: Props) {
           aria-label="Giorno successivo"
           disabled={selected >= today}
           onClick={() => onSelect(addDays(selected, 1))}
-          className="w-8 h-8 rounded-xl flex items-center justify-center text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-30"
+          className="w-9 h-9 rounded-full flex items-center justify-center text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-30 active:scale-90 transition"
         >
           <ChevronRight size={18} />
         </button>
@@ -49,19 +52,15 @@ export function DayStrip({ selected, today, daysWithData, onSelect }: Props) {
               Torna a oggi
             </button>
           )}
-          <label className="relative text-xs font-bold text-neutral-500 dark:text-neutral-300 flex items-center gap-1 cursor-pointer bg-neutral-100 dark:bg-neutral-800 rounded-xl px-2.5 py-1.5">
+          <button
+            onClick={() => setCalendar(true)}
+            className="text-xs font-bold text-neutral-500 dark:text-neutral-300 flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 rounded-full px-3 py-1.5 active:scale-95 transition"
+          >
             <CalendarDays size={14} /> Calendario
-            <input
-              type="date"
-              aria-label="Scegli un giorno"
-              max={today}
-              value={selected}
-              onChange={(e) => e.target.value && onSelect(e.target.value > today ? today : e.target.value)}
-              className="absolute inset-0 opacity-0 cursor-pointer"
-            />
-          </label>
+          </button>
         </div>
       </div>
+      {calendar && <CalendarSheet selected={selected} today={today} daysWithData={daysWithData} onSelect={onSelect} onClose={() => setCalendar(false)} />}
     </section>
   );
 }
