@@ -2,10 +2,12 @@
 // Gira SOLO sul server: la chiave OpenRouter non arriva mai al browser.
 // Usato da vite.config.ts (sul PC) e da api/ai-parse.js (su Vercel, fase 3).
 
-// gpt-4.1-nano: ~1,7 s e ~0,00003 $ a frase (provato il 16/10: DeepSeek V4 Flash 7-20 s, Gemini 2.5 Flash Lite JSON non leggibile).
-const MODEL_DEFAULT = 'openai/gpt-4.1-nano';
+// gpt-4o-mini: ~3-4 s, ~0,0003 $ a frase. Provati il 16/10 su 4 frasi: gpt-4.1-nano perdeva alimenti (birra) e
+// a volte non rispondeva; DeepSeek V4 Flash 7-20 s; gemini-2.5-flash-lite JSON non leggibile; gpt-4.1-mini e
+// gemini-2.5-flash corretti ma 3 volte piu' cari.
+const MODEL_DEFAULT = 'openai/gpt-4o-mini';
 const MAX_TEXT = 400;
-// Tetti di spesa: con ~0,00003 $ a frase, 300 frasi al giorno sono meno di 0,01 $.
+// Tetti di spesa: con ~0,0003 $ a frase, 300 frasi al giorno sono circa 0,10 $.
 const LIMIT_DAY = 300;
 const LIMIT_IP_DAY = 40;
 
@@ -32,10 +34,12 @@ Rispondi SOLO con un oggetto JSON, senza testo prima o dopo, con questa forma:
    "kcal_100g": numero, "proteine_100g": numero, "carboidrati_100g": numero, "grassi_100g": numero}]}
 Regole:
 - "pasto" solo se la frase lo dice (merenda/snack = "spuntini"), altrimenti null.
-- Un elemento per ogni alimento o piatto nominato. Piatti composti (es. lasagne, pizza margherita) come un solo alimento.
-- grammi: solo se la frase indica un peso. pezzi: solo se indica un numero di pezzi/porzioni ("un cornetto" = 1). Articolo o numero davanti all'alimento = numero di pezzi ("una birra" = 1, "due fette di pizza" = 2). Se non c'e' nessuna quantita' lascia entrambi null: NON inventare.
-- peso_pezzo_g: SEMPRE il peso tipico di un pezzo/porzione in grammi o ml (cornetto 60, fetta di pizza 120, vasetto di yogurt 125, birra media 400, porzione di lasagne 300...).
-- Valori nutrizionali per 100 g dell'alimento COME VIENE MANGIATO (cotto se cotto), da tabelle affidabili (CREA, CIQUAL, USDA). Numeri, non stringhe.`;
+- Un elemento per ogni alimento nominato. Piatti unici (lasagne, pizza margherita, parmigiana) come un solo alimento.
+- PASTA, RISO, CEREALI con condimento ("pasta al pomodoro", "riso al pesto"): DUE elementi, la pasta/riso e il condimento (es. "sugo di pomodoro", peso_pezzo_g tipico della porzione di condimento, pezzi 1).
+- Grammi di pasta, riso, cereali, legumi secchi SENZA la parola cotto/cotta: sono grammi A CRUDO, quindi valori per 100 g A CRUDO (pasta secca circa 355 kcal, riso circa 350). Solo se la frase dice "cotto/cotta" usa valori da cotto.
+- grammi: solo se la frase indica un peso. pezzi: numero di pezzi/porzioni. Articolo o numero davanti all'alimento = pezzi ("una birra" = 1, "un filo d'olio" = 1, "un'insalata" = 1, "due fette di pizza" = 2). Se non c'e' nessuna quantita' lascia grammi e pezzi null: NON inventare.
+- peso_pezzo_g: OBBLIGATORIO per ogni elemento, mai null: peso tipico di UN pezzo/porzione in grammi o ml (cornetto 60, fetta di pizza 120, vasetto di yogurt 125, birra media 400, porzione di lasagne 300, filo d'olio 5, cucchiaio d'olio 10, porzione di insalata 80, sugo di pomodoro 80, tazzina di caffe 30).
+- Valori nutrizionali per 100 g dell'alimento come indicato sopra, da tabelle affidabili (CREA, CIQUAL, USDA). Numeri, non stringhe.`;
 
 function num(v) {
   const n = typeof v === 'string' ? parseFloat(v.replace(',', '.')) : v;
