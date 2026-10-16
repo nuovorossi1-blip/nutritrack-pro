@@ -197,10 +197,10 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
                       className="flex flex-1 min-w-0 items-center justify-between gap-2 text-left py-1 disabled:cursor-default"
                     >
                       <span className="min-w-0 flex-1">
-                        <span className="block text-sm font-semibold truncate">{it.name}</span>
-                        <span className="block text-[11px] text-neutral-400">{it.label}</span>
+                        <span className="block text-[17px] sm:text-lg leading-snug font-bold whitespace-normal break-words">{it.name}</span>
+                        <span className="block text-[10px] sm:text-xs text-neutral-400 mt-0.5">{it.label}</span>
                       </span>
-                      <span className="text-sm font-bold whitespace-nowrap">{it.kcal} kcal</span>
+                      <span className="text-xs sm:text-sm font-semibold text-neutral-400 whitespace-nowrap shrink-0">{it.kcal} kcal</span>
                     </button>
                   </SwipeFoodRow>
                 );

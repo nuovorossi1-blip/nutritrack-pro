@@ -65,7 +65,7 @@ export function Summary({ total, goals, name }: Props) {
               </defs>
               <circle cx="60" cy="60" r={R} fill="none" strokeWidth="9" strokeLinecap="round" className="stroke-[#38393d]" strokeDasharray={`${ARC} ${C}`} />
               {total.kcal > 0 && (
-                <circle data-calorie-progress cx="60" cy="60" r={R} fill="none" strokeWidth="9" strokeLinecap="round" stroke={over ? '#ef4444' : total.kcal === goals.kcal ? '#34d399' : 'url(#arco-oro)'} strokeDasharray={`${Math.max(ARC * pct, 0.1)} ${C}`} />
+                <circle data-calorie-progress cx="60" cy="60" r={R} fill="none" strokeWidth="9" strokeLinecap="round" stroke={over ? '#ef4444' : '#22c55e'} strokeDasharray={`${Math.max(ARC * pct, 0.1)} ${C}`} />
               )}
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
