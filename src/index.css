@@ -9,7 +9,7 @@
   --app-safe-right: max(env(safe-area-inset-right, 0px), var(--safe-area-inset-right, 0px));
 }
 
-.app-screen, div.meal-content, .meal-add-footer, div.safe-sheet-overlay {
+.app-screen:not(.app-home), div.meal-content, .meal-add-footer, div.safe-sheet-overlay {
   padding-left: calc(1rem + var(--app-safe-left));
   padding-right: calc(1rem + var(--app-safe-right));
 }
@@ -42,6 +42,21 @@ div.meal-content {
   padding-bottom: calc(4rem + var(--app-safe-bottom));
 }
 
+.app-home { width: 100%; min-width: 0; overflow-x: clip; }
+.app-home .home-container {
+  width: 100%;
+  max-width: 42rem;
+  margin-inline: auto;
+  padding-inline: max(12px, calc(12px + var(--app-safe-left))) max(12px, calc(12px + var(--app-safe-right)));
+}
+.app-home .home-meal-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.app-home .home-meal-macros { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 380px) {
+  .app-home .home-meal-card { padding: 9px; }
+  .app-home .home-meal-macros { font-size: 9px; letter-spacing: -0.035em; }
+  .app-home .home-meal-icon { width: 30px; height: 30px; }
+  .app-home .home-meal-title { font-size: 13px; }
+}
 .app-toasts {
   top: calc(1rem + var(--app-safe-top));
 }

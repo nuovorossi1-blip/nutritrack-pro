@@ -15,18 +15,18 @@ export function DayStrip({ selected, today, daysWithData, onSelect }: Props) {
   const [calendar, setCalendar] = useState(false);
   return (
     <section className="bg-[#191a1c] text-white rounded-[26px] border border-[#343538] shadow-sm p-3">
-      <div className="flex items-center gap-1">
-        <button aria-label="Giorno precedente" onClick={() => onSelect(addDays(selected, -1))} className="w-9 h-9 rounded-full flex items-center justify-center text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800">
+      <div className="flex items-center gap-0.5 sm:gap-1 min-w-0">
+        <button aria-label="Giorno precedente" onClick={() => onSelect(addDays(selected, -1))} className="w-7 h-9 sm:w-9 shrink-0 rounded-full flex items-center justify-center text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800">
           <ChevronLeft size={18} />
         </button>
-        <div className="flex-1 grid grid-cols-5 gap-1">
+        <div className="flex-1 min-w-0 grid grid-cols-5 gap-0.5 sm:gap-1">
           {days.map((d) => {
             const active = d === selected;
             return (
               <button
                 key={d}
                 onClick={() => onSelect(d)}
-                className={`rounded-[18px] py-2 flex flex-col items-center transition ${active ? 'bg-gold text-neutral-950 shadow-md shadow-gold-500/30' : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'}`}
+                className={`min-w-0 rounded-[18px] py-2 flex flex-col items-center transition ${active ? 'bg-gold text-neutral-950 shadow-md shadow-gold-500/30' : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'}`}
               >
                 <span className={`text-[10px] font-bold tracking-wide ${active ? 'text-neutral-800' : 'text-neutral-400'}`}>{shortLabel(d, today)}</span>
                 <span className="text-lg font-extrabold leading-tight">{parseISO(d).getDate()}</span>
@@ -39,14 +39,14 @@ export function DayStrip({ selected, today, daysWithData, onSelect }: Props) {
           aria-label="Giorno successivo"
           disabled={selected >= today}
           onClick={() => onSelect(addDays(selected, 1))}
-          className="w-9 h-9 rounded-full flex items-center justify-center text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-30"
+          className="w-7 h-9 sm:w-9 shrink-0 rounded-full flex items-center justify-center text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-30"
         >
           <ChevronRight size={18} />
         </button>
       </div>
-      <div className="flex items-center justify-between mt-2 px-1">
+      <div className="flex flex-wrap items-center justify-between gap-2 mt-2 px-1">
         <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">{longLabel(selected)}</span>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {selected !== today && (
             <button onClick={() => onSelect(today)} className="text-xs font-bold text-blue-600 dark:text-gold-400">
               Torna a oggi
