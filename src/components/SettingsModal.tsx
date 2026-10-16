@@ -72,8 +72,8 @@ export function SettingsModal({ data, onSaveProfile, onImport, onClose, toast, e
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-neutral-950/60 flex items-end sm:items-center justify-center" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="bg-white dark:bg-neutral-900 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4 max-h-[92vh] overflow-y-auto">
+    <div className="safe-sheet-overlay fixed inset-0 z-50 bg-neutral-950/60 flex items-end sm:items-center justify-center" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="safe-bottom-sheet bg-white dark:bg-neutral-900 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4">
         <div className="flex items-start justify-between">
           <h3 className="font-extrabold">Profilo e obiettivi</h3>
           <button aria-label="Chiudi" onClick={onClose} className="text-neutral-400 p-1">

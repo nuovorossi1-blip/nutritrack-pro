@@ -40,6 +40,8 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Andr
 
 ## 3. Cosa funziona
 
+- [FACT] Aggiungi altro e conferma alimento/rapida maggiori (64px, testo18px), footer e pannelli rispettano barra Android usando sia env sia variabili Capacitor, contenuto scrollabile e Annulla protetti. Rimossa nota didattica swipe. Build e browser mobile locale/LIVE con inset0/24/48px e top28px, portrait/landscape e flusso pasti/cloud positivi. Conferma sul telefono utente ancora attesa; nessun nuovo APK, UI remota.
+
 - [FACT] Dettaglio del pasto come riferimento utente (16/10/2026): tocco su Colazione/Pranzo/Cena/Spuntini apre hero con emoji e tema oro/blu, griglia 2×2 calorie/carboidrati/proteine/grassi, elenco con quantità/kcal e swipe, quattro barre nutrizionali. Barre etichettate come contributo agli obiettivi GIORNALIERI (non esistono ancora quote per pasto, nessun valore inventato). Pulsante fisso «Aggiungi altro» apre picker esistente (frequenti, ricerca locale/USDA/prodotti, barcode, creazione); salvataggio porzione torna al dettaglio e scroll iniziale. Modifica, eliminazione e Annulla aggiornano riepilogo e barre. Build e browser locale: totali 372→455→541→369→541, cloud, 320px e zero errori JS verificati; prova completa sul sito pubblico riuscita, account temporaneo eliminato. Nessuna foto AI o icona fotocamera finta aggiunta.
 
 - [FACT] Swipe sugli alimenti del pasto (16/10/2026): breve da destra a sinistra scopre pulsante rosso Elimina, lungo oltre 60% riga (minimo 130px) elimina subito. Azioni esistenti Modifica/Elimina conservate. Scroll verticale e touchCancel non eliminano. Un solo swipe aperto per volta. Annulla per 7 secondi ripristina la voce nella posizione originale del giorno/pasto corretto, senza sovrascrivere altri cambiamenti o duplicarla. Browser touch CDP mobile locale: swipe, annullamento, persistenza cloud e riapertura riusciti; build ok, prova touch completa riuscita anche sul sito pubblico; utente temporaneo eliminato.
@@ -178,22 +180,23 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Andr
 
 **Modello:** Codex (GPT-6) · **Data:** 2026-10-16
 
-APK richiesto dall'utente: build locale assembleDebug riuscita, firma apksigner valida,
-versione1.0.1/code1, Android7+ (minSDK24),4.129.416 byte. Nessun .env o APK annidato.
-Toolchain in LOCALAPPDATA/NutriTrackAndroidTools, nessun PATH permanente.
-Errori corretti: assegnazioni Gradle versione; argomenti PowerShell puntati.
-33 test positivi; build Vercel e download pubblico verificati (SHA256 identico).
-Banner Edge mobile LIVE: link corretto, chiusura, nessun overflow/errore JS.
-Deploy dpl_QhVojni66xP4QWWuPrmisquGKKeD READY sul dominio canonico.
-GitHub workflow NON attivo per scope workflow mancante: template scripts/android-build.workflow.yml.
-Codice Android e template su GitHub, firma stabile solo nello store locale protetto e GitHub Secret.
-Prova fisica di installazione/login/barcode/dettatura/aggiornamento ancora da fare.
+Utente ha installato APK e segnala Aggiungi sotto barra di navigazione Android.
+Correzione UI: inset CSS da env e variabili Capacitor --safe-area-inset-*;
+footer e pannelli riservano spazio esterno alla barra, CTA minimo64px e testo18px.
+Anche conferma porzione/rapida maggiori, Annulla sopra barra, schermata pasto tiene conto top.
+Nota didattica swipe eliminata; gesto e Annulla conservati.
+Build e QA locale con inset0/24/48px e top28px, portrait/landscape, aggiunta,
+modifica, swipe, cloud320px positivi; account temporanei eliminati. Stessa prova completa LIVE riuscita.
+Deploy dpl_HFXcioFRw2cDFJufrEgjdWj5FRxc READY sul dominio canonico.
+Shell APK carica sito remoto: questa UI arriva riaprendo app senza reinstallazione.
+Test sul telefono dell'utente da confermare. APK rimane1.0.1; pipeline automatica
+ancora non attiva per scope workflow mancante, template e firma stabile gia conservati.
 
 ---
 
 ## 11. Prossimi passi
 
-1. [utente] Scaricare/installare APK e provare login, diario, fotocamera barcode e dettatura. Test fisico ancora da confermare.
+1. [utente] Chiudere/riaprire app e controllare Aggiungi sopra barra Android e note swipe assenti. Confermare anche fotocamera e dettatura sul telefono.
 2. Decidere con l'utente se nutritrack.redapp.dev deve puntare a Vercel (CNAME) e spegnere la copia sul PC, o restare sul PC.
 3. Valutare CIQUAL come ampliamento del catalogo USDA già disponibile; migliorare traduzioni e sinonimi con esempi reali.
 4. Autorizzazione GitHub scope workflow e attivazione template; test aggiornamento tra due versionCode sul telefono.

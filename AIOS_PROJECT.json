@@ -56,6 +56,6 @@
   "last_session": {
     "model": "Codex (GPT-6)",
     "date": "2026-10-16",
-    "summary": "APK Android1.0.1 pubblicato e download SHA256 identico al build firmato, banner LIVE e33 test ok. Workflow template non attivo per scope GitHub workflow mancante. Test telefono fisico da completare."
+    "summary": "Pulsanti Aggiungi maggiori e protetti da barra Android, note swipe rimosse, build e QA mobile locale/LIVE con inset simulati riusciti. Nessun nuovo APK necessario. Conferma telefono attesa; workflow GitHub ancora da autorizzare."
   }
 }

@@ -35,8 +35,8 @@ export function PortionEditor({ food, initial, confirmLabel, onConfirm, onClose,
     `flex-1 py-2 rounded-xl text-xs font-bold transition ${active ? 'bg-white dark:bg-neutral-700 shadow text-blue-600 dark:text-blue-300' : 'text-neutral-500'}`;
 
   return (
-    <div className="fixed inset-0 z-50 bg-neutral-950/60 flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="bg-white dark:bg-neutral-900 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4">
+    <div className="safe-sheet-overlay fixed inset-0 z-50 bg-neutral-950/60 flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="safe-bottom-sheet bg-white dark:bg-neutral-900 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4">
         <div className="flex items-start justify-between gap-3">
           <div>
             <h3 className="font-extrabold text-base">{food.name}</h3>
@@ -103,7 +103,7 @@ export function PortionEditor({ food, initial, confirmLabel, onConfirm, onClose,
           </div>
         </div>
 
-        <button disabled={grams <= 0} onClick={() => onConfirm(p)} className="w-full bg-blu hover:brightness-110 disabled:opacity-40 text-white font-bold rounded-2xl py-3">
+        <button disabled={grams <= 0} onClick={() => onConfirm(p)} className="add-button w-full bg-blu hover:brightness-110 disabled:opacity-40 text-white font-bold rounded-2xl">
           {confirmLabel}
         </button>
       </div>

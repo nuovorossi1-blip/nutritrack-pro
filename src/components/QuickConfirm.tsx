@@ -29,8 +29,8 @@ export function QuickConfirm({ entries: initial, meal: initialMeal, ai, dayLabel
   const chip = (active: boolean) => `py-2 rounded-xl text-xs font-bold transition ${active ? 'bg-blu text-white' : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500'}`;
 
   return (
-    <div className="fixed inset-0 z-50 bg-neutral-950/60 flex items-end sm:items-center justify-center" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="bg-white dark:bg-neutral-900 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4 max-h-[92vh] overflow-y-auto">
+    <div className="safe-sheet-overlay fixed inset-0 z-50 bg-neutral-950/60 flex items-end sm:items-center justify-center" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="safe-bottom-sheet bg-white dark:bg-neutral-900 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4">
         <div className="flex items-start justify-between">
           <div>
             <h3 className="font-extrabold">Controlla prima di aggiungere</h3>
@@ -118,7 +118,7 @@ export function QuickConfirm({ entries: initial, meal: initialMeal, ai, dayLabel
         <button
           disabled={!meal || missingQty || entries.length === 0}
           onClick={() => meal && onConfirm(entries, meal)}
-          className="w-full bg-blu hover:brightness-110 disabled:opacity-40 text-white font-bold rounded-2xl py-3"
+          className="add-button w-full bg-blu hover:brightness-110 disabled:opacity-40 text-white font-bold rounded-2xl"
         >
           {!meal ? 'Scegli il pasto' : missingQty ? 'Indica le quantità' : `Aggiungi a ${MEALS.find((m) => m.key === meal)!.label.toLowerCase()} · ${total.kcal} kcal`}
         </button>

@@ -135,7 +135,7 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
 
   return (
     <div ref={sheet} data-meal-sheet className="fixed inset-0 z-40 bg-neutral-100 dark:bg-neutral-950 overflow-y-auto">
-      <div className="max-w-2xl mx-auto p-4 space-y-5 pb-32">
+      <div className="meal-content max-w-2xl mx-auto p-4 space-y-5">
         <div className="flex items-center gap-3">
           <button aria-label={adding ? 'Torna al pasto' : 'Indietro'} onClick={() => adding ? changeView(false) : onClose()} className="w-10 h-10 shrink-0 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 flex items-center justify-center">
             <ArrowLeft size={18} />
@@ -184,7 +184,6 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
               })}
             </ul>
           )}
-          {items.length > 0 && <p className="text-[10px] text-neutral-400 pt-2">Scorri una riga verso sinistra per eliminare. Uno swipe lungo la elimina subito; puoi annullare.</p>}
         </section>
         <MealProgress total={total} goals={data.goals} />
         </>}
@@ -323,10 +322,10 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
         </section>}
       </div>
 
-      {!adding && <div className="fixed bottom-0 inset-x-0 z-10 bg-white/95 dark:bg-neutral-950/95 backdrop-blur border-t border-neutral-200 dark:border-neutral-800 px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
+      {!adding && <div className="meal-add-footer fixed bottom-0 inset-x-0 z-10 bg-white/95 dark:bg-neutral-950/95 backdrop-blur border-t border-neutral-200 dark:border-neutral-800 px-4 pt-3">
         <div className="max-w-2xl mx-auto">
-          <button onClick={() => changeView(true)} className="w-full rounded-2xl bg-blu text-white font-extrabold py-4 flex items-center justify-center gap-2">
-            <PlusCircle size={20} /> Aggiungi altro
+          <button onClick={() => changeView(true)} className="add-button w-full rounded-2xl bg-blu text-white font-extrabold flex items-center justify-center gap-2">
+            <PlusCircle size={24} /> Aggiungi altro
           </button>
         </div>
       </div>}

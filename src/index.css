@@ -2,6 +2,45 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --app-safe-top: max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px));
+  --app-safe-bottom: max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px));
+}
+
+div.safe-sheet-overlay {
+  padding-top: calc(1rem + var(--app-safe-top));
+  padding-bottom: calc(1.25rem + var(--app-safe-bottom));
+}
+
+.safe-bottom-sheet {
+  max-height: 100%;
+  overflow-y: auto;
+}
+
+div.meal-content {
+  padding-top: calc(1rem + var(--app-safe-top));
+  padding-bottom: calc(8rem + var(--app-safe-bottom));
+}
+
+.meal-add-footer {
+  padding-bottom: calc(1.25rem + var(--app-safe-bottom));
+}
+
+.app-screen {
+  padding-top: var(--app-safe-top);
+  padding-bottom: calc(4rem + var(--app-safe-bottom));
+}
+
+.app-toasts {
+  bottom: calc(1rem + var(--app-safe-bottom));
+}
+
+.add-button {
+  min-height: 64px;
+  padding: 1rem;
+  font-size: 1.125rem;
+}
+
 body {
   font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   -webkit-tap-highlight-color: transparent;
