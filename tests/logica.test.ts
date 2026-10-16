@@ -256,3 +256,17 @@ describe('calendario stile iPhone', () => {
     expect(g.length % 7).toBe(0);
   });
 });
+
+describe('porzione dalla confezione', () => {
+  it('1 fetta biscottata = 7 g: kcal e macro per porzione e per piu fette', async () => {
+    const { withPortion, pluralIt } = await import('../src/components/PortionSetup');
+    expect([pluralIt('fetta'), pluralIt('biscotto'), pluralIt('vasetto'), pluralIt('porzione')]).toEqual(['fette', 'biscotti', 'vasetti', 'porzioni']);
+    const fette = withPortion({ id: 'x', name: 'Fette biscottate', kcal: 410, pro: 12, carbs: 75, fats: 6, source: 'personale' }, 7, 'fetta');
+    expect(fette).toMatchObject({ pieceWeight: 7, unitName: 'fetta', unitPlural: 'fette' });
+    const una = buildItem(fette, { mode: 'pieces', qty: 1, cooked: false });
+    expect([una.grams, una.kcal, una.label]).toEqual([7, 29, '1 fetta (7g)']);
+    const tre = buildItem(fette, { mode: 'pieces', qty: 3, cooked: false });
+    expect([tre.grams, tre.kcal, tre.label]).toEqual([21, 86, '3 fette (21g)']);
+    expect(withPortion(fette, undefined, '').pieceWeight).toBeUndefined();
+  });
+});

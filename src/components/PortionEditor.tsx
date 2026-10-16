@@ -4,12 +4,14 @@ import type { Food, QtyMode } from '../types';
 import { macrosFor, portionLabel, rawGrams, type Portion } from '../lib/nutrition';
 import { NumberInput } from './NumberInput';
 import { plausibilityWarnings } from '../lib/plausibility';
+import { PortionSetup } from './PortionSetup';
 
 interface Props {
   food: Food;
   initial?: Portion;
   confirmLabel: string;
-  onConfirm: (p: Portion) => void;
+  /** food: l'alimento con la porzione eventualmente aggiornata (es. 1 fetta = 7 g). */
+  onConfirm: (p: Portion, food: Food) => void;
   onClose: () => void;
   /** Apre la scheda per correggere i valori per 100 g dell'alimento. */
   onEditFood?: () => void;
@@ -19,8 +21,16 @@ export function defaultPortion(food: Food): Portion {
   return food.pieceWeight ? { mode: 'pieces', qty: 1, cooked: false } : { mode: 'grams', qty: 100, cooked: false };
 }
 
-export function PortionEditor({ food, initial, confirmLabel, onConfirm, onClose, onEditFood }: Props) {
-  const [p, setP] = useState<Portion>(initial || defaultPortion(food));
+export function PortionEditor({ food: original, initial, confirmLabel, onConfirm, onClose, onEditFood }: Props) {
+  const [food, setFood] = useState<Food>(original);
+  const [p, setP] = useState<Portion>(initial || defaultPortion(original));
+  // Porzione scritta adesso: si passa subito a "1 fetta" invece di 100 g.
+  const changePortion = (f: Food) => {
+    const hadNone = !food.pieceWeight;
+    setFood(f);
+    if (f.pieceWeight && hadNone && p.mode === 'grams') setP({ ...p, mode: 'pieces', qty: 1 });
+    if (!f.pieceWeight && p.mode === 'pieces') setP({ ...p, mode: 'grams', qty: Math.round(p.qty * (food.pieceWeight || 100)) });
+  };
   const grams = rawGrams(food, p);
   const m = macrosFor(food, grams);
   const step = p.mode === 'pieces' ? (food.pieceWeight && food.pieceWeight >= 100 ? 0.5 : 1) : 10;
@@ -54,6 +64,8 @@ export function PortionEditor({ food, initial, confirmLabel, onConfirm, onClose,
             <X size={20} />
           </button>
         </div>
+
+        <PortionSetup food={food} onChange={changePortion} />
 
         {food.pieceWeight ? (
           <div className="flex bg-neutral-100 dark:bg-neutral-800 rounded-2xl p-1 gap-1">
@@ -90,7 +102,7 @@ export function PortionEditor({ food, initial, confirmLabel, onConfirm, onClose,
               onChange={(n) => setP({ ...p, qty: n ?? 0 })}
               className="w-full text-center text-2xl font-extrabold bg-neutral-50 dark:bg-neutral-800 rounded-2xl py-2 border border-neutral-200 dark:border-neutral-700"
             />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-neutral-400 font-bold">{p.mode === 'grams' ? 'g' : 'pz'}</span>
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-neutral-400 font-bold">{p.mode === 'grams' ? 'g' : p.qty === 1 ? food.unitName || 'pz' : food.unitPlural || food.unitName || 'pz'}</span>
           </div>
           <button aria-label="Più" onClick={() => setP({ ...p, qty: Math.round((p.qty + step) * 10) / 10 })} className="w-11 h-11 rounded-2xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
             <Plus size={18} />
@@ -104,7 +116,7 @@ export function PortionEditor({ food, initial, confirmLabel, onConfirm, onClose,
           </div>
         </div>
 
-        <button disabled={grams <= 0} onClick={() => onConfirm(p)} className="add-button w-full bg-blu hover:brightness-110 disabled:opacity-40 text-white font-bold rounded-2xl">
+        <button disabled={grams <= 0} onClick={() => onConfirm(p, food)} className="add-button w-full bg-blu hover:brightness-110 disabled:opacity-40 text-white font-bold rounded-2xl">
           {confirmLabel}
         </button>
       </div>

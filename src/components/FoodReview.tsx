@@ -2,6 +2,7 @@ import { Sparkles, X } from 'lucide-react';
 import { useState } from 'react';
 import type { Food } from '../types';
 import { NumberInput } from './NumberInput';
+import { PortionSetup } from './PortionSetup';
 import { kcalFromMacros, plausibilityWarnings } from '../lib/plausibility';
 import { askAi } from '../lib/ai';
 
@@ -117,16 +118,7 @@ export function FoodReview({ food, missing = [], title, onSave, onClose }: Props
           {numField('pro', 'Proteine')}
           {numField('fats', 'Grassi')}
         </div>
-        <label className="block">
-          <span className="text-[11px] font-bold text-neutral-500">Peso di una porzione / confezione in g (facoltativo, es. vasetto 150)</span>
-          <NumberInput
-            value={f.pieceWeight}
-            onChange={(v) => {
-              setF(v && v > 0 ? { ...f, pieceWeight: v, pieceWeightEstimated: false, unitName: f.unitName || 'porzione', unitPlural: f.unitPlural || 'porzioni' } : { ...f, pieceWeight: undefined, pieceWeightEstimated: false });
-            }}
-            className="w-full mt-0.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl px-3 py-2 text-sm"
-          />
-        </label>
+        <PortionSetup food={f} onChange={setF} />
         <label className="block">
           <span className="text-[11px] font-bold text-neutral-500">Conversione del peso crudo/cotto (facoltativa)</span>
           <select

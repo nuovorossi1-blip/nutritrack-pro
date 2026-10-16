@@ -363,9 +363,11 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
             setReview({ food: picking.food, missing: [], title: 'Correggi i valori', back: { initial: picking.initial, itemId: picking.itemId } });
             setPicking(null);
           }}
-          onConfirm={(p) => {
-            if (picking.itemId) onUpdate(picking.itemId, picking.food, p);
-            else onAdd(picking.food, p);
+          onConfirm={(p, f) => {
+            // Porzione cambiata (es. 1 fetta = 7 g): l'alimento salvato la ricorda per le prossime volte.
+            if (f.pieceWeight !== picking.food.pieceWeight || f.unitName !== picking.food.unitName) onSaveFood(f);
+            if (picking.itemId) onUpdate(picking.itemId, f, p);
+            else onAdd(f, p);
             setPicking(null);
             changeView(false);
           }}
