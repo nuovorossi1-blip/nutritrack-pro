@@ -20,7 +20,6 @@ export function CalendarSheet({ selected, today, daysWithData, onSelect, onClose
   useAndroidBack(onClose, 80);
   const [month, setMonth] = useState(new Date(initial.getFullYear(), initial.getMonth(), 1));
   const panel = useRef<HTMLDivElement>(null);
-  const latest = parseISO(today);
   const year = month.getFullYear(), monthIndex = month.getMonth();
   const cells = monthGrid(year,monthIndex);
   const select = (day: string) => { onSelect(day); onClose(); };
@@ -45,16 +44,16 @@ export function CalendarSheet({ selected, today, daysWithData, onSelect, onClose
         <div className="flex items-center justify-between"><h2 className="text-xl font-extrabold">Calendario</h2><button aria-label="Chiudi calendario" onClick={onClose} className="w-10 h-10 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center"><X size={19}/></button></div>
         <div className="flex gap-2 items-center">
           <button aria-label="Mese precedente" onClick={() => setMonth(new Date(year,monthIndex-1,1))} className="w-10 h-10 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center"><ChevronLeft size={20}/></button>
-          <label className="sr-only" htmlFor="calendar-month">Mese</label><select id="calendar-month" value={monthIndex} onChange={(event) => setMonth(new Date(year,Number(event.target.value),1))} className="min-w-0 flex-1 bg-transparent font-bold rounded-full p-2">{months.map((name,index)=><option key={name} value={index} disabled={year===latest.getFullYear() && index>latest.getMonth()}>{name}</option>)}</select>
-          <label className="sr-only" htmlFor="calendar-year">Anno</label><select id="calendar-year" value={year} onChange={(event) => {const next=Number(event.target.value);setMonth(new Date(next,next===latest.getFullYear()?Math.min(monthIndex,latest.getMonth()):monthIndex,1));}} className="bg-transparent font-bold rounded-full p-2">{Array.from({length:101},(_,index)=>latest.getFullYear()-index).map((value)=><option key={value}>{value}</option>)}</select>
-          <button aria-label="Mese successivo" disabled={year===latest.getFullYear()&&monthIndex===latest.getMonth()} onClick={() => setMonth(new Date(year,monthIndex+1,1))} className="w-10 h-10 rounded-full bg-neutral-100 dark:bg-neutral-800 disabled:opacity-30 flex items-center justify-center"><ChevronRight size={20}/></button>
+          <label className="sr-only" htmlFor="calendar-month">Mese</label><select id="calendar-month" value={monthIndex} onChange={(event) => setMonth(new Date(year,Number(event.target.value),1))} className="min-w-0 flex-1 bg-transparent font-bold rounded-full p-2">{months.map((name,index)=><option key={name} value={index}>{name}</option>)}</select>
+          <label className="sr-only" htmlFor="calendar-year">Anno</label><select id="calendar-year" value={year} onChange={(event) => {const next=Number(event.target.value);setMonth(new Date(next,monthIndex,1));}} className="bg-transparent font-bold rounded-full p-2">{Array.from({length:111},(_,index)=>new Date().getFullYear()+10-index).map((value)=><option key={value}>{value}</option>)}</select>
+          <button aria-label="Mese successivo" onClick={() => setMonth(new Date(year,monthIndex+1,1))} className="w-10 h-10 rounded-full bg-neutral-100 dark:bg-neutral-800 disabled:opacity-30 flex items-center justify-center"><ChevronRight size={20}/></button>
         </div>
         <div className="grid grid-cols-7 gap-1 text-center">
           {['L','M','M','G','V','S','D'].map((name,index)=><span key={index} className="text-xs text-neutral-400 pb-2 font-bold">{name}</span>)}
           {cells.map((day,index)=>{
             if(!day) return <span key={`blank${index}`}/>;
             const active=day===selected;
-            return <button key={day} aria-label={new Intl.DateTimeFormat('it-IT',{dateStyle:'full'}).format(parseISO(day))} aria-pressed={active} disabled={day>today} onClick={()=>select(day)} className={`relative aspect-square rounded-full flex items-center justify-center font-bold disabled:opacity-20 ${active?'bg-blu text-white shadow-lg shadow-blue-500/30':day===today?'ring-2 ring-gold-400':'hover:bg-neutral-100 dark:hover:bg-neutral-800'}`}>{parseISO(day).getDate()}{daysWithData.has(day)&&<span className={`absolute bottom-1 w-1 h-1 rounded-full ${active?'bg-white':'bg-blue-400'}`}/>}</button>;
+            return <button key={day} aria-label={new Intl.DateTimeFormat('it-IT',{dateStyle:'full'}).format(parseISO(day))} aria-pressed={active} onClick={()=>select(day)} className={`relative aspect-square rounded-full flex items-center justify-center font-bold ${active?'bg-blu text-white shadow-lg shadow-blue-500/30':day===today?'ring-2 ring-gold-400':'hover:bg-neutral-100 dark:hover:bg-neutral-800'}`}>{parseISO(day).getDate()}{daysWithData.has(day)&&<span className={`absolute bottom-1 w-1 h-1 rounded-full ${active?'bg-white':'bg-blue-400'}`}/>}</button>;
           })}
         </div>
         <button onClick={()=>select(today)} className="w-full py-3 rounded-full bg-neutral-100 dark:bg-neutral-800 text-blue-500 font-bold">Oggi</button>
