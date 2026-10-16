@@ -230,7 +230,7 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
         </div>
       </header>
 
-      <main className="home-container pt-3 space-y-4">
+      <main className="home-container pt-2 space-y-3">
         <AndroidDownloadBanner />
         <DayStrip selected={selected} today={today} daysWithData={daysWithData} onSelect={setSelected} />
         {!data.profile && (
@@ -255,12 +255,12 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
 
         <section>
           <h2 className="text-xs font-bold uppercase tracking-wide text-neutral-500 mb-2 px-1">Pasti del giorno</h2>
-          <div className="home-meal-grid grid gap-2.5">
+          <div className="home-meal-grid grid gap-3">
             {MEALS.map((m) => {
               const items = day[m.key];
               const t = sumMacros(items);
               return (
-                <button key={m.key} onClick={() => setOpenMeal(m.key)} className="home-meal-card w-full text-left bg-[#191a1c] text-white rounded-[22px] border border-[#343538] shadow-sm p-3 hover:border-[#f5b935] transition min-w-0 flex flex-col justify-between min-h-[155px]">
+                <button key={m.key} onClick={() => setOpenMeal(m.key)} className="home-meal-card w-full text-left bg-[#191a1c] text-white rounded-[22px] border border-[#343538] shadow-sm p-3.5 hover:border-[#f5b935] transition min-w-0 flex flex-col justify-between min-h-[182px] sm:min-h-[194px]">
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="home-meal-icon w-9 h-9 shrink-0 rounded-full bg-[#292a2d] flex items-center justify-center text-lg">{m.emoji}</span>
                     <div className="flex-1 min-w-0">
@@ -270,8 +270,8 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
                     <Plus size={18} className="text-neutral-400" />
                   </div>
                   {items.length > 0 && <p className="text-[11px] text-neutral-500 mt-2 line-clamp-2">{items.map((i) => `${i.name} (${i.label})`).join(' • ')}</p>}
-                  <div className="flex flex-col items-center gap-2 mt-3 pt-3 border-t border-[#343538]">
-                    <span className="text-xl font-extrabold text-[#f5b935]">{t.kcal} kcal</span>
+                  <div className="flex flex-col items-center gap-2.5 mt-4 pt-3.5 border-t border-[#343538]">
+                    <span className="text-[22px] sm:text-2xl font-extrabold text-[#f5b935]">{t.kcal} kcal</span>
                     <div className="home-meal-macros w-full text-center text-[10px] sm:text-xs whitespace-nowrap" aria-label="Macro del pasto">
                       <span><b className="text-sky-400">C</b> {t.carbs} g</span>
                       <span><b className="text-red-500">P</b> {t.pro} g</span>
