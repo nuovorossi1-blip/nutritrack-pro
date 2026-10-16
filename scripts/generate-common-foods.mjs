@@ -20,6 +20,7 @@ definitions.push({key:'toast_whole',id:172689,name:'Pane integrale tostato (in c
 for(const [key,id,name,aliases] of [
  ['orange',169097,'Arancia',['arance','arancia fresca']],['pear',169118,'Pera',['pere']],['kiwi',168153,'Kiwi',['kiwifruit']],['strawberry',167762,'Fragole',['fragola']],['peach',169928,'Pesca',['pesche']],
 ]) definitions.push({key,id,name,aliases,category:'frutta'});
+definitions.push({key:'croissant_butter',id:174987,name:'Cornetto del bar / croissant al burro (generico)',aliases:['cornetto del bar','cornetto al bar','croissant','brioche vuota'],category:'dolci',nutritionReference:{label:'USDA - Croissant al burro, riferimento generico: la ricetta del bar puo variare',url:'https://fdc.nal.usda.gov/food-details/174987/nutrients',approximate:true}});
 const foods=definitions.map(({key,id,...metadata})=>{
  const row=catalog.find(row=>row[0]===id);if(!row)throw Error(`Missing USDA ${id}`);
  return {id:`common_${key}`,...metadata,kcal:row[2],pro:row[3],carbs:row[4],fats:row[5],source:'usda',usda:{fdcId:id,description:row[1],dataType:row[6],url:`https://fdc.nal.usda.gov/food-details/${id}/nutrients`}};

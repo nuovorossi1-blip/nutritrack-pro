@@ -17,10 +17,9 @@ import { SwipeFoodRow } from './SwipeFoodRow';
 import { MealSummary, MealProgress } from './MealSummary';
 import { FoodPhoto } from './FoodPhoto';
 import { VoiceInput } from './VoiceInput';
-import { QuickConfirm } from './QuickConfirm';
-import { aiEntries, askAi } from '../lib/ai';
+import { FoodChoices } from './FoodChoices';
+import { foodRequests } from '../lib/foodChoices';
 import { buildItem } from '../lib/nutrition';
-import { parseFoodText, unknownWords, type ParsedEntry } from '../lib/parser';
 import { recognitionFoods } from '../lib/savedFoodRecognition';
 
 type Tab = 'cerca' | 'foto' | 'voce' | 'barcode';
@@ -56,9 +55,7 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
   const prompt = meal === 'colazione' ? 'Cosa hai mangiato a colazione?' : meal === 'spuntini' ? 'Cosa hai mangiato come spuntino?' : `Cosa hai mangiato a ${info.label.toLowerCase()}?`;
   const [list, setList] = useState<'frequenti' | 'tutti'>('frequenti');
   const [text, setText] = useState('');
-  const [photoDraft, setPhotoDraft] = useState(false);
-  const [reading, setReading] = useState(false);
-  const [quick, setQuick] = useState<{entries: ParsedEntry[]; ai: boolean} | null>(null);
+  const [voiceChoices, setVoiceChoices] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [online, setOnline] = useState<OffResult[] | null>(null);
   const [busy, setBusy] = useState(false);
@@ -130,20 +127,11 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
     else setReview({ food: r.food, missing: r.missing, title: 'Controlla il prodotto' });
   };
 
-  const insertText = async () => {
-    if (!text.trim() || reading) return;
+  const insertText = () => {
+    if (!text.trim()) return;
     if (text.length > 400) return toast('Inserisci al massimo 400 caratteri alla volta.', true);
-    setReading(true);
-    try {
-      const input = text.replace(/\r?\n/g, '; ');
-      let entries = unknownWords(input, foods).length
-        ? aiEntries(await askAi(`${input}; ${info.label.toLowerCase()}`), foods)
-        : parseFoodText(input, foods);
-      if (photoDraft && !/\d+(?:[.,]\d+)?\s*(?:g|gr|grammi|kg)\b/i.test(input)) entries = entries.map(e => ({...e, qtyGiven:false, portion:{mode:'grams',qty:0,cooked:e.portion.cooked}}));
-      if (!entries.length) return toast('Non riconosco alimenti. Scrivi il nome e i grammi.', true);
-      setQuick({entries, ai: entries.some(e => e.food.source === 'ai')});
-    } catch(e) { toast((e as Error).message, true); }
-    finally { setReading(false); }
+    if (!foodRequests(text,foods).length) return toast('Scrivi il nome di un alimento.',true);
+    setVoiceChoices(text);
   };
 
   const tabBtn = (t: Tab, label: string, Icon: typeof Star) => (
@@ -232,8 +220,8 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
             {tabBtn('barcode', 'Codice a barre', Barcode)}
             {tabBtn('voce', 'Voce/Testo', MessageSquare)}
           </div>
-          {tab === 'foto' && <FoodPhoto onRecognised={names => {setPhotoDraft(true);setText(names.join('\n'));setTab('voce');toast('Controlla i nomi e indica i grammi di ogni alimento.');}} />}
-          {tab === 'voce' && <VoiceInput text={text} onText={setText} onInsert={() => void insertText()} busy={reading} onError={message => toast(message,true)} placeholder={prompt} multiline />}
+          {tab === 'foto' && <FoodPhoto onRecognised={names => {setText(names.join('\n'));setTab('voce');toast('Controlla i nomi e indica i grammi di ogni alimento.');}} />}
+          {tab === 'voce' && <VoiceInput text={text} onText={setText} onInsert={() => void insertText()} busy={false} onError={message => toast(message,true)} placeholder={prompt} multiline />}
           {tab === 'cerca' && <div className="flex gap-2 items-center rounded-2xl border-2 border-blue-500 px-3 py-1">
             <Search size={20} className="text-blue-500 shrink-0"/>
             <input value={query} aria-label="Cerca alimenti" placeholder={prompt} onChange={event => {setQuery(event.target.value);setOnline(null);setUsda(null);}} className="min-w-0 w-full bg-transparent py-3 text-sm outline-none"/>
@@ -354,11 +342,12 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
         </div>
       </div>}
 
-      {quick && <QuickConfirm fixedMeal entries={quick.entries} meal={meal} ai={quick.ai} dayLabel={dayLabel} onClose={() => setQuick(null)} onConfirm={entries => {
-        entries.filter(e => e.food.source === 'ai').forEach(e => onSaveFood(e.food));
+      {voiceChoices && <FoodChoices text={voiceChoices} foods={foods} mealLabel={info.label} onClose={() => setVoiceChoices(null)} onConfirm={entries => {
+        entries.filter(e => e.food.source !== 'base' || JSON.stringify(e.food) !== JSON.stringify(foods.find(food => food.id === e.food.id))).forEach(e => onSaveFood(e.food));
         onAddItems(entries.map(e => buildItem(e.food,e.portion)));
-        setQuick(null);setText('');setPhotoDraft(false);changeView(false);
+        setVoiceChoices(null);setText('');changeView(false);
       }} />}
+
       {scanning && (
         <BarcodeScanner
           onClose={() => setScanning(false)}

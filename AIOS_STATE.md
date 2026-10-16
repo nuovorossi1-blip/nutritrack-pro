@@ -40,6 +40,8 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Andr
 
 ## 3. Cosa funziona
 
+- [FACT] Voce/Testo nel pasto mostra corrispondenze da alimenti salvati/catalogo/OFF/USDA, utente sceglie tipo e grammi, poi riepilogo finale. Cornetto bar genericoUSDA e prodottiAlgida reali distinti; zero macroAI in questo flusso.59test/build e QA realeOFF/browser positivi.
+
 - [FACT] Inserimento pasti dal riferimento utente: Ricerca/Foto/Barcode/Voce-Testo, placeholder per pasto, frequenti reali e Fine protetto. FotoAI propone solo nomi; grammi e conferma utente obbligatori, zero foto salvate.56test/build e QA reale vision/browser positivi; camera fisica da confermare.
 
 - [FACT] Resa crudo/cotto per porzione: pesi totali prima/dopo e grammi cotti da mangiare; misura persistita in cloud/edit/frequenti. Schede gia cotte mai convertite di nuovo; stato/etichette coerenti. Conversioni generiche marcate stime.53test/build e QA browser positivi; storico conservato.
@@ -203,39 +205,40 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Andr
 
 **Modello:** Codex (GPT-6) ? **Data:** 2026-10-16
 
-Richiesta screenshot file_4.jpg: nuova pagina Aggiungi al pasto con4schede grandi
-Ricerca/Foto/Codice a barre/Voce-Testo, placeholder contestuale per ciascuno
-4pasti e frequenti reali sotto la ricerca (select Frequenti/Tutti). Nessuna lista
-inventata. + riusa ultima porzione, nome apre modifica, storico e barcode/manuale
-conservati. Fine fisso protetto dalla barra Android, input riaperto su Ricerca.
-Voce/Testo interno al pasto: textarea multilinea, Enter va a capo, microfono
-Google a destra come prima, parser locale/salvati prima di AI, poi QuickConfirm
-con pasto bloccato al contesto; niente autoaggiunta senza conferma.
-Foto: FoodPhoto getUserMedia camera posteriore o upload JPEG/PNG/WebP; anteprima,
-invio esplicito Riconosci alimenti. Canvas riduce1280px e rimuove metadati,
-limite base641.8MB. Camera fermata a chiusura/cambio scheda/background e richieste
-abortite a unmount; nessuna immagine salvata nel diario/database/repository.
-Endpoint /api/photo-foods autenticato fail-closed, Vite+Vercel, gpt4o-mini vision
-tramite OpenRouter esistente. Restituisce SOLO nomi in italiano, zero grammi/macro,
-non indovina marche/tagli/ingredienti nascosti. Utente corregge nomi e indica peso
-in Voce/Testo o conferma. Draft foto senza grammi espliciti azzera eventuali quantita
-proposte dal parser AI. Valori AI successivi restano stime e visibili in conferma.
-Limiti in memoria per istanza20foto/utente/giorno,150globali/giorno; timeout25s;
-nessuna pretesa limite distribuito. Validazione dataURL/jpeg-png-webp/magic header,
-mai URL remoti arbitrari. Informativa aggiornata per invio foto a OpenRouter;
-revisione legale precedente resta aperta, non promesse su retention fornitori.
-56test/build positivi. QA browser locale con foto pubblica banana realmente inviata
-al modello: riconosciuta senza pesi, inserimento bloccato fino a quantita;
-lista100g banana+50g mela115kcal confermata solo a cena, frequenti reali,4placeholder,
-4schede, Fine sopra inset48 e320px senza overflow/erroriJS. Camera simulata si
-chiude al cambio tab. Utenti prova eliminati. Primo QA strict2Inserisci (home+
-pasto) risolto limitando selettore al pannello, nessun difetto app. Download foto
-Wikimedia429, usata immagine pubblica Independent inTemp soloQA, non app.
-Pubblicazione remota e verifica LIVE registrate nel log centrale. APK1.0.3 invariato.
+Richiesta Voce/Testo nel pasto: 'ho mangiato un cornetto' deve mostrare alternative
+database, non far decidere al modello bar/Algida; poi grammi e conferma utente.
+Implementati foodRequests (frasi semplici/liste, pesi solo espliciti g/kg, nessun
+peso da articolo un), matchingFoods (nome/marca/alias, plurali, dedup IDs) e dialog
+FoodChoices. Alimenti salvati/base immediati, ricerca OFF reale e USDA solo se
+nessuna voce locale, nessun macro generato da AI in questo flusso. USDA pu?
+tradurre query/nomi come prima ma i macro sono dal catalogo. Brand Algida non
+rimpiazzato con USDA generico. Eventuale fonte indisponibile segnalata, locali
+ancora usabili. Query modificabile e scelta esplicita prima di PortionEditor:
+quantit? iniziale0 salvo grammi gi? detti. Riepilogo finale Aggiungi al pasto;
+puoi cambiare scelta prima di confermare. Liste multiple scelgono una voce per
+riga, al termine nascondono risultati e mostrano subito conferma/riepilogo.
+Prodotti con nutrienti mancanti aprono FoodReview prima del peso; ID/macro originali
+conservati. Salvataggio prodotti scelti e modifiche porzioni al commit del pasto,
+non durante ricerca. AndroidBack priorit?45 lista/50 porzione/20 pasto.
+Aggiunta36esima voce comune: USDA174987 croissant butter,406kcal/100g, nome
+'Cornetto del bar / croissant al burro (generico)', fonte esplicitamente indicativa
+per ricette del bar. Generic cornetto NON aggiunto come alias al parser globale:
+prima versione aveva2regressioni test (riconosceva bar automaticamente), corretto
+restringendo alias a delbar/albar/croissant/brioche. Tutti59test/build positivi.
+Input rapido iniziale App.tsx conservato: questa revisione riguarda Voce/Testo
+nel pasto e il testo proposto dalla foto. Il vecchio parser principale non e
+riscritto. Estrazione richieste usa frasi semplici e nomi composti salvati; per
+liste complesse usare una riga per alimento o correggere query, non promettere
+comprensione universale senza errori.
+QA browser locale reale OFF: dettatura simulata 'ho mangiato un cornetto', bar e
+Algida mostrati, nessun peso implicito,100gbar406kcal; cambio sceltaAlgida50g,
+macro della scheda reale, conferma esplicita e reloadcloud conservati. Lista
+100gbanana50gmela115kcal,0erroriJS;320px e screenshot dialog verificati. Utenti
+prova eliminati. Nuova APK non necessaria. Pubblicazione e QA LIVE nel logDesktop.
 
-Conservate correzioni ec46971 crudo/cotto/resa misurata,12525a5 navigazione
-Android e aeecf02 con contributi Claude. Prove fisiche telefono camera/voce/
-punteggiatura/installazione/gesti e scope workflow restano aperti.
+Conservati9fb2ea9 fotoAI/4schede/frequenti,ec46971 crudo-cotto/resa misurata,
+12525a5 navigazione e aeecf02 contributiClaude. APK1.0.3 invariato. Test fisici
+Google/camera/gesti/installazione e scope workflow ancora aperti.
 
 ---
 

@@ -769,5 +769,32 @@ export const COMMON_FOODS: Food[] = [
       "dataType": "SR Legacy",
       "url": "https://fdc.nal.usda.gov/food-details/169928/nutrients"
     }
+  },
+  {
+    "id": "common_croissant_butter",
+    "name": "Cornetto del bar / croissant al burro (generico)",
+    "aliases": [
+      "cornetto del bar",
+      "cornetto al bar",
+      "croissant",
+      "brioche vuota"
+    ],
+    "category": "dolci",
+    "nutritionReference": {
+      "label": "USDA - Croissant al burro, riferimento generico: la ricetta del bar puo variare",
+      "url": "https://fdc.nal.usda.gov/food-details/174987/nutrients",
+      "approximate": true
+    },
+    "kcal": 406,
+    "pro": 8.2,
+    "carbs": 45.8,
+    "fats": 21,
+    "source": "usda",
+    "usda": {
+      "fdcId": 174987,
+      "description": "Croissants, butter",
+      "dataType": "SR Legacy",
+      "url": "https://fdc.nal.usda.gov/food-details/174987/nutrients"
+    }
   }
 ];

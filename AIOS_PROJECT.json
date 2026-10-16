@@ -56,6 +56,6 @@
   "last_session": {
     "model": "Codex (GPT-6)",
     "date": "2026-10-16",
-    "summary": "Inserimento pasti da screenshot: ricerca/fotoAI/barcode/voce-testo, placeholder per pasto e frequenti reali. Foto solo nomi, grammi utente e conferma; endpoint autenticato e nessun salvataggio immagine.56test/build, QA vision reale+browser ok. APK invariato, prove fisiche aperte."
+    "summary": "Voce/Testo nel pasto: scelta corrispondenze database (cornetto bar/Algida), grammi espliciti e riepilogo finale; ID/macro reali, zero macroAI per questo flusso.36schede comuni.59test/build e QA realeOFF/browser ok. APK invariato, pubblicazione web."
   }
 }
