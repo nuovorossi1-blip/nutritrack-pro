@@ -6,6 +6,7 @@ import { buildItem, sumMacros, type Portion } from './lib/nutrition';
 import { allFoods, getDay, useAppData, useToday, withDay } from './lib/store';
 import { longLabel } from './lib/dates';
 import { mealFromHour, mealFromText, parseFoodText } from './lib/parser';
+import { DENIED_HELP } from './lib/permissions';
 import { DayStrip } from './components/DayStrip';
 import { Summary } from './components/Summary';
 import { MealSheet } from './components/MealSheet';
@@ -21,7 +22,7 @@ type SpeechCtor = new () => {
   lang: string;
   onresult: (e: { results: { 0: { 0: { transcript: string } } } }) => void;
   onend: () => void;
-  onerror: () => void;
+  onerror: (e: { error: string }) => void;
   start: () => void;
 };
 
@@ -53,7 +54,7 @@ export default function App() {
   const toast = (msg: string, error = false) => {
     const id = Date.now() + Math.random();
     setToasts((t) => [...t, { id, msg, error }]);
-    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 3200);
+    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), msg.length > 80 ? 8000 : 3200);
   };
 
   const day = getDay(data, selected);
@@ -84,9 +85,11 @@ export default function App() {
     rec.lang = 'it-IT';
     rec.onresult = (e) => setText(e.results[0][0].transcript);
     rec.onend = () => setListening(false);
-    rec.onerror = () => {
+    rec.onerror = (e) => {
       setListening(false);
-      toast('Microfono non disponibile', true);
+      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') toast(DENIED_HELP, true);
+      else if (e.error === 'no-speech') toast('Non ho sentito niente: riprova', true);
+      else if (e.error !== 'aborted') toast('Microfono non disponibile', true);
     };
     setListening(true);
     rec.start();

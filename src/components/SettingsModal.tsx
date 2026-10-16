@@ -1,5 +1,6 @@
-import { Download, Upload, X } from 'lucide-react';
-import { useState } from 'react';
+import { Camera, Download, Mic, Upload, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { DENIED_HELP, permissionState, requestPermission, type Device, type PermState } from '../lib/permissions';
 import type { AppData, Goals } from '../types';
 
 const PRESETS: { label: string; goals: Goals }[] = [
@@ -18,6 +19,35 @@ interface Props {
 
 export function SettingsModal({ data, onSaveGoals, onImport, onClose, toast }: Props) {
   const [g, setG] = useState<Goals>(data.goals);
+  const [perm, setPerm] = useState<Record<Device, PermState>>({ camera: 'unknown', microphone: 'unknown' });
+  useEffect(() => {
+    Promise.all([permissionState('camera'), permissionState('microphone')]).then(([camera, microphone]) => setPerm({ camera, microphone }));
+  }, []);
+  const ask = async (d: Device) => {
+    const st = await requestPermission(d);
+    setPerm((p) => ({ ...p, [d]: st }));
+    toast(st === 'granted' ? 'Permesso concesso' : st === 'denied' ? DENIED_HELP : 'Permesso non disponibile su questo dispositivo', st !== 'granted');
+  };
+  const permRow = (d: Device, label: string, Icon: typeof Camera, use: string) => {
+    const st = perm[d];
+    const text = { granted: 'Consentito', denied: 'Bloccato', prompt: 'Da consentire', unknown: 'Da verificare', unsupported: 'Non disponibile' }[st];
+    const color = st === 'granted' ? 'text-emerald-600' : st === 'denied' ? 'text-rose-500' : 'text-slate-400';
+    return (
+      <div className="flex items-center gap-3 py-2">
+        <Icon size={18} className="text-slate-400" />
+        <div className="flex-1">
+          <div className="text-sm font-semibold">{label}</div>
+          <div className="text-[11px] text-slate-400">{use}</div>
+        </div>
+        <span className={`text-[11px] font-bold ${color}`}>{text}</span>
+        {st !== 'granted' && st !== 'unsupported' && (
+          <button onClick={() => ask(d)} className="text-xs font-bold rounded-xl px-3 py-1.5 bg-indigo-600 text-white">
+            Consenti
+          </button>
+        )}
+      </div>
+    );
+  };
   const field = (key: keyof Goals, label: string) => (
     <label className="block">
       <span className="text-[11px] font-bold text-slate-500">{label}</span>
@@ -61,7 +91,7 @@ export function SettingsModal({ data, onSaveGoals, onImport, onClose, toast }: P
     <div className="fixed inset-0 z-50 bg-slate-950/60 flex items-end sm:items-center justify-center" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="bg-white dark:bg-slate-900 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4 max-h-[92vh] overflow-y-auto">
         <div className="flex items-start justify-between">
-          <h3 className="font-extrabold">Obiettivi giornalieri</h3>
+          <h3 className="font-extrabold">Obiettivi e impostazioni</h3>
           <button aria-label="Chiudi" onClick={onClose} className="text-slate-400 p-1">
             <X size={20} />
           </button>
@@ -89,6 +119,13 @@ export function SettingsModal({ data, onSaveGoals, onImport, onClose, toast }: P
         >
           Salva obiettivi
         </button>
+
+        <div className="border-t border-slate-100 dark:border-slate-800 pt-4">
+          <h4 className="text-sm font-extrabold">Permessi</h4>
+          {permRow('camera', 'Fotocamera', Camera, 'Per leggere i codici a barre')}
+          {permRow('microphone', 'Microfono', Mic, 'Per dettare cosa hai mangiato')}
+          {(perm.camera === 'denied' || perm.microphone === 'denied') && <p className="text-[11px] text-rose-500 mt-1">{DENIED_HELP}</p>}
+        </div>
 
         <div className="border-t border-slate-100 dark:border-slate-800 pt-4">
           <h4 className="text-sm font-extrabold">Backup dei dati</h4>

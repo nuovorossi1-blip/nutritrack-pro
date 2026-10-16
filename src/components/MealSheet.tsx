@@ -1,4 +1,4 @@
-import { ArrowLeft, Barcode, Pencil, PlusCircle, Search, Star, Trash2 } from 'lucide-react';
+import { ArrowLeft, Barcode, Camera, Pencil, PlusCircle, Search, Star, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import type { AppData, Food, MealItem, MealKey } from '../types';
 import { MEALS } from '../types';
@@ -8,6 +8,7 @@ import { normalize } from '../lib/parser';
 import { findByBarcode, searchByName, type OffResult } from '../lib/off';
 import { PortionEditor } from './PortionEditor';
 import { FoodReview } from './FoodReview';
+import { BarcodeScanner } from './BarcodeScanner';
 
 type Tab = 'frequenti' | 'cerca' | 'barcode' | 'crea';
 
@@ -37,6 +38,7 @@ export function MealSheet({ meal, dayLabel, items, data, onAdd, onUpdate, onRemo
   const [online, setOnline] = useState<OffResult[] | null>(null);
   const [busy, setBusy] = useState(false);
   const [code, setCode] = useState('');
+  const [scanning, setScanning] = useState(false);
 
   const [picking, setPicking] = useState<{ food: Food; initial?: Portion; itemId?: string } | null>(null);
   const [review, setReview] = useState<{ food: Food; missing: string[]; title: string } | null>(null);
@@ -60,10 +62,10 @@ export function MealSheet({ meal, dayLabel, items, data, onAdd, onUpdate, onRemo
     }
   };
 
-  const searchCode = async () => {
+  const searchCode = async (value = code) => {
     setBusy(true);
     try {
-      const r = await findByBarcode(code);
+      const r = await findByBarcode(value);
       if (!r) toast('Prodotto non trovato su Open Food Facts: crealo a mano', true);
       else openResult(r);
     } catch (e) {
@@ -204,7 +206,10 @@ export function MealSheet({ meal, dayLabel, items, data, onAdd, onUpdate, onRemo
 
           {tab === 'barcode' && (
             <div className="space-y-2">
-              <p className="text-xs text-slate-500">Scrivi il numero sotto il codice a barre della confezione. La lettura con la fotocamera arriverà con l'app Android.</p>
+              <p className="text-xs text-slate-500">Inquadra il codice con la fotocamera oppure scrivi il numero sotto il codice a barre.</p>
+              <button onClick={() => setScanning(true)} className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-2xl py-3">
+                <Camera size={18} /> Scansiona con la fotocamera
+              </button>
               <div className="flex gap-2">
                 <input
                   value={code}
@@ -214,7 +219,7 @@ export function MealSheet({ meal, dayLabel, items, data, onAdd, onUpdate, onRemo
                   placeholder="Es. 5201054017418"
                   className="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-2.5 text-sm"
                 />
-                <button onClick={searchCode} disabled={busy} className="bg-indigo-600 text-white text-xs font-bold rounded-2xl px-4 disabled:opacity-50">
+                <button onClick={() => searchCode()} disabled={busy} className="bg-indigo-600 text-white text-xs font-bold rounded-2xl px-4 disabled:opacity-50">
                   {busy ? 'Cerco…' : 'Cerca'}
                 </button>
               </div>
@@ -233,6 +238,16 @@ export function MealSheet({ meal, dayLabel, items, data, onAdd, onUpdate, onRemo
         </section>
       </div>
 
+      {scanning && (
+        <BarcodeScanner
+          onClose={() => setScanning(false)}
+          onDetected={(c) => {
+            setScanning(false);
+            setCode(c);
+            searchCode(c);
+          }}
+        />
+      )}
       {review && (
         <FoodReview
           food={review.food}

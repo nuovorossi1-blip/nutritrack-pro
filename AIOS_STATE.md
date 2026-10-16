@@ -44,6 +44,8 @@ da sola all'accesso a Windows con l'attività pianificata "NutriTrack PRO locale
 - [FACT] Frequenti per pasto calcolati dallo storico vero (conteggio + ultima porzione).
 - [FACT] Ricerca per nome su Open Food Facts (passa da /off-search: inoltro di Vite in locale, rewrite in vercel.json online) con prodotti completi e venduti in Italia in cima, schede doppie tolte; ricerca per codice a barre (world.openfoodfacts.org, diretta). Risposte in cache sul dispositivo 7 giorni.
 - [FACT] Prima di salvare un prodotto si vedono e correggono i valori (valori mancanti segnalati), peso porzione e "si cuoce?" (pasta/riso/carne/pesce) per pesarlo anche da cotto. Prova: codice 8076800195057 → Spaghetti n.5 Barilla 359 kcal.
+- [FACT] Fotocamera: scansione del codice a barre nel browser (ZXing caricato solo all'apertura, EAN-13/8, UPC, Code128), messaggi chiari se il permesso è bloccato. Provato con fotocamera simulata (EAN 8076800195057 → Spaghetti n.5) in locale e su nutritrack.redapp.dev.
+- [FACT] Impostazioni → Permessi: stato di fotocamera e microfono, pulsante Consenti (fa comparire la richiesta del browser), istruzioni se bloccati. Dettatura con errori spiegati (permesso negato, nessuna voce).
 - [FACT] Crea alimento a mano. Obiettivi con profili rapidi. Backup/ripristino JSON. Tema scuro. Azzera il giorno scelto (con conferma).
 - [FACT] Test: 12 test logica (giorni, crudo/cotto, parole, Open Food Facts, storico) ok; tsc ok; build ok; prova completa in Edge senza errori.
 
@@ -55,7 +57,7 @@ da sola all'accesso a Windows con l'attività pianificata "NutriTrack PRO locale
 
 - Fase 2: alimenti sfusi ufficiali CIQUAL tradotti in italiano (oggi 21 alimenti di base del prototipo), USDA come riserva.
 - Fase 3: login Supabase (registrazione con privacy/condizioni + mail di conferma), dati per utente con RLS, pubblicazione su Vercel. Account smaugdrago@gmail.com: l'utente lo collega con l'icona "Collega account" (token MAI in chat).
-- Fase 4: APK Android auto-aggiornante (modulo AI-OS, come GymBuilder) + lettura codice a barre con fotocamera; ricerca Open Food Facts nell'APK tramite richiesta nativa (niente CORS).
+- Fase 4: APK Android auto-aggiornante (modulo AI-OS, come GymBuilder): permessi Android CAMERA e RECORD_AUDIO nel manifest + richiesta in app; ricerca Open Food Facts nell'APK tramite richiesta nativa (niente CORS).
 - Vera analisi del piatto da foto con un modello AI (tolta la versione finta).
 
 ---
@@ -106,6 +108,7 @@ da sola all'accesso a Windows con l'attività pianificata "NutriTrack PRO locale
 - La ricerca per nome funziona solo passando da `/off-search`: aprendo `dist/index.html` come file, o su un hosting senza la regola di vercel.json, la ricerca per nome fallisce (il codice a barre invece va).
 - Nell'APK (fase 4) `/off-search` non esiste: usare la richiesta nativa di Capacitor verso search.openfoodfacts.org.
 - I giorni sono in ora locale (`src/lib/dates.ts`): non usare `toISOString()` per la data del giorno (darebbe il giorno UTC).
+- Fotocamera e microfono funzionano solo su HTTPS (nutritrack.redapp.dev) o su 127.0.0.1: aprendo l'app da un indirizzo http qualsiasi il browser non li concede.
 - Il server locale ascolta solo su 127.0.0.1; dall'esterno arriva da nutritrack.redapp.dev (regola nel tunnel Cloudflare 'pc-windows', gestito dal pannello Cloudflare, + CNAME). Vite rifiuta indirizzi sconosciuti: il nome sta in `preview.allowedHosts` di vite.config.ts. Se il PC è spento il link non risponde.
 
 ---
@@ -133,6 +136,7 @@ l'utente la provi e dica se procedere con la fase 2 (CIQUAL).
 
 | Data | Modello | Cosa è stato fatto |
 |---|---|---|
+| 2026-10-16 | Claude Opus 5.5 | Fotocamera per codici a barre + sezione Permessi (fotocamera/microfono) nella web app |
 | 2026-10-16 | Claude Opus 5.5 | Link di prova nutritrack.redapp.dev via tunnel Cloudflare pc-windows |
 | 2026-10-16 | Claude Opus 5.5 | Fase 1: app React sul PC (giorni, pasti, parole, Open Food Facts nome/codice, storico, mezzanotte), 12 test, avvio automatico sul PC |
 | 2026-10-16 | Claude Opus 5.5 | Decise fonti alimenti e percorso React/APK/Vercel+Supabase con login (nessun codice cambiato) |
