@@ -5,6 +5,7 @@ import { MEALS } from '../types';
 import { macrosFor, portionLabel, rawGrams, sumMacros } from '../lib/nutrition';
 import type { ParsedEntry } from '../lib/parser';
 import { NumberInput } from './NumberInput';
+import { plausibilityWarnings } from '../lib/plausibility';
 
 interface Props {
   entries: ParsedEntry[];
@@ -65,6 +66,11 @@ export function QuickConfirm({ entries: initial, meal: initialMeal, ai, dayLabel
                   <span className="block text-[10px] font-semibold text-neutral-400">
                     per 100 g: {e.food.kcal} kcal · C {e.food.carbs} · P {e.food.pro} · G {e.food.fats}
                   </span>
+                  {plausibilityWarnings(e.food).map((w) => (
+                    <span key={w} className="block text-[10px] font-semibold text-gold-600 dark:text-gold-300">
+                      ⚠ {w}
+                    </span>
+                  ))}
                 </span>
                 {entries.length > 1 && (
                   <button aria-label="Togli" onClick={() => setEntries(entries.filter((_, j) => j !== i))} className="text-neutral-400 p-1">

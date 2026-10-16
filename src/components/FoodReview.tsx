@@ -2,6 +2,7 @@ import { X } from 'lucide-react';
 import { useState } from 'react';
 import type { Food } from '../types';
 import { NumberInput } from './NumberInput';
+import { plausibilityWarnings } from '../lib/plausibility';
 
 // Peso cotto / peso crudo, come negli alimenti di base. I valori della scheda restano quelli a crudo.
 const COOKING = [
@@ -50,6 +51,14 @@ export function FoodReview({ food, missing = [], title, onSave, onClose }: Props
           </p>
         )}
         {missing.length > 0 && <p className="text-xs font-semibold text-red-500">Valori mancanti nella scheda: {missing.join(', ')}. Inseriscili dall'etichetta.</p>}
+        {plausibilityWarnings(f).length > 0 && (
+          <div className="rounded-2xl border border-gold-400/60 bg-gold-400/10 p-3 text-xs text-gold-700 dark:text-gold-300">
+            <div className="font-extrabold mb-1">⚠ Valori da controllare con l'etichetta</div>
+            {plausibilityWarnings(f).map((w) => (
+              <div key={w}>• {w}</div>
+            ))}
+          </div>
+        )}
         <label className="block">
           <span className="text-[11px] font-bold text-neutral-500">Nome</span>
           <input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} className="w-full mt-0.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl px-3 py-2 text-sm font-semibold" />

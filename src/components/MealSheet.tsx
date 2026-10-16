@@ -8,6 +8,7 @@ import { normalize } from '../lib/parser';
 import { findByBarcode, searchByName, type OffResult } from '../lib/off';
 import { PortionEditor } from './PortionEditor';
 import { FoodReview } from './FoodReview';
+import { plausibilityWarnings } from '../lib/plausibility';
 import { BarcodeScanner } from './BarcodeScanner';
 
 type Tab = 'frequenti' | 'cerca' | 'barcode' | 'crea';
@@ -196,7 +197,7 @@ export function MealSheet({ meal, dayLabel, items, data, onAdd, onUpdate, onRemo
                   <div className="text-[11px] font-bold text-neutral-400 px-1 pt-2">Open Food Facts ({online.length})</div>
                   {online.length === 0 && <p className="text-xs text-neutral-400 px-1">Nessun prodotto trovato.</p>}
                   {online.map((r) =>
-                    foodRow(r.food, [r.italy && 'venduto in Italia', r.missing.length ? `mancano ${r.missing.join(', ')}` : '', r.food.pieceWeight ? `porzione ${r.food.pieceWeight}g` : ''].filter(Boolean).join(' · '), () => openResult(r)),
+                    foodRow(r.food, [plausibilityWarnings(r.food).length && '⚠ valori da controllare', r.italy && 'venduto in Italia', r.missing.length ? `mancano ${r.missing.join(', ')}` : '', r.food.pieceWeight ? `porzione ${r.food.pieceWeight}g` : ''].filter(Boolean).join(' · '), () => openResult(r)),
                   )}
                   <p className="text-[10px] text-neutral-400 px-1">Dati prodotti: Open Food Facts, licenza ODbL.</p>
                 </>

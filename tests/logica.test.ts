@@ -161,3 +161,17 @@ describe('parole sconosciute e risposta AI', () => {
     ]);
   });
 });
+
+describe('valori fuori norma', () => {
+  it('segnala il tonno a 403 kcal e i valori impossibili, non quelli giusti', async () => {
+    const { plausibilityWarnings: w } = await import('../src/lib/plausibility');
+    expect(w({ name: 'tonno rio mare', kcal: 403, pro: 17, carbs: 0, fats: 37 }).join(' ')).toMatch(/tonno/);
+    expect(w({ name: 'Tonno al naturale', kcal: 103, pro: 24, carbs: 0, fats: 1 })).toEqual([]);
+    expect(w({ name: 'Fage Total 0%', kcal: 54, pro: 10.3, carbs: 3, fats: 0 })).toEqual([]);
+    expect(w({ name: 'Spaghetti n.5', kcal: 359, pro: 13, carbs: 71, fats: 2 })).toEqual([]);
+    expect(w({ name: 'Yogurt greco 0%', kcal: 100, pro: 9, carbs: 4, fats: 5.5 }).join(' ')).toMatch(/0%/);
+    expect(w({ name: 'Biscotti', kcal: 120, pro: 7, carbs: 70, fats: 20 }).join(' ')).toMatch(/non tornano/);
+    expect(w({ name: 'Strano', kcal: 300, pro: 60, carbs: 50, fats: 10 }).join(' ')).toMatch(/impossibile/);
+    for (const f of BASE_FOODS) expect([f.name, w(f)]).toEqual([f.name, []]);
+  });
+});

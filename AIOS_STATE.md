@@ -48,10 +48,11 @@ da sola all'accesso a Windows con l'attività pianificata "NutriTrack PRO locale
 - [FACT] Impostazioni → Permessi: stato di fotocamera e microfono, pulsante Consenti (fa comparire la richiesta del browser), istruzioni se bloccati. Dettatura con errori spiegati (permesso negato, nessuna voce).
 - [FACT] Inserimento a parole a "pezzi di frase": più alimenti nella stessa frase ("2 uova 100 g di albume e uno yogurt 0" → 2 uova 120 g + albume 100 g + yogurt 0% 1 vasetto 150 g, colazione, 308 kcal). Quantità/«cotto» vanno all'alimento che segue, altrimenti a quello prima; "0%" non è una quantità; "mezzo kg"; nomi di più parole degli alimenti salvati. Se pasto e quantità sono tutti detti aggiunge subito con «Annulla» nell'avviso, altrimenti apre il riquadro di conferma. Le frasi con alimenti sconosciuti passano all'AI (vedi sotto).
 - [FACT] AI vera nell'inserimento a parole: se nella frase restano parole che l'elenco non conosce (`unknownWords`), la frase va a POST /api/ai-parse → `server/aiParse.mjs` → OpenRouter `openai/gpt-4o-mini` (~3-6 s, ~0,0003 $ a frase). Chiave SOLO sul server (variabile `OPENROUTER_KEY_NUOVOROSSI1_GMAIL_COM` sul PC, `OPENROUTER_API_KEY` su Vercel), tetti 300 frasi/giorno e 40 per IP (in memoria, si azzerano al riavvio). Il risultato si conferma SEMPRE nel riquadro (badge AI, valori per 100 g); gli alimenti nuovi vengono salvati e la volta dopo si riconoscono senza AI. Provato: "a cena lasagne e un cornetto" → lasagne (porzione 300 g, quantità da scrivere) + 1 cornetto 60 g; poi "un cornetto a merenda" aggiunto subito senza AI. Se l'AI non risponde si usa solo l'elenco locale.
+- [FACT] Avviso «⚠ valori da controllare» (`src/lib/plausibility.ts`): kcal oltre 900, macro oltre 100 g, kcal che non tornano con i macro (scarto > 25% e > 40 kcal), «0%» con grassi > 3 g, «magro/light» > 12 g, intervalli tipici per tonno, yogurt, latte, pasta secca, riso, pane, pollo, uova, frutta, bevande (esclusi i piatti misti). Nei risultati di ricerca, nella scheda prodotto e nel riquadro dell'AI; non blocca il salvataggio. Prova "tonno rio mare": 7 schede su 28 segnalate, tutte con dati davvero sbagliati (403/401 kcal; Rio Mare leggero 107 kcal ma i macro danno 167; latte di giumenta 205 kcal ma i macro danno 44); nessun alimento di base segnalato.
 - [FACT] Profilo (nome, sesso, età, peso, altezza, attività: sedentario / 1-3 / 3-5 / 6-7 allenamenti / atleta / altro con mantenimento a mano) → metabolismo basale (Mifflin-St Jeor) e mantenimento (× 1,2-1,9), `src/lib/metabolism.ts`. Esempio provato: uomo 35 anni 80 kg 180 cm 1-3 allenamenti → basale 1755, mantenimento 2410.
 - [FACT] Obiettivo Dieta (-20%) / Mantenimento / Massa (+10%): calorie e macro suggeriti (proteine 2,2/1,8/2 g per kg, grassi 25%, carboidrati il resto). Calorie modificabili; l'utente scrive due macro e sceglie quale è «auto» (calcolato dalle kcal): 2000 kcal, 200 P, 200 C → grassi 44 g. Avviso se i due macro superano le kcal. Riquadro "Completa il tuo profilo" finché manca; nel riepilogo «Ciao Nome · Dieta».
 - [FACT] Crea alimento a mano. Obiettivi con profili rapidi. Backup/ripristino JSON. Tema scuro. Azzera il giorno scelto (con conferma).
-- [FACT] Test: 21 test logica (giorni, crudo/cotto, parole, Open Food Facts, storico) ok; tsc ok; build ok; prova completa in Edge senza errori.
+- [FACT] Test: 22 test logica (giorni, crudo/cotto, parole, Open Food Facts, storico) ok; tsc ok; build ok; prova completa in Edge senza errori.
 
 ## 4. Cosa è in lavorazione
 
@@ -72,7 +73,7 @@ da sola all'accesso a Windows con l'attività pianificata "NutriTrack PRO locale
 |---|---|---|---|
 | 1 | Dati solo nel browser del PC: cambiando browser o pulendo i dati del sito si perdono. | 2026-10-16 | Backup JSON nelle impostazioni; si risolve con il login (fase 3). |
 | 2 | Molti prodotti Open Food Facts senza peso porzione (es. Fage Total 0 → 100g). | 2026-10-16 | Campo "peso porzione" modificabile prima di salvare. |
-| 3 | Valori Open Food Facts a volte poco credibili (test utente: "tonno rio mare" in cima con 403 kcal/100 g e 37 g di grassi, ripetuto su più schede). | 2026-10-16 | Nessuna correzione: i dati li inseriscono gli utenti di OFF; l'app li mostra da controllare. Possibile: avviso se i valori sono fuori norma per la categoria. |
+| 3 | Valori Open Food Facts a volte poco credibili (es. "tonno rio mare" 403 kcal/100 g). | 2026-10-16 | Avviso «⚠ valori da controllare» aggiunto il 16/10 (vedi sezione 3); i dati restano quelli di OFF, li corregge l'utente. Ordine dei risultati non ancora influenzato dall'avviso. |
 | 4 | Dettatura non provabile senza telefono vero (nel browser di prova: "Microfono non disponibile"). | 2026-10-16 | Da provare sul telefono con Chrome. |
 
 ## 7. Problemi risolti
@@ -149,6 +150,7 @@ l'utente la provi e dica se procedere con la fase 2 (CIQUAL).
 
 | Data | Modello | Cosa è stato fatto |
 |---|---|---|
+| 2026-10-16 | Claude Opus 5.5 | Avviso valori fuori norma (ricerca, scheda prodotto, AI) |
 | 2026-10-16 | Claude Opus 5.5 | Test completo come un utente (telefono simulato): corretta la lettura AI di pasta/condimenti, modello gpt-4o-mini |
 | 2026-10-16 | Claude Opus 5.5 | AI vera (OpenRouter gpt-4.1-nano) per le frasi con alimenti sconosciuti, con conferma e salvataggio |
 | 2026-10-16 | Claude Opus 5.5 | Tema scuro stile PronoBlast: sfumature oro e blu su nero, testi bianchi |
