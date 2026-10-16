@@ -4,7 +4,7 @@
 > qui. Va **aggiornato** a ogni sessione di lavoro, non accodato all'infinito.
 > L'identità del progetto e il percorso di AI-OS stanno in `AIOS_PROJECT.json`.
 
-**Ultimo aggiornamento:** 2026-10-16 - Codex (GPT-6)
+**Ultimo aggiornamento:** 2026-10-17 - GPT-6 (bozza grafica GitHub)
 
 Etichette usate in questo file:
 `[FACT]` verificato nel codice · `[RICOSTRUITO]` dedotto da indizi ·
@@ -22,6 +22,12 @@ e condizioni d'uso + mail di conferma, come il Gestionale Palestra) e il suo
 storico per giorno. Online su Vercel + Supabase (account smaugdrago@gmail.com).
 
 ---
+
+## Modifica grafica in revisione (17/10/2026)
+
+- [FACT] Su ramo `design/home-gemini-20261017` sono state modificate solo le viste React `App.tsx`, `Summary.tsx`, `DayStrip.tsx` secondo lo screenshot/HTML Gemini fornito dall'utente.
+- [FACT] Header compatto circolare, palette scura, griglia pasti 2x2 anche su mobile, card calorie e calendario ridimensionati; nessun intervento su Supabase, salvataggi, riconoscimento alimenti o logica nutrizionale.
+- [IGNOTO] Build e prova su telefono non ancora eseguite; ramo principale e produzione invariati fino a verifica e approvazione.
 
 ## 2. Dove siamo adesso
 
