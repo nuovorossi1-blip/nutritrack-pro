@@ -199,9 +199,9 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
   }
 
   return (
-    <div className="app-screen min-h-screen">
+    <div className="app-screen app-home min-h-screen">
       <header className="bg-[#17181b]/95 dark:bg-[#17181b]/95 backdrop-blur sticky top-0 z-30 border-b border-[#23252c] text-white">
-        <div className="max-w-2xl mx-auto px-3 h-16 flex items-center justify-between">
+        <div className="home-container h-16 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <div className="w-10 h-10 shrink-0 rounded-full bg-[#f5b935] flex items-center justify-center text-neutral-950 shadow-md shadow-amber-400/30">
               <Flame size={20} />
@@ -216,21 +216,21 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
               <p className="hidden sm:block text-[11px] text-neutral-400 font-medium">Pasti, macro, crudo/cotto</p>
             </div>
           </div>
-          <div className="flex items-center gap-1 sm:gap-2">
-            <button aria-label="Profilo e obiettivi" onClick={() => setSettings(true)} className="w-10 h-10 rounded-full bg-[#26272b] flex items-center justify-center">
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+            <button aria-label="Profilo e obiettivi" onClick={() => setSettings(true)} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#26272b] flex items-center justify-center">
               <Settings size={19} />
             </button>
-            <button aria-label="Azzera giorno" title="Azzera il giorno scelto" onClick={resetDay} className="w-10 h-10 rounded-full bg-[#26272b] flex items-center justify-center">
+            <button aria-label="Azzera giorno" title="Azzera il giorno scelto" onClick={resetDay} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#26272b] flex items-center justify-center">
               <RotateCcw size={16} />
             </button>
-            <button aria-label="Tema" onClick={() => update((d) => ({ ...d, dark: !d.dark }))} className="w-10 h-10 rounded-full bg-[#26272b] flex items-center justify-center">
+            <button aria-label="Tema" onClick={() => update((d) => ({ ...d, dark: !d.dark }))} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#26272b] flex items-center justify-center">
               {data.dark ? <Sun size={16} className="text-gold-400" /> : <Moon size={16} />}
             </button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-3 pt-3 space-y-4">
+      <main className="home-container pt-3 space-y-4">
         <AndroidDownloadBanner />
         <DayStrip selected={selected} today={today} daysWithData={daysWithData} onSelect={setSelected} />
         {!data.profile && (
@@ -255,16 +255,16 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
 
         <section>
           <h2 className="text-xs font-bold uppercase tracking-wide text-neutral-500 mb-2 px-1">Pasti del giorno</h2>
-          <div className="grid grid-cols-2 gap-2.5">
+          <div className="home-meal-grid grid gap-2.5">
             {MEALS.map((m) => {
               const items = day[m.key];
               const t = sumMacros(items);
               return (
-                <button key={m.key} onClick={() => setOpenMeal(m.key)} className="text-left bg-[#191a1c] text-white rounded-[22px] border border-[#343538] shadow-sm p-3 hover:border-[#f5b935] transition min-w-0 flex flex-col justify-between min-h-[155px]">
+                <button key={m.key} onClick={() => setOpenMeal(m.key)} className="home-meal-card w-full text-left bg-[#191a1c] text-white rounded-[22px] border border-[#343538] shadow-sm p-3 hover:border-[#f5b935] transition min-w-0 flex flex-col justify-between min-h-[155px]">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="w-9 h-9 shrink-0 rounded-full bg-[#292a2d] flex items-center justify-center text-lg">{m.emoji}</span>
+                    <span className="home-meal-icon w-9 h-9 shrink-0 rounded-full bg-[#292a2d] flex items-center justify-center text-lg">{m.emoji}</span>
                     <div className="flex-1 min-w-0">
-                      <div className="font-bold text-sm sm:text-base truncate">{m.label}</div>
+                      <div className="home-meal-title font-bold text-sm sm:text-base truncate">{m.label}</div>
                       <div className="text-[11px] text-neutral-400">{items.length} {items.length === 1 ? 'alimento' : 'alimenti'}</div>
                     </div>
                     <Plus size={18} className="text-neutral-400" />
@@ -272,7 +272,7 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
                   {items.length > 0 && <p className="text-[11px] text-neutral-500 mt-2 line-clamp-2">{items.map((i) => `${i.name} (${i.label})`).join(' • ')}</p>}
                   <div className="flex flex-col items-center gap-2 mt-3 pt-3 border-t border-[#343538]">
                     <span className="text-xl font-extrabold text-[#f5b935]">{t.kcal} kcal</span>
-                    <div className="grid grid-cols-3 gap-0.5 w-full text-center text-[10px] sm:text-xs whitespace-nowrap" aria-label="Macro del pasto">
+                    <div className="home-meal-macros w-full text-center text-[10px] sm:text-xs whitespace-nowrap" aria-label="Macro del pasto">
                       <span><b className="text-sky-400">C</b> {t.carbs} g</span>
                       <span><b className="text-red-500">P</b> {t.pro} g</span>
                       <span><b className="text-yellow-400">G</b> {t.fats} g</span>
