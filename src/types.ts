@@ -1,0 +1,69 @@
+export type MealKey = 'colazione' | 'pranzo' | 'cena' | 'spuntini';
+
+export const MEALS: { key: MealKey; label: string; emoji: string }[] = [
+  { key: 'colazione', label: 'Colazione', emoji: '☕' },
+  { key: 'pranzo', label: 'Pranzo', emoji: '🍝' },
+  { key: 'cena', label: 'Cena', emoji: '🌙' },
+  { key: 'spuntini', label: 'Spuntini / Extra', emoji: '🍎' },
+];
+
+export type FoodSource = 'base' | 'off' | 'personale';
+
+/** Valori per 100 g (a crudo per gli alimenti con cookedFactor). */
+export interface Food {
+  id: string;
+  name: string;
+  brand?: string;
+  kcal: number;
+  pro: number;
+  carbs: number;
+  fats: number;
+  /** Peso di un pezzo/porzione in grammi (uovo, vasetto, fetta...). */
+  pieceWeight?: number;
+  unitName?: string;
+  unitPlural?: string;
+  /** Peso cotto / peso crudo (pasta 2.1, carne 0.74). */
+  cookedFactor?: number;
+  cookNote?: string;
+  source: FoodSource;
+  barcode?: string;
+}
+
+export interface Macros {
+  kcal: number;
+  pro: number;
+  carbs: number;
+  fats: number;
+}
+
+export type QtyMode = 'grams' | 'pieces';
+
+/** Voce di un pasto: conserva nome e valori calcolati, cosi' lo storico non cambia se l'alimento viene modificato. */
+export interface MealItem extends Macros {
+  id: string;
+  foodId: string;
+  name: string;
+  /** Grammi a crudo (o grammi del prodotto se non si cuoce). */
+  grams: number;
+  mode: QtyMode;
+  /** Quantita' inserita: grammi o numero di pezzi. */
+  qty: number;
+  /** true se la quantita' e' stata pesata da cotto. */
+  cooked: boolean;
+  label: string;
+  addedAt: string;
+}
+
+export type DayLog = Record<MealKey, MealItem[]>;
+
+export interface Goals extends Macros {}
+
+export interface AppData {
+  version: 1;
+  goals: Goals;
+  /** Chiave: giorno locale AAAA-MM-GG. */
+  days: Record<string, DayLog>;
+  /** Alimenti salvati dall'utente (personali e da Open Food Facts). */
+  foods: Food[];
+  dark: boolean;
+}

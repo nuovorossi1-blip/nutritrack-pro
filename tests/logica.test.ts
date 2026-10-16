@@ -1,0 +1,86 @@
+import { describe, expect, it } from 'vitest';
+import { BASE_FOODS } from '../src/data/baseFoods';
+import { addDays, dayStrip, msToMidnight, shortLabel } from '../src/lib/dates';
+import { buildItem, rawGrams, sumMacros } from '../src/lib/nutrition';
+import { mealFromText, parseFoodText } from '../src/lib/parser';
+import { mapProduct, rankResults } from '../src/lib/off';
+import { frequentFor, withDay } from '../src/lib/store';
+import type { AppData } from '../src/types';
+
+const food = (id: string) => BASE_FOODS.find((f) => f.id === id)!;
+
+describe('giorni', () => {
+  it('cambio mese e anno', () => {
+    expect(addDays('2026-10-31', 1)).toBe('2026-11-01');
+    expect(addDays('2027-01-01', -1)).toBe('2026-12-31');
+  });
+  it('la barra non va oltre oggi', () => {
+    expect(dayStrip('2026-10-16', '2026-10-16')).toEqual(['2026-10-12', '2026-10-13', '2026-10-14', '2026-10-15', '2026-10-16']);
+    expect(dayStrip('2026-10-01', '2026-10-16')).toEqual(['2026-09-29', '2026-09-30', '2026-10-01', '2026-10-02', '2026-10-03']);
+  });
+  it('etichette e mezzanotte', () => {
+    expect(shortLabel('2026-10-16', '2026-10-16')).toBe('OGGI');
+    expect(shortLabel('2026-10-15', '2026-10-16')).toBe('IERI');
+    expect(msToMidnight(new Date(2026, 9, 16, 23, 59, 0))).toBe(60000);
+  });
+});
+
+describe('crudo e cotto', () => {
+  it('200g di pasta cotta = 95g crudi', () => {
+    expect(rawGrams(food('f12'), { mode: 'grams', qty: 200, cooked: true })).toBe(95);
+  });
+  it('2 uova = 120g, 172 kcal', () => {
+    const it = buildItem(food('f_egg'), { mode: 'pieces', qty: 2, cooked: false });
+    expect(it.grams).toBe(120);
+    expect(it.kcal).toBe(172);
+  });
+  it('somma', () => {
+    expect(sumMacros([{ kcal: 10, pro: 1.1, carbs: 2.2, fats: 0.1 }, { kcal: 5, pro: 0.2, carbs: 0, fats: 0.2 }])).toEqual({ kcal: 15, pro: 1.3, carbs: 2.2, fats: 0.3 });
+  });
+});
+
+describe('inserimento a parole', () => {
+  it('frase con crudo/cotto e pasto', () => {
+    const t = '200g di pasta cotta e 150g di pollo cotto a pranzo';
+    const r = parseFoodText(t, BASE_FOODS);
+    expect(r.map((e) => e.food.id)).toEqual(['f12', 'f3']);
+    expect(r.map((e) => rawGrams(e.food, e.portion))).toEqual([95, 203]);
+    expect(mealFromText(t)).toBe('pranzo');
+  });
+  it('numeri a parole e pezzi', () => {
+    const r = parseFoodText('due uova e una fetta di pane a colazione', BASE_FOODS);
+    expect(r.map((e) => [e.food.id, e.portion.mode, e.portion.qty])).toEqual([
+      ['f_egg', 'pieces', 2],
+      ['f16', 'pieces', 1],
+    ]);
+  });
+  it('niente falsi riconoscimenti', () => {
+    expect(parseFoodText('panna e melanzane con olive', BASE_FOODS)).toEqual([]);
+  });
+});
+
+describe('Open Food Facts', () => {
+  it('mappa un prodotto e trova la porzione', () => {
+    const r = mapProduct({ code: '5201054017418', product_name: 'Fage Total 0%', brands: 'Fage', serving_quantity: '150', countries_tags: ['en:italy'], nutriments: { 'energy-kcal_100g': 54, proteins_100g: 10.3, carbohydrates_100g: 3, fat_100g: 0 } })!;
+    expect(r.food).toMatchObject({ id: 'off_5201054017418', kcal: 54, pro: 10.3, pieceWeight: 150, brand: 'Fage' });
+    expect(r.missing).toEqual([]);
+  });
+  it('segnala i valori mancanti e mette prima i completi italiani', () => {
+    const a = mapProduct({ code: '1', product_name: 'A', nutriments: { 'energy-kcal_100g': 50 } })!;
+    const b = mapProduct({ code: '2', product_name: 'B', countries_tags: ['en:italy'], nutriments: { 'energy-kcal_100g': 50, proteins_100g: 1, carbohydrates_100g: 1, fat_100g: 1 } })!;
+    expect(a.missing).toEqual(['proteine', 'carboidrati', 'grassi']);
+    expect(rankResults([a, b]).map((x) => x.food.id)).toEqual(['off_2', 'off_1']);
+  });
+});
+
+describe('storico', () => {
+  it('giorno vuoto non salvato, frequenti dallo storico', () => {
+    let d: AppData = { version: 1, goals: { kcal: 2000, carbs: 200, pro: 150, fats: 60 }, days: {}, foods: [], dark: false };
+    const it = buildItem(food('f26'), { mode: 'pieces', qty: 1, cooked: false });
+    d = withDay(d, '2026-10-15', { colazione: [it], pranzo: [], cena: [], spuntini: [] });
+    d = withDay(d, '2026-10-16', { colazione: [it], pranzo: [], cena: [], spuntini: [] });
+    expect(frequentFor(d, 'colazione')[0]).toMatchObject({ count: 2 });
+    d = withDay(d, '2026-10-16', { colazione: [], pranzo: [], cena: [], spuntini: [] });
+    expect(Object.keys(d.days)).toEqual(['2026-10-15']);
+  });
+});

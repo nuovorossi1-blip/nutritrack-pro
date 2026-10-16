@@ -1,18 +1,15 @@
 {
   "_comment": "Identita' del progetto per AI-OS. File letto da qualsiasi LLM che riceve il comando /handoff. Cambia raramente. Lo stato corrente sta in AIOS_STATE.md. NON scrivere token o password qui dentro.",
-
   "protocol_version": "1.1",
   "aios_reference": "https://github.com/nuovorossi1-blip/ai-os",
   "aios_protocol_file": "AIOS_PROTOCOL.md",
-
   "project": {
     "name": "NutriTrack PRO",
     "repository": "https://github.com/nuovorossi1-blip/nutritrack-pro",
-    "objective": "Calcolatore di calorie e macro dei pasti della giornata, che capisce se un alimento e' pesato crudo o cotto e converte i grammi da solo.",
-    "users": "solo io",
+    "objective": "App web + APK Android per contare calorie e macro dei pasti di ogni giorno, con crudo/cotto, ricerca e codice a barre, account personale per ogni utente.",
+    "users": "pubblico (ogni utente col proprio account)",
     "mobile": true
   },
-
   "origin": {
     "type": "migrated_to_aios",
     "_type_values": [
@@ -25,28 +22,24 @@
     "previous_history_available": false,
     "_note": "Prototipo HTML unico generato con Gemini (file nutritrack_pro_calcolatore_macro_e_pasti_con_ai.html), adottato in AI-OS il 2026-10-16. Nessuna storia precedente."
   },
-
   "stack": {
-    "language": "JavaScript (nel browser, nessun build)",
-    "framework": "nessuno: un solo index.html",
-    "styling": "Tailwind da CDN",
-    "database": "localStorage del browser; sincronizzazione Supabase opzionale non ancora configurata",
-    "auth": "nessuno"
+    "language": "TypeScript",
+    "framework": "React 18 + Vite 5 (Capacitor per l'APK, fase 4)",
+    "styling": "Tailwind 3",
+    "database": "per ora localStorage; fase 3 Supabase (account smaugdrago@gmail.com)",
+    "auth": "fase 3: supabase-auth con conferma mail + accettazione privacy/condizioni"
   },
-
   "deploy": {
-    "provider": "da decidere (Vercel o hosting locale temporaneo)",
+    "provider": "vercel (fase 3); ora locale sul PC http://127.0.0.1:5180 (attivita' 'NutriTrack PRO locale')",
     "site_url": "non ancora pubblicato",
     "site_id": "",
     "auto_deploy_on_push": false
   },
-
   "secrets_required": [],
   "_secrets_note": "Nessun segreto nel repository. URL e chiave pubblica Supabase, se usati, li inserisce l'utente nella finestra Cloud Sync e restano nel suo browser.",
-
   "last_session": {
     "model": "Claude Opus 5.5",
     "date": "2026-10-16",
-    "summary": "Prototipo Gemini portato in AI-OS: tolte foto AI simulata e storico finto, etichette AI corrette, prova in Edge ok."
+    "summary": "Fase 1: app React sul PC con giorni, pasti, Open Food Facts, storico; 12 test ok."
   }
 }

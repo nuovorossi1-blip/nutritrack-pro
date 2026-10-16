@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/off-search/:path*", "destination": "https://search.openfoodfacts.org/:path*" }
+  ]
+}

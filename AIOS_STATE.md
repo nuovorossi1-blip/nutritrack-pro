@@ -14,43 +14,49 @@ Etichette usate in questo file:
 
 ## 1. Obiettivo finale
 
-Un'app (anche da telefono) per tenere il conto di calorie e macro dei pasti
-della giornata rispetto agli obiettivi, inserendo gli alimenti nel modo più
-veloce possibile: a parole ("200g di pasta cotta a pranzo"), dai frequenti,
-dal database o con il codice a barre, senza dover calcolare a mano crudo/cotto.
+Un'app web + APK Android per tenere il conto di calorie e macro dei pasti di
+ogni giorno rispetto agli obiettivi, inserendo gli alimenti nel modo più
+veloce possibile (a parole, frequenti, ricerca, codice a barre) senza calcoli
+a mano crudo/cotto. Ogni utente ha il suo account (registrazione con privacy
+e condizioni d'uso + mail di conferma, come il Gestionale Palestra) e il suo
+storico per giorno. Online su Vercel + Supabase (account smaugdrago@gmail.com).
 
 ---
 
 ## 2. Dove siamo adesso
 
-Prototipo a file unico (`index.html`) nato con Gemini, adottato in AI-OS il
-16/10/2026. Funziona tutto in locale nel browser. Non è ancora online.
+Fase 1 di 4 FATTA (16/10/2026): app React + TypeScript + Vite che gira su
+questo PC. Dati salvati nel browser del PC, nessun login ancora.
 
-**Sito online:** non ancora pubblicato
+**Sul PC:** http://127.0.0.1:5180 (icona "NutriTrack PRO" sul Desktop; si avvia
+da sola all'accesso a Windows con l'attività pianificata "NutriTrack PRO locale").
+**Online:** non ancora pubblicato.
 
 ---
 
 ## 3. Cosa funziona
 
-- [FACT] Riepilogo giornata: kcal, carboidrati, proteine, grassi con barre rispetto agli obiettivi.
-- [FACT] 4 pasti (colazione, pranzo, cena, spuntini) con dettaglio, modifica grammi/pezzi/cotto e rimozione.
-- [FACT] Inserimento rapido a parole (riconoscimento per parole chiave, NON un'AI): capisce grammi, pezzi, "cotto" e il pasto. Provato in Edge: "200g di pasta cotta e 150g di pollo cotto a pranzo" → 95g e 203g a crudo, 562 kcal.
-- [FACT] Dettatura vocale (solo browser con SpeechRecognition, es. Chrome/Edge).
-- [FACT] Database di 23 alimenti con fattore di cottura; alimenti personalizzati.
-- [FACT] Codice a barre: ricerca su OpenFoodFacts, con 3 prodotti di riserva se non c'è rete.
-- [FACT] Obiettivi personalizzabili e profili rapidi (definizione, mantenimento, massa).
-- [FACT] Dati salvati nel browser (localStorage `nutritrack_app_data`), backup/ripristino JSON.
-- [FACT] Tema scuro.
+- [FACT] Barra dei giorni come PronoBlast (5 giorni, OGGI/IERI, frecce, pallino sui giorni con dati) + calendario per scegliere qualsiasi giorno passato; niente giorni futuri.
+- [FACT] Ogni giorno ha i suoi pasti e parte da 0; a mezzanotte, se si guarda "oggi", l'app passa da sola al giorno nuovo (provato simulando le 23:59:30 → 00:00:15). Il giorno prima resta consultabile.
+- [FACT] Riepilogo del giorno: anello kcal + carboidrati/proteine/grassi rispetto agli obiettivi.
+- [FACT] 4 pasti con dettaglio: aggiungi, modifica quantità (grammi/pezzi, crudo/cotto), elimina.
+- [FACT] Inserimento rapido a parole (parole chiave, NON AI) con dettatura: "200g di pasta cotta e 150g di pollo cotto a pranzo" → 95g + 203g crudi, 562 kcal. Parole intere: "panna", "melanzane", "olive" non vengono più scambiate. Numeri a parole ("due uova"). Pasto dal testo, altrimenti dall'ora.
+- [FACT] Frequenti per pasto calcolati dallo storico vero (conteggio + ultima porzione).
+- [FACT] Ricerca per nome su Open Food Facts (passa da /off-search: inoltro di Vite in locale, rewrite in vercel.json online) con prodotti completi e venduti in Italia in cima, schede doppie tolte; ricerca per codice a barre (world.openfoodfacts.org, diretta). Risposte in cache sul dispositivo 7 giorni.
+- [FACT] Prima di salvare un prodotto si vedono e correggono i valori (valori mancanti segnalati), peso porzione e "si cuoce?" (pasta/riso/carne/pesce) per pesarlo anche da cotto. Prova: codice 8076800195057 → Spaghetti n.5 Barilla 359 kcal.
+- [FACT] Crea alimento a mano. Obiettivi con profili rapidi. Backup/ripristino JSON. Tema scuro. Azzera il giorno scelto (con conferma).
+- [FACT] Test: 12 test logica (giorni, crudo/cotto, parole, Open Food Facts, storico) ok; tsc ok; build ok; prova completa in Edge senza errori.
 
 ## 4. Cosa è in lavorazione
 
-- → niente
+- → niente (fase 1 chiusa)
 
 ## 5. Cosa manca ancora
 
-- Pubblicazione online (Vercel o hosting locale temporaneo): da decidere con l'utente.
-- Storico dei giorni: i pasti non hanno data, "azzera giornata" cancella tutto.
-- Vera analisi del piatto da foto con un modello AI (tolta la versione finta, vedi 7).
+- Fase 2: alimenti sfusi ufficiali CIQUAL tradotti in italiano (oggi 21 alimenti di base del prototipo), USDA come riserva.
+- Fase 3: login Supabase (registrazione con privacy/condizioni + mail di conferma), dati per utente con RLS, pubblicazione su Vercel. Account smaugdrago@gmail.com: l'utente lo collega con l'icona "Collega account" (token MAI in chat).
+- Fase 4: APK Android auto-aggiornante (modulo AI-OS, come GymBuilder) + lettura codice a barre con fotocamera; ricerca Open Food Facts nell'APK tramite richiesta nativa (niente CORS).
+- Vera analisi del piatto da foto con un modello AI (tolta la versione finta).
 
 ---
 
@@ -58,9 +64,8 @@ Prototipo a file unico (`index.html`) nato con Gemini, adottato in AI-OS il
 
 | # | Problema | Da quando | Cosa si è già provato |
 |---|---|---|---|
-| 1 | Sincronizzazione Cloud (Supabase) senza login: il profilo è un nome scritto a mano (`default_user`), chiunque abbia URL e chiave pubblica legge/scrive tutti i profili. Manca anche lo script della tabella `nutritrack_profiles`. Oggi non è attiva (nessun URL/chiave nel codice). | 2026-10-16 | Niente: va deciso se servono login e cloud o basta il locale. |
-| 2 | Parole chiave troppo corte nel riconoscimento a parole: "pan" prende anche "panna", "mel" anche "melanzane", "oli" anche "olive", "fett" qualsiasi fetta → pane. | 2026-10-16 | Niente. |
-| 3 | Prodotti da codice a barre salvati sempre con categoria "carboidrati" e porzione 100g. | 2026-10-16 | Niente. |
+| 1 | Dati solo nel browser del PC: cambiando browser o pulendo i dati del sito si perdono. | 2026-10-16 | Backup JSON nelle impostazioni; si risolve con il login (fase 3). |
+| 2 | Molti prodotti Open Food Facts senza peso porzione (es. Fage Total 0 → 100g). | 2026-10-16 | Campo "peso porzione" modificabile prima di salvare. |
 
 ## 7. Problemi risolti
 
@@ -71,27 +76,37 @@ Prototipo a file unico (`index.html`) nato con Gemini, adottato in AI-OS il
 | Problema | Causa vera | Soluzione |
 |---|---|---|
 | Scheda "Foto AI" finta: qualsiasi foto diventava sempre "Pollo, Riso e Verdure" 135 kcal/100g | Gemini aveva simulato l'analisi (funzione `analyzePhotoFood` con dati fissi) | Scheda, sezione e funzione tolte (16/10). Va rifatta solo con un modello vero. |
-| Frequenti già pieni al primo avvio (es. albumi usati 12 volte) | Storico inventato dentro `state.frequentPerMeal` | Frequenti vuoti all'avvio, si riempiono con l'uso reale (16/10). |
+| Frequenti già pieni al primo avvio (es. albumi usati 12 volte) | Storico inventato dentro `state.frequentPerMeal` | Frequenti calcolati dallo storico reale (16/10). |
 | L'app diceva "Assistente AI" ma non c'è nessuna AI | Etichette del prototipo | Rinominato "Inserimento rapido a parole" (16/10). |
+| Parole chiave troppo corte ("pan" → panna, "mel" → melanzane, "oli" → olive) | Confronto su pezzi di parola | `src/lib/parser.ts`: regole su parole intere (regex) + test (16/10). |
+| Pasti senza data, "azzera" cancellava tutto | Prototipo con un solo giorno | Dati per giorno `days[AAAA-MM-GG]`, azzera solo il giorno scelto (16/10). |
+| Sincronizzazione Supabase senza login (profilo scritto a mano, dati di tutti leggibili) | Prototipo Gemini | Tolta nella versione React; tornerà con login vero e RLS (fase 3). |
+| Ricerca per nome di Open Food Facts bloccata nel browser | search.openfoodfacts.org non manda l'intestazione CORS | Passa da `/off-search` (proxy Vite in locale, rewrite vercel.json online, nessuna funzione Vercel) (16/10). |
+| A mezzanotte l'app restava sul giorno vecchio | In `App.tsx` l'aggiornamento di setSelected leggeva il ref già cambiato | Valore precedente copiato prima; provato con orologio simulato (16/10). |
 
 ---
 
 ## 8. Decisioni prese
 
-- **Resta un solo `index.html` senza build** — motivo: è come l'ha fatto l'utente, funziona e si pubblica così com'è (Vercel lo serve senza configurazione) — data: 2026-10-16
-- **Nessuna funzione finta nell'interfaccia** — motivo: regola AI-OS "niente pulsanti che non fanno niente" — data: 2026-10-16
-- **Repository GitHub privato `nutritrack-pro`** — motivo: app personale; si può rendere pubblico in seguito — data: 2026-10-16
-- Il file originale di Gemini resta in Download, non toccato.
-- **Fonti alimenti: Open Food Facts (codici a barre/confezionati) + CIQUAL (sfusi, dentro l'app) + USDA come riserva** — motivo: aperte e gratuite; CREA e BDA IEO non riutilizzabili (diritto d'autore, serve autorizzazione); OpenNutrition scartata finche' la licenza non e' chiara. Citare la fonte in app (ODbL/CIQUAL) — data: 2026-10-16
-- **Percorso: rifare in React + APK Android installabile (modulo AI-OS MODULO_ANDROID_AUTOAGGIORNANTE), prova prima su questo PC, poi Vercel + Supabase su account NUOVO dell'utente (smaugdrago@gmail.com, da collegare con l'icona 'Collega account'), con login proprio: ogni utente il suo account e i suoi dati** — data: 2026-10-16
-- **Poche richieste a Vercel/Supabase** — motivo: l'utente non vuole problemi di limiti. Regole: ricerca alimenti dal telefono direttamente a Open Food Facts (mai tramite funzioni Vercel), CIQUAL incluso nell'app, prodotti gia' cercati salvati in locale; Supabase solo per i dati dell'utente con salvataggi raggruppati — data: 2026-10-16
+- **React + TypeScript + Vite + Tailwind (Capacitor per l'APK)** — motivo: stesso codice per sito e APK, come GymBuilder (modulo Android già pronto), Vercel/Supabase nativi; scartati React Native/Expo (web peggiore, modulo da rifare), Flutter (linguaggio diverso), HTML unico (ingestibile con login/APK) — data: 2026-10-16
+- **Registrazione: privacy e condizioni d'uso + mail di conferma**, come il Gestionale Palestra (non approvazione manuale dell'amministratore) — data: 2026-10-16
+- **Giorni: dalla mezzanotte alla mezzanotte locale, barra giorni come PronoBlast + calendario, niente giorni futuri** — data: 2026-10-16
+- **Fasi: 1 app React sul PC (fatta) → 2 CIQUAL → 3 login Supabase + Vercel → 4 APK** — data: 2026-10-16
+- **Nessuna funzione finta nell'interfaccia** — motivo: regola AI-OS — data: 2026-10-16
+- **Repository GitHub privato `nutritrack-pro`**; prototipo Gemini conservato in `prototipo/nutritrack-gemini.html` (originale anche in Download, non toccato) — data: 2026-10-16
+- **Fonti alimenti: Open Food Facts (confezionati/codici a barre) + CIQUAL (sfusi, dentro l'app) + USDA riserva** — motivo: aperte e gratuite; CREA e BDA IEO non riutilizzabili (diritto d'autore); OpenNutrition scartata finché la licenza non è chiara. Citare la fonte in app — data: 2026-10-16
+- **Poche richieste a Vercel/Supabase** — motivo: l'utente non vuole problemi di limiti. Ricerca alimenti mai tramite funzioni Vercel (solo rewrite), CIQUAL dentro l'app, cache locale delle ricerche; Supabase solo per i dati utente con salvataggi raggruppati — data: 2026-10-16
+- **Account nuovo per Vercel + Supabase: smaugdrago@gmail.com**, collegato dall'utente con "Collega account" — data: 2026-10-16
 
 ---
 
 ## 9. Trappole di questo progetto
 
-- Tailwind, Font Awesome, Supabase e i font arrivano da CDN: senza internet la grafica si rompe.
-- I dati stanno nel browser: cambiando browser o cancellando i dati del sito si perdono (usare il backup JSON).
+- Il server locale (`vite preview`) serve la cartella `dist`: dopo ogni modifica al codice rifare `npm run build`, altrimenti sul PC si vede la versione vecchia.
+- La ricerca per nome funziona solo passando da `/off-search`: aprendo `dist/index.html` come file, o su un hosting senza la regola di vercel.json, la ricerca per nome fallisce (il codice a barre invece va).
+- Nell'APK (fase 4) `/off-search` non esiste: usare la richiesta nativa di Capacitor verso search.openfoodfacts.org.
+- I giorni sono in ora locale (`src/lib/dates.ts`): non usare `toISOString()` per la data del giorno (darebbe il giorno UTC).
+- Il server locale ascolta solo su 127.0.0.1: non è raggiungibile dal telefono (nessuna pubblicazione Tailscale fatta, per non toccare quelle di PronoBlast/GymBuilder/Guacamole).
 
 ---
 
@@ -99,19 +114,18 @@ Prototipo a file unico (`index.html`) nato con Gemini, adottato in AI-OS il
 
 **Modello:** Claude Opus 5.5 · **Data:** 2026-10-16
 
-App portata in AI-OS e corretta (vedi 7), provata in Edge headless: nessun
-errore, inserimento a parole e calcolo crudo/cotto corretti. Non pubblicata
-online: in attesa che l'utente scelga dove.
+Fase 1 completata e verificata (test, build, prova in Edge, mezzanotte
+simulata), in funzione sul PC su http://127.0.0.1:5180. In attesa che
+l'utente la provi e dica se procedere con la fase 2 (CIQUAL).
 
 ---
 
 ## 11. Prossimi passi
 
-0. [in attesa risposta utente] Cosa intende per 'accettazione' degli utenti: approvazione dell'amministratore o accettazione di privacy/condizioni.
-1. Rifare l'app in React (prova su questo PC) con Open Food Facts + CIQUAL; poi APK; poi Vercel + Supabase sull'account nuovo (vedi decisioni).
-2. Storico per giorno (pasti con data, vista dei giorni passati).
-3. Decidere il cloud: solo locale oppure login + Supabase con dati separati per utente (problema aperto 1).
-4. Rendere più precise le parole chiave (problema aperto 2).
+1. L'utente prova l'app sul PC (icona "NutriTrack PRO" sul Desktop) e segnala cosa cambiare.
+2. Fase 2: scaricare CIQUAL, tradurre i nomi in italiano, inserirlo nell'app con crudo/cotto e fonte citata; USDA come riserva.
+3. Fase 3: quando l'utente ha collegato smaugdrago@gmail.com con "Collega account": progetto Supabase (auth con conferma mail, tabelle per utente con RLS, accettazione privacy/condizioni salvata), progetto Vercel con rewrite /off-search.
+4. Fase 4: APK Android auto-aggiornante + fotocamera per i codici a barre.
 
 ---
 
@@ -119,5 +133,6 @@ online: in attesa che l'utente scelga dove.
 
 | Data | Modello | Cosa è stato fatto |
 |---|---|---|
+| 2026-10-16 | Claude Opus 5.5 | Fase 1: app React sul PC (giorni, pasti, parole, Open Food Facts nome/codice, storico, mezzanotte), 12 test, avvio automatico sul PC |
 | 2026-10-16 | Claude Opus 5.5 | Decise fonti alimenti e percorso React/APK/Vercel+Supabase con login (nessun codice cambiato) |
 | 2026-10-16 | Claude Opus 5.5 | Adozione AI-OS del prototipo Gemini; tolte foto AI finta e frequenti inventati; etichette AI corrette; prova in Edge ok |
