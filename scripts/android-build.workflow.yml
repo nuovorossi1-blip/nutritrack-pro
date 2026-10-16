@@ -34,7 +34,8 @@ jobs:
           rm -f public/nutritrack.apk
           npm run build
           npx cap sync android
-          echo "ANDROID_VERSION_CODE=$((GITHUB_RUN_NUMBER + 1))" >> "$GITHUB_ENV"
+          NEXT_CODE=$(node -p "require('./public/version.json').versionCode + 1")
+          echo "ANDROID_VERSION_CODE=$NEXT_CODE" >> "$GITHUB_ENV"
       - name: Firma stabile e SDK
         env:
           SIGNING_STORE: ${{ secrets.ANDROID_DEBUG_KEYSTORE_B64 }}

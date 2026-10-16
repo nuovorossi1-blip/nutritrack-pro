@@ -1,4 +1,4 @@
-import { Flame, Mic, Moon, Plus, RotateCcw, Sun, Target, Wand2 } from 'lucide-react';
+import { Flame, Moon, Plus, RotateCcw, Sun, Target, Wand2 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { AppData, Food, Goals, MealItem, MealKey, Profile } from './types';
 import { needsProfileSetup } from './lib/metabolism';
@@ -9,7 +9,6 @@ import { allFoods, getDay, useAppData, useToday, withDay } from './lib/store';
 import { longLabel } from './lib/dates';
 import { mealFromText, parseFoodText, unknownWords, type ParsedEntry } from './lib/parser';
 import { aiEntries, askAi } from './lib/ai';
-import { DENIED_HELP } from './lib/permissions';
 import { DayStrip } from './components/DayStrip';
 import { Summary } from './components/Summary';
 import { MealSheet } from './components/MealSheet';
@@ -17,7 +16,7 @@ import { SettingsModal } from './components/SettingsModal';
 import { QuickConfirm } from './components/QuickConfirm';
 import { ProfileGoals } from './components/ProfileGoals';
 import { plausibilityWarnings } from './lib/plausibility';
-import { isAndroidApp, SpeechInput } from './native/android';
+import { VoiceInput } from './components/VoiceInput';
 import { AndroidDownloadBanner } from './components/AndroidTools';
 
 interface Toast {
@@ -26,14 +25,6 @@ interface Toast {
   error: boolean;
   action?: { label: string; run: () => void };
 }
-
-type SpeechCtor = new () => {
-  lang: string;
-  onresult: (e: { results: { 0: { 0: { transcript: string } } } }) => void;
-  onend: () => void;
-  onerror: (e: { error: string }) => void;
-  start: () => void;
-};
 
 interface AppProps {
   initial?: AppData;
@@ -67,7 +58,6 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
   const [openMeal, setOpenMeal] = useState<MealKey | null>(null);
   const [settings, setSettings] = useState(false);
   const [text, setText] = useState('');
-  const [listening, setListening] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileError, setProfileError] = useState('');
@@ -87,10 +77,10 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
     document.documentElement.classList.toggle('dark', data.dark);
   }, [data.dark]);
 
-  const toast = (msg: string, error = false, action?: Toast['action']) => {
+  const toast = (msg: string, error = false, action?: Toast['action'], duration = error ? 6000 : action ? 7000 : 2000) => {
     const id = Date.now() + Math.random();
     setToasts((t) => [...t, { id, msg, error, action }]);
-    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), action ? 7000 : msg.length > 80 ? 8000 : 3200);
+    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), duration);
   };
 
   const day = getDay(data, selected);
@@ -155,34 +145,9 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
       `Aggiunto a ${MEALS.find((m) => m.key === meal)!.label}: ${items.map((i) => `${i.name} ${i.label}`).join(' + ')}${entries.some((e) => e.food.source === 'ai') ? ' · stima AI' : ''}`,
       false,
       undoable ? { label: 'Annulla', run: undo } : undefined,
+      2000,
     );
   }
-
-  const dictate = async () => {
-    if (isAndroidApp()) {
-      if (listening) return;
-      setListening(true);
-      try { setText((await SpeechInput.start()).text); }
-      catch (e) { if ((e as { code?: string }).code !== 'CANCELLED') toast((e as Error).message || 'Dettatura non disponibile', true); }
-      finally { setListening(false); }
-      return;
-    }
-    const w = window as unknown as { SpeechRecognition?: SpeechCtor; webkitSpeechRecognition?: SpeechCtor };
-    const Ctor = w.SpeechRecognition || w.webkitSpeechRecognition;
-    if (!Ctor) return toast('Dettatura non disponibile in questo browser', true);
-    const rec = new Ctor();
-    rec.lang = 'it-IT';
-    rec.onresult = (e) => setText(e.results[0][0].transcript);
-    rec.onend = () => setListening(false);
-    rec.onerror = (e) => {
-      setListening(false);
-      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') toast(DENIED_HELP, true);
-      else if (e.error === 'no-speech') toast('Non ho sentito niente: riprova', true);
-      else if (e.error !== 'aborted') toast('Microfono non disponibile', true);
-    };
-    setListening(true);
-    rec.start();
-  };
 
   const resetDay = () => {
     if (!Object.values(day).some((l) => l.length)) return;
@@ -281,24 +246,7 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
             <Wand2 size={18} className="text-blue-300" />
             <h3 className="font-bold">Inserimento rapido a parole</h3>
           </div>
-          <p className="text-xs text-blue-200/80 mt-1">Es. «200g di pasta cotta e 150g di pollo cotto a pranzo» oppure «2 uova e 1 fetta di pane a colazione». Se scrivi «cotto», l'app ricalcola i grammi a crudo.</p>
-          <div className="flex gap-2 mt-3">
-            <div className="relative flex-1">
-              <input
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && void addQuick()}
-                placeholder="Cosa hai mangiato?"
-                className="w-full bg-neutral-900/80 placeholder-neutral-400 text-sm rounded-2xl px-4 py-3 pr-11 border border-blue-700/50 focus:border-blue-400 outline-none"
-              />
-              <button aria-label="Dettatura" onClick={dictate} className={`absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-xl flex items-center justify-center ${listening ? 'text-red-400 animate-pulse' : 'text-neutral-400'}`}>
-                <Mic size={16} />
-              </button>
-            </div>
-            <button onClick={addQuick} disabled={thinking} className="bg-blu hover:brightness-110 disabled:opacity-60 rounded-2xl px-4 text-sm font-bold">
-              {thinking ? 'Leggo…' : 'Inserisci'}
-            </button>
-          </div>
+          <VoiceInput text={text} onText={setText} onInsert={() => void addQuick()} busy={thinking} onError={(message) => toast(message, true)} />
         </section>
 
         <section>
@@ -373,7 +321,7 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
 
       <div className="app-toasts fixed inset-x-0 z-[60] flex flex-col items-center gap-2 pointer-events-none px-4">
         {toasts.map((t) => (
-          <div key={t.id} className={`pointer-events-auto flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold text-white shadow-xl ${t.error ? 'bg-red-600' : 'bg-neutral-900 border border-neutral-700'}`}>
+          <div key={t.id} data-toast role={t.error ? 'alert' : 'status'} className={`pointer-events-auto flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold text-white shadow-xl ${t.error ? 'bg-red-600' : 'bg-neutral-900 border border-neutral-700'}`}>
             <span>{t.msg}</span>
             {t.action && (
               <button

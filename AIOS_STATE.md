@@ -30,7 +30,7 @@ si apre la creazione del profilo prima del diario: nome, data di nascita, sesso,
 peso, altezza, attività e obiettivo. Calcolo automatico di età, TDEE, calorie e macro;
 modifica successiva da Profilo e obiettivi. I profili completi precedenti restano validi.
 SMTP Gmail e testi italiani configurati; l'utente ha confermato la registrazione.
-Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Android 1.0.1 compilato e firmato; download pubblico verificato. Pipeline automatica e prove su telefono ancora aperte.
+Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Android 1.0.2/code2 con microfono integrato pubblicato e download verificato. Pipeline automatica e prove su telefono ancora aperte.
 
 **Online (Vercel, account smaugdrago@gmail.com, team Decisione):** https://nutritrack-pro-zeta.vercel.app
 **Sul PC (stessa app e stesso database):** https://nutritrack.redapp.dev (tunnel Cloudflare) e http://127.0.0.1:5180
@@ -40,7 +40,9 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Andr
 
 ## 3. Cosa funziona
 
-- [FACT] Aggiungi altro e conferma alimento/rapida maggiori (64px, testo18px), footer e pannelli rispettano barra Android usando sia env sia variabili Capacitor, contenuto scrollabile e Annulla protetti. Rimossa nota didattica swipe. Build e browser mobile locale/LIVE con inset0/24/48px e top28px, portrait/landscape e flusso pasti/cloud positivi. Conferma sul telefono utente ancora attesa; nessun nuovo APK, UI remota.
+- [FACT] Conferme aggiunta in alto per2secondi. VoiceInput con pulsante Parla/Ferma, testo live e microfono spento al secondo tocco, stop in background; Android SpeechRecognizer inline richiede APK1.0.2/code2 pubblicato e firmato stessa chiave. Build/33test/QA browser e bridge nativo simulato locale e LIVE positivi. Voce acustica, permessi hardware e installazione update sul telefono ancora da confermare.
+
+- [FACT] Aggiungi altro e conferma alimento/rapida maggiori (64px, testo18px), footer e pannelli rispettano barra Android usando sia env sia variabili Capacitor, contenuto scrollabile e pannelli protetti. Le notifiche, compreso Annulla, ora sono in alto. Rimossa nota didattica swipe. Build e browser mobile locale/LIVE con inset0/24/48px e top28px, portrait/landscape e flusso pasti/cloud positivi. Conferma sul telefono utente ancora attesa; nessun nuovo APK, UI remota.
 
 - [FACT] Dettaglio del pasto come riferimento utente (16/10/2026): tocco su Colazione/Pranzo/Cena/Spuntini apre hero con emoji e tema oro/blu, griglia 2×2 calorie/carboidrati/proteine/grassi, elenco con quantità/kcal e swipe, quattro barre nutrizionali. Barre etichettate come contributo agli obiettivi GIORNALIERI (non esistono ancora quote per pasto, nessun valore inventato). Pulsante fisso «Aggiungi altro» apre picker esistente (frequenti, ricerca locale/USDA/prodotti, barcode, creazione); salvataggio porzione torna al dettaglio e scroll iniziale. Modifica, eliminazione e Annulla aggiornano riepilogo e barre. Build e browser locale: totali 372→455→541→369→541, cloud, 320px e zero errori JS verificati; prova completa sul sito pubblico riuscita, account temporaneo eliminato. Nessuna foto AI o icona fotocamera finta aggiunta.
 
@@ -180,23 +182,30 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Andr
 
 **Modello:** Codex (GPT-6) · **Data:** 2026-10-16
 
-Utente ha installato APK e segnala Aggiungi sotto barra di navigazione Android.
-Correzione UI: inset CSS da env e variabili Capacitor --safe-area-inset-*;
-footer e pannelli riservano spazio esterno alla barra, CTA minimo64px e testo18px.
-Anche conferma porzione/rapida maggiori, Annulla sopra barra, schermata pasto tiene conto top.
-Nota didattica swipe eliminata; gesto e Annulla conservati.
-Build e QA locale con inset0/24/48px e top28px, portrait/landscape, aggiunta,
-modifica, swipe, cloud320px positivi; account temporanei eliminati. Stessa prova completa LIVE riuscita.
-Deploy dpl_HFXcioFRw2cDFJufrEgjdWj5FRxc READY sul dominio canonico.
-Shell APK carica sito remoto: questa UI arriva riaprendo app senza reinstallazione.
-Test sul telefono dell'utente da confermare. APK rimane1.0.1; pipeline automatica
-ancora non attiva per scope workflow mancante, template e firma stabile gia conservati.
+Richiesta utente: conferma alimento aggiunto in alto per2s e microfono toggle inline.
+Implementati toast top safe-area (successi2s, errori6s, Annulla eliminazione7s;
+aggiunta rapida con Annulla dura2s come richiesto). VoiceInput separa textarea,
+Parla/Ferma e Inserisci; testo parziale/finale, stato microfono, stop esplicito,
+permessi/errori e cancellazione background/unmount. Focus e resize tastiera centrano comandi.
+Plugin Android passa da RecognizerIntent activity a SpeechRecognizer inline,
+con start/stop/cancel/getCapabilities ed eventi text/state. APK vecchio viene invitato
+ad aggiornare senza aprire vecchio dialogo vocale. Manifest query RecognitionService.
+Viewport contain e SystemBars hint evitano app sotto barre di sistema; CSS safe area conservato.
+APK1.0.2/code2 compilato, firma verificata identica a1.0.1, config e assenza APK annidati verificate.
+33 test e build web positivi; QA browser e ponte Android MOCK: start/secondo stop,
+testo live/finale, errori/riprova, stop in background, toast alto2s,320px e inset positivi.
+Non testata la voce acustica, i permessi hardware o installazione aggiornamento su telefono.
+Pubblicato: dpl_3qZHRm35RmwGNQZPj96zws1b6PXy READY sul dominio canonico.
+QA browser e ponte nativo MOCK LIVE riusciti; utenti temporanei eliminati.
+Download APK4.142.356byte SHA256 identico al build firmato; version.json code2 verificato.
+Workflow GitHub NON attivo per scope mancante;
+preparato template che incrementa versionCode dal manifest per future build.
 
 ---
 
 ## 11. Prossimi passi
 
-1. [utente] Chiudere/riaprire app e controllare Aggiungi sopra barra Android e note swipe assenti. Confermare anche fotocamera e dettatura sul telefono.
+1. [utente] Aggiornare APK a1.0.2 senza disinstallare; provare Parla, dettare alimento/quantita/pasto, Ferma e Inserisci. Verificare microfono chiuso e conferma alta2s. Confermare anche fotocamera su telefono.
 2. Decidere con l'utente se nutritrack.redapp.dev deve puntare a Vercel (CNAME) e spegnere la copia sul PC, o restare sul PC.
 3. Valutare CIQUAL come ampliamento del catalogo USDA già disponibile; migliorare traduzioni e sinonimi con esempi reali.
 4. Autorizzazione GitHub scope workflow e attivazione template; test aggiornamento tra due versionCode sul telefono.

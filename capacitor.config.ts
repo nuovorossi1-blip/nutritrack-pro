@@ -6,5 +6,6 @@ const config: CapacitorConfig = {
   webDir: 'www',
   server: { url: 'https://nutritrack-pro-zeta.vercel.app', cleartext: false, errorPath: 'offline.html' },
   android: { allowMixedContent: false, backgroundColor: '#0a0a0a' },
+  plugins: { SystemBars: { insetsHandling: 'css', initialViewportFitValueHint: 'contain' } },
 };
 export default config;

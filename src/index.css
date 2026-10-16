@@ -32,7 +32,7 @@ div.meal-content {
 }
 
 .app-toasts {
-  bottom: calc(1rem + var(--app-safe-bottom));
+  top: calc(1rem + var(--app-safe-top));
 }
 
 .add-button {

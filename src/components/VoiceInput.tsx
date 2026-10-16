@@ -1,0 +1,153 @@
+import { Mic, Square } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import type { PluginListenerHandle } from '@capacitor/core';
+import { isAndroidApp, SpeechInput } from '../native/android';
+import { DENIED_HELP } from '../lib/permissions';
+
+type SpeechResult = { results: ArrayLike<{ isFinal: boolean; 0: { transcript: string } }> };
+interface BrowserRecognition {
+  lang: string;
+  interimResults: boolean;
+  continuous: boolean;
+  onstart: () => void;
+  onresult: (event: SpeechResult) => void;
+  onend: () => void;
+  onerror: (event: { error: string }) => void;
+  start(): void;
+  stop(): void;
+  abort(): void;
+}
+type Session = { stopped: boolean; cancelled: boolean; stop?: () => void; cancel?: () => void; timeout?: ReturnType<typeof setTimeout> };
+
+export function VoiceInput({ text, onText, onInsert, busy, onError }: {
+  text: string; onText: (text: string) => void; onInsert: () => void;
+  busy: boolean; onError: (message: string) => void;
+}) {
+  const [phase, setPhase] = useState<'idle' | 'starting' | 'listening' | 'finishing'>('idle');
+  const session = useRef<Session | null>(null);
+  const input = useRef<HTMLTextAreaElement>(null);
+  const controls = useRef<HTMLDivElement>(null);
+  const active = phase === 'starting' || phase === 'listening';
+
+  useEffect(() => {
+    const showControls = () => {
+      if (document.activeElement === input.current) controls.current?.scrollIntoView({ block: 'center' });
+    };
+    const cancel = () => {
+      const current = session.current;
+      if (current) { current.cancelled = true; clearTimeout(current.timeout); current.cancel?.(); }
+      session.current = null;
+      setPhase('idle');
+    };
+    const hidden = () => { if (document.hidden) cancel(); };
+    document.addEventListener('visibilitychange', hidden);
+    window.visualViewport?.addEventListener('resize', showControls);
+    return () => {
+      document.removeEventListener('visibilitychange', hidden);
+      window.visualViewport?.removeEventListener('resize', showControls);
+      cancel();
+    };
+  }, []);
+
+  const toggle = async () => {
+    if (session.current) {
+      const current = session.current;
+      if (current.stopped) return;
+      current.stopped = true;
+      setPhase('finishing');
+      current.stop?.();
+      return;
+    }
+    input.current?.blur();
+    controls.current?.scrollIntoView({ block: 'center' });
+    const current: Session = { stopped: false, cancelled: false };
+    session.current = current;
+    setPhase('starting');
+    const live = () => session.current === current && !current.cancelled;
+    const finish = () => {
+      clearTimeout(current.timeout);
+      if (session.current === current) { session.current = null; setPhase('idle'); }
+    };
+    const report = (message: string) => { if (live() && !current.stopped) onError(message); };
+
+    if (isAndroidApp()) {
+      const listeners: PluginListenerHandle[] = [];
+      try {
+        const capabilities = await SpeechInput.getCapabilities().catch(() => {
+          throw new Error('Aggiorna NutriTrack per usare il nuovo microfono.');
+        });
+        if (!live() || current.stopped) return;
+        if (!capabilities.inline || !capabilities.available) throw new Error('Attiva il servizio vocale nelle impostazioni del telefono.');
+        listeners.push(await SpeechInput.addListener('text', ({ text }) => { if (live()) onText(text); }));
+        listeners.push(await SpeechInput.addListener('state', ({ listening }) => {
+          if (live()) setPhase(listening && !current.stopped ? 'listening' : 'finishing');
+        }));
+        if (!live() || current.stopped) return;
+        current.stop = () => { void SpeechInput.stop().catch(() => { void SpeechInput.cancel().catch(() => {}); finish(); }); };
+        current.cancel = () => { void SpeechInput.cancel().catch(() => {}); };
+        const result = await SpeechInput.start();
+        if (live() && result.text.trim()) onText(result.text);
+      } catch (error) {
+        if ((error as { code?: string }).code !== 'CANCELLED') report((error as Error).message || 'Microfono non disponibile.');
+      } finally {
+        finish();
+        await Promise.all(listeners.map((listener) => listener.remove().catch(() => {})));
+      }
+      return;
+    }
+
+    try {
+      const w = window as unknown as { SpeechRecognition?: new () => BrowserRecognition; webkitSpeechRecognition?: new () => BrowserRecognition };
+      const Ctor = w.SpeechRecognition || w.webkitSpeechRecognition;
+      if (!Ctor) throw new Error('Dettatura non disponibile in questo browser.');
+      const recognition = new Ctor();
+      recognition.lang = 'it-IT';
+      recognition.interimResults = true;
+      recognition.continuous = false;
+      current.stop = () => {
+        try {
+          recognition.stop();
+          current.timeout = setTimeout(() => { recognition.abort(); finish(); }, 3000);
+        } catch { recognition.abort(); finish(); }
+      };
+      current.cancel = () => recognition.abort();
+      recognition.onstart = () => { if (live() && !current.stopped) setPhase('listening'); };
+      recognition.onresult = ({ results }) => {
+        if (live()) onText(Array.from(results, (result) => result[0].transcript).join(' '));
+      };
+      recognition.onend = finish;
+      recognition.onerror = ({ error }) => {
+        if (error === 'not-allowed' || error === 'service-not-allowed') report(DENIED_HELP);
+        else if (error === 'no-speech') report('Non ho sentito niente: riprova.');
+        else if (error !== 'aborted') report('Microfono non disponibile.');
+        finish();
+      };
+      recognition.start();
+    } catch (error) { report((error as Error).message); finish(); }
+  };
+
+  return (
+    <div className="mt-3 space-y-3">
+      <textarea ref={input} value={text} onChange={(event) => onText(event.target.value)}
+        onFocus={() => requestAnimationFrame(() => controls.current?.scrollIntoView({ block: 'center' }))}
+        onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); if (phase === 'idle') onInsert(); } }}
+        placeholder="Cosa hai mangiato?" rows={2}
+        className="w-full resize-y bg-neutral-900/80 placeholder-neutral-400 text-base rounded-2xl px-4 py-3 border border-blue-700/50 focus:border-blue-400 outline-none" />
+      <div ref={controls} className="flex gap-3">
+        <button type="button" onClick={() => void toggle()} disabled={busy || phase === 'finishing'}
+          aria-label={active ? 'Ferma microfono' : 'Attiva microfono'} aria-pressed={active}
+          className={`min-h-14 flex-1 rounded-2xl px-4 py-3 font-bold flex items-center justify-center gap-2 disabled:opacity-60 ${active ? 'bg-red-600 text-white' : 'bg-neutral-800 text-white border border-neutral-600'}`}>
+          {active ? <Square size={22} fill="currentColor" /> : <Mic size={24} />}
+          {active ? 'Ferma' : phase === 'finishing' ? 'Elaboro…' : 'Parla'}
+        </button>
+        <button onClick={onInsert} disabled={busy || phase !== 'idle' || !text.trim()}
+          className="min-h-14 flex-1 bg-blu hover:brightness-110 disabled:opacity-50 rounded-2xl px-4 py-3 font-bold">
+          {busy ? 'Leggo…' : 'Inserisci'}
+        </button>
+      </div>
+      <p role="status" className={`text-xs ${active ? 'text-red-300' : 'text-neutral-400'}`}>
+        {phase === 'starting' ? 'Avvio microfono…' : phase === 'listening' ? 'Microfono acceso' : phase === 'finishing' ? 'Microfono spento · completo il testo' : 'Microfono spento'}
+      </p>
+    </div>
+  );
+}

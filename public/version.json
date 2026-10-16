@@ -1,7 +1,7 @@
 {
-    "apkUrl":  "https://nutritrack-pro-zeta.vercel.app/nutritrack.apk?v=1",
+    "apkUrl":  "https://nutritrack-pro-zeta.vercel.app/nutritrack.apk?v=2",
     "mandatory":  false,
-    "versionCode":  1,
-    "version":  "1.0.1",
-    "notes":  "Prima versione Android di NutriTrack PRO."
+    "versionCode":  2,
+    "version":  "1.0.2",
+    "notes":  "Microfono integrato: Parla per iniziare, Ferma per interrompere. Conferme alimento in alto per 2 secondi."
 }

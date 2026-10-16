@@ -1,7 +1,14 @@
-import { Capacitor, registerPlugin } from '@capacitor/core';
+import { Capacitor, registerPlugin, type PluginListenerHandle } from '@capacitor/core';
 
 export const isAndroidApp = () => Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android';
-export const SpeechInput = registerPlugin<{ start(): Promise<{ text: string }> }>('SpeechInput');
+export const SpeechInput = registerPlugin<{
+  getCapabilities(): Promise<{ inline: boolean; available: boolean }>;
+  start(): Promise<{ text: string }>;
+  stop(): Promise<void>;
+  cancel(): Promise<void>;
+  addListener(event: 'text', listener: (event: { text: string }) => void): Promise<PluginListenerHandle>;
+  addListener(event: 'state', listener: (event: { listening: boolean }) => void): Promise<PluginListenerHandle>;
+}>('SpeechInput');
 export const ApkUpdater = registerPlugin<{
   getCurrentVersion(): Promise<{ version: string; versionCode: number }>;
   canInstallPackages(): Promise<{ allowed: boolean }>;
