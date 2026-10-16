@@ -46,11 +46,12 @@ da sola all'accesso a Windows con l'attività pianificata "NutriTrack PRO locale
 - [FACT] Prima di salvare un prodotto si vedono e correggono i valori (valori mancanti segnalati), peso porzione e "si cuoce?" (pasta/riso/carne/pesce) per pesarlo anche da cotto. Prova: codice 8076800195057 → Spaghetti n.5 Barilla 359 kcal.
 - [FACT] Fotocamera: scansione del codice a barre nel browser (ZXing caricato solo all'apertura, EAN-13/8, UPC, Code128), messaggi chiari se il permesso è bloccato. Provato con fotocamera simulata (EAN 8076800195057 → Spaghetti n.5) in locale e su nutritrack.redapp.dev.
 - [FACT] Impostazioni → Permessi: stato di fotocamera e microfono, pulsante Consenti (fa comparire la richiesta del browser), istruzioni se bloccati. Dettatura con errori spiegati (permesso negato, nessuna voce).
-- [FACT] Inserimento a parole a "pezzi di frase": più alimenti nella stessa frase ("2 uova 100 g di albume e uno yogurt 0" → 2 uova 120 g + albume 100 g + yogurt 0% 1 vasetto 150 g, colazione, 308 kcal). Quantità/«cotto» vanno all'alimento che segue, altrimenti a quello prima; "0%" non è una quantità; "mezzo kg"; nomi di più parole degli alimenti salvati. Se pasto e quantità sono tutti detti aggiunge subito con «Annulla» nell'avviso, altrimenti apre il riquadro di conferma. Ancora SOLO parole chiave (21 alimenti di base + salvati), non un'AI vera.
+- [FACT] Inserimento a parole a "pezzi di frase": più alimenti nella stessa frase ("2 uova 100 g di albume e uno yogurt 0" → 2 uova 120 g + albume 100 g + yogurt 0% 1 vasetto 150 g, colazione, 308 kcal). Quantità/«cotto» vanno all'alimento che segue, altrimenti a quello prima; "0%" non è una quantità; "mezzo kg"; nomi di più parole degli alimenti salvati. Se pasto e quantità sono tutti detti aggiunge subito con «Annulla» nell'avviso, altrimenti apre il riquadro di conferma. Le frasi con alimenti sconosciuti passano all'AI (vedi sotto).
+- [FACT] AI vera nell'inserimento a parole: se nella frase restano parole che l'elenco non conosce (`unknownWords`), la frase va a POST /api/ai-parse → `server/aiParse.mjs` → OpenRouter `openai/gpt-4.1-nano` (~2-3 s, ~0,00003 $ a frase). Chiave SOLO sul server (variabile `OPENROUTER_KEY_NUOVOROSSI1_GMAIL_COM` sul PC, `OPENROUTER_API_KEY` su Vercel), tetti 300 frasi/giorno e 40 per IP (in memoria, si azzerano al riavvio). Il risultato si conferma SEMPRE nel riquadro (badge AI, valori per 100 g); gli alimenti nuovi vengono salvati e la volta dopo si riconoscono senza AI. Provato: "a cena lasagne e un cornetto" → lasagne (porzione 300 g, quantità da scrivere) + 1 cornetto 60 g; poi "un cornetto a merenda" aggiunto subito senza AI. Se l'AI non risponde si usa solo l'elenco locale.
 - [FACT] Profilo (nome, sesso, età, peso, altezza, attività: sedentario / 1-3 / 3-5 / 6-7 allenamenti / atleta / altro con mantenimento a mano) → metabolismo basale (Mifflin-St Jeor) e mantenimento (× 1,2-1,9), `src/lib/metabolism.ts`. Esempio provato: uomo 35 anni 80 kg 180 cm 1-3 allenamenti → basale 1755, mantenimento 2410.
 - [FACT] Obiettivo Dieta (-20%) / Mantenimento / Massa (+10%): calorie e macro suggeriti (proteine 2,2/1,8/2 g per kg, grassi 25%, carboidrati il resto). Calorie modificabili; l'utente scrive due macro e sceglie quale è «auto» (calcolato dalle kcal): 2000 kcal, 200 P, 200 C → grassi 44 g. Avviso se i due macro superano le kcal. Riquadro "Completa il tuo profilo" finché manca; nel riepilogo «Ciao Nome · Dieta».
 - [FACT] Crea alimento a mano. Obiettivi con profili rapidi. Backup/ripristino JSON. Tema scuro. Azzera il giorno scelto (con conferma).
-- [FACT] Test: 19 test logica (giorni, crudo/cotto, parole, Open Food Facts, storico) ok; tsc ok; build ok; prova completa in Edge senza errori.
+- [FACT] Test: 21 test logica (giorni, crudo/cotto, parole, Open Food Facts, storico) ok; tsc ok; build ok; prova completa in Edge senza errori.
 
 ## 4. Cosa è in lavorazione
 
@@ -105,6 +106,7 @@ da sola all'accesso a Windows con l'attività pianificata "NutriTrack PRO locale
 - **Fonti alimenti: Open Food Facts (confezionati/codici a barre) + CIQUAL (sfusi, dentro l'app) + USDA riserva** — motivo: aperte e gratuite; CREA e BDA IEO non riutilizzabili (diritto d'autore); OpenNutrition scartata finché la licenza non è chiara. Citare la fonte in app — data: 2026-10-16
 - **Poche richieste a Vercel/Supabase** — motivo: l'utente non vuole problemi di limiti. Ricerca alimenti mai tramite funzioni Vercel (solo rewrite), CIQUAL dentro l'app, cache locale delle ricerche; Supabase solo per i dati utente con salvataggi raggruppati — data: 2026-10-16
 - **Tema stile PronoBlast scuro (scuro predefinito): sfondo nero (neutral-950), schede neutral-900, testi bianchi; sfumatura ORO (`bg-gold`, colori `gold-*` in tailwind.config.js: giorno scelto, logo, anello kcal, kcal rimaste, carboidrati) e sfumatura BLU (`bg-blu`: pulsanti, proteine); grassi bianchi; rosso solo per errori e "oltre l'obiettivo".** Sostituisce la regola precedente blu/giallo/verde (richiesta utente del 16/10 pomeriggio). Non usare verde, indigo, violet, slate, amber, sky, emerald — data: 2026-10-16
+- **AI dell'inserimento: OpenRouter `openai/gpt-4.1-nano` dal server, ok utente del 16/10 alla spesa** — motivo: veloce (~2 s) ed economico; DeepSeek V4 Flash troppo lento (7-20 s), Gemini 2.5 Flash Lite dava JSON non leggibile. Su Vercel (fase 3) impostare `OPENROUTER_API_KEY` e, con il login, permettere l'AI solo agli utenti registrati — data: 2026-10-16
 - **Account nuovo per Vercel + Supabase: smaugdrago@gmail.com**, collegato dall'utente con "Collega account" — data: 2026-10-16
 
 ---
@@ -116,6 +118,7 @@ da sola all'accesso a Windows con l'attività pianificata "NutriTrack PRO locale
 - Nell'APK (fase 4) `/off-search` non esiste: usare la richiesta nativa di Capacitor verso search.openfoodfacts.org.
 - I giorni sono in ora locale (`src/lib/dates.ts`): non usare `toISOString()` per la data del giorno (darebbe il giorno UTC).
 - Fotocamera e microfono funzionano solo su HTTPS (nutritrack.redapp.dev) o su 127.0.0.1: aprendo l'app da un indirizzo http qualsiasi il browser non li concede.
+- `vite.config.ts` contiene anche l'endpoint /api/ai-parse (plugin `nutritrack-ai`): funziona sia con `npm run dev` sia con `vite preview`; cambiando `server/aiParse.mjs` o `vite.config.ts` va riavviato il server locale (non basta la build). Il processo deve avere la variabile della chiave OpenRouter nell'ambiente (l'attività pianificata la eredita dall'utente).
 - Il server locale ascolta solo su 127.0.0.1; dall'esterno arriva da nutritrack.redapp.dev (regola nel tunnel Cloudflare 'pc-windows', gestito dal pannello Cloudflare, + CNAME). Vite rifiuta indirizzi sconosciuti: il nome sta in `preview.allowedHosts` di vite.config.ts. Se il PC è spento il link non risponde.
 
 ---
@@ -132,7 +135,6 @@ l'utente la provi e dica se procedere con la fase 2 (CIQUAL).
 
 ## 11. Prossimi passi
 
-0. [in attesa ok utente] AI vera per l'inserimento a parole (alimenti non in elenco, frasi libere): OpenRouter dal server (mai la chiave nel browser), con tetto di spesa; vedi proposta del 16/10.
 1. L'utente prova l'app sul PC (icona "NutriTrack PRO" sul Desktop) e segnala cosa cambiare.
 2. Fase 2: scaricare CIQUAL, tradurre i nomi in italiano, inserirlo nell'app con crudo/cotto e fonte citata; USDA come riserva.
 3. Fase 3: quando l'utente ha collegato smaugdrago@gmail.com con "Collega account": progetto Supabase (auth con conferma mail, tabelle per utente con RLS, accettazione privacy/condizioni salvata), progetto Vercel con rewrite /off-search.
@@ -144,6 +146,7 @@ l'utente la provi e dica se procedere con la fase 2 (CIQUAL).
 
 | Data | Modello | Cosa è stato fatto |
 |---|---|---|
+| 2026-10-16 | Claude Opus 5.5 | AI vera (OpenRouter gpt-4.1-nano) per le frasi con alimenti sconosciuti, con conferma e salvataggio |
 | 2026-10-16 | Claude Opus 5.5 | Tema scuro stile PronoBlast: sfumature oro e blu su nero, testi bianchi |
 | 2026-10-16 | Claude Opus 5.5 | Inserimento a parole con più alimenti per frase, aggiunta automatica con Annulla; proposta AI vera (OpenRouter) in attesa di ok |
 | 2026-10-16 | Claude Opus 5.5 | Profilo utente, metabolismo/mantenimento, obiettivo dieta/mantenimento/massa, macro con terzo calcolato dalle kcal |

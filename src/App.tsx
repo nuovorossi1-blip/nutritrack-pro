@@ -5,7 +5,8 @@ import { MEALS } from './types';
 import { buildItem, sumMacros, type Portion } from './lib/nutrition';
 import { allFoods, getDay, useAppData, useToday, withDay } from './lib/store';
 import { longLabel } from './lib/dates';
-import { mealFromText, parseFoodText, type ParsedEntry } from './lib/parser';
+import { mealFromText, parseFoodText, unknownWords, type ParsedEntry } from './lib/parser';
+import { aiEntries, askAi } from './lib/ai';
 import { DENIED_HELP } from './lib/permissions';
 import { DayStrip } from './components/DayStrip';
 import { Summary } from './components/Summary';
@@ -69,19 +70,39 @@ export default function App() {
       return withDay(d, selected, { ...log, [meal]: fn(log[meal]) });
     });
 
-  const [quick, setQuick] = useState<{ entries: ParsedEntry[]; meal: MealKey | null } | null>(null);
+  const [quick, setQuick] = useState<{ entries: ParsedEntry[]; meal: MealKey | null; ai?: boolean } | null>(null);
 
   // Mai aggiungere alla cieca: pasto e quantita' si confermano nel riquadro.
-  const addQuick = () => {
-    const entries = parseFoodText(text, allFoods(data));
-    if (!entries.length) return toast('Alimento non riconosciuto. Prova: "200g di pasta cotta a pranzo"', true);
+  const [thinking, setThinking] = useState(false);
+
+  const addQuick = async () => {
+    if (!text.trim() || thinking) return;
+    const foods = allFoods(data);
+    const entries = parseFoodText(text, foods);
     const meal = mealFromText(text);
+    // Parole che l'elenco non conosce ("lasagne", "cornetto"): legge l'AI, e si conferma sempre.
+    if (unknownWords(text, foods).length) {
+      setThinking(true);
+      try {
+        const r = await askAi(text);
+        const aiList = aiEntries(r, foods);
+        if (aiList.length) return setQuick({ entries: aiList, meal: r.pasto || meal, ai: true });
+      } catch (e) {
+        toast(`${(e as Error).message}. Uso solo gli alimenti che conosco.`, true);
+      } finally {
+        setThinking(false);
+      }
+    }
+    if (!entries.length) return toast('Alimento non riconosciuto. Prova: "200g di pasta cotta a pranzo"', true);
     // Frase completa (pasto e tutte le quantita'): si aggiunge subito, con "Annulla".
     if (meal && entries.every((e) => e.qtyGiven)) confirmQuick(entries, meal, true);
     else setQuick({ entries, meal });
   };
 
   function confirmQuick(entries: ParsedEntry[], meal: MealKey, undoable = false) {
+    // Alimenti nuovi letti dall'AI: salvati, cosi' la prossima volta si riconoscono senza AI.
+    const fresh = entries.map((e) => e.food).filter((f) => f.source === 'ai');
+    if (fresh.length) update((d) => ({ ...d, foods: [...fresh, ...d.foods.filter((x) => !fresh.some((f) => f.id === x.id))] }));
     const items = entries.map((e) => buildItem(e.food, e.portion));
     const day = selected;
     setMeal(meal, (l) => [...l, ...items]);
@@ -175,7 +196,7 @@ export default function App() {
               <input
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && addQuick()}
+                onKeyDown={(e) => e.key === 'Enter' && void addQuick()}
                 placeholder="Cosa hai mangiato?"
                 className="w-full bg-neutral-900/80 placeholder-neutral-400 text-sm rounded-2xl px-4 py-3 pr-11 border border-blue-700/50 focus:border-blue-400 outline-none"
               />
@@ -183,8 +204,8 @@ export default function App() {
                 <Mic size={16} />
               </button>
             </div>
-            <button onClick={addQuick} className="bg-blu hover:brightness-110 rounded-2xl px-4 text-sm font-bold">
-              Inserisci
+            <button onClick={addQuick} disabled={thinking} className="bg-blu hover:brightness-110 disabled:opacity-60 rounded-2xl px-4 text-sm font-bold">
+              {thinking ? 'Leggo…' : 'Inserisci'}
             </button>
           </div>
         </section>
@@ -236,7 +257,7 @@ export default function App() {
           onRemove={(itemId) => setMeal(openMeal, (l) => l.filter((i) => i.id !== itemId))}
         />
       )}
-      {quick && <QuickConfirm entries={quick.entries} meal={quick.meal} dayLabel={longLabel(selected)} onClose={() => setQuick(null)} onConfirm={confirmQuick} />}
+      {quick && <QuickConfirm entries={quick.entries} meal={quick.meal} ai={quick.ai} dayLabel={longLabel(selected)} onClose={() => setQuick(null)} onConfirm={confirmQuick} />}
       {settings && <SettingsModal data={data} toast={toast} onClose={() => setSettings(false)} onSaveProfile={(profile, goals) => update((d) => ({ ...d, profile, goals }))} onImport={(d) => update(() => d)} />}
 
       <div className="fixed bottom-4 inset-x-0 z-[60] flex flex-col items-center gap-2 pointer-events-none px-4">

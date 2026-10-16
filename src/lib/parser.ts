@@ -155,3 +155,32 @@ export function parseFoodText(text: string, foods: Food[]): ParsedEntry[] {
   }
   return out;
 }
+
+// Parole che non sono alimenti: se dopo averle tolte resta qualcosa che l'elenco
+// non conosce ("lasagne", "cornetto"), la frase va all'AI.
+const NOT_FOOD = new Set(
+  (
+    'ho hai ha abbiamo mangiato mangiata mangiati mangiate bevuto bevuta preso presa fatto fatta a al alla allo ai agli alle di del della dello dei degli delle da dal dalla in nel nella con e ed o poi per il lo la i gli le un uno una oggi ieri stamattina stasera sera mattina pomeriggio notte ' +
+    'colazione pranzo cena spuntino spuntini merenda snack extra circa tipo piu meno anche solo po poco tanto tanta mezzo mezza grammi grammo g gr kg ml chili ' +
+    'greco greca magro magra integrale integrali intero intera scremato scremata parzialmente fresco fresca bianco bianca extravergine oliva naturale medio media grande piccolo piccola crudo cruda ' +
+    'sgocciolato total zero light petto fesa filetto filetti fetta fette pezzo pezzi porzione porzioni vasetto vasetti cucchiaio cucchiai cucchiaino cucchiaini tazza tazze manciata manciate trancio tranci scatoletta scatolette'
+  ).split(' '),
+);
+
+export function unknownWords(text: string, foods: Food[]): string[] {
+  const out: string[] = [];
+  for (const chunk of normalize(text).split(/\s+e\s+|\s+con\s+|,|\+|;|\s+poi\s+/)) {
+    const words = chunk.match(/\d+(?:[.,]\d+)?|[a-z]+|%/g) || [];
+    for (let i = 0; i < words.length; i++) {
+      const w = words[i];
+      if (!/^[a-z]{3,}$/.test(w) || NOT_FOOD.has(w) || NUMBER_WORDS[w] !== undefined || COOKED.test(w) || UNIT_WORDS.test(w)) continue;
+      const hit = foodAt(words, i, foods);
+      if (hit) {
+        i += hit.len - 1;
+        continue;
+      }
+      out.push(w);
+    }
+  }
+  return out;
+}

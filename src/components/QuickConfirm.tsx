@@ -10,6 +10,8 @@ interface Props {
   entries: ParsedEntry[];
   /** Pasto detto nella frase; se manca va scelto, non indovinato dall'ora. */
   meal: MealKey | null;
+  /** Voci lette dall'AI: valori stimati, da controllare. */
+  ai?: boolean;
   dayLabel: string;
   onConfirm: (entries: ParsedEntry[], meal: MealKey) => void;
   onClose: () => void;
@@ -17,7 +19,7 @@ interface Props {
 
 // Riepilogo dell'inserimento a parole: niente viene aggiunto finche' pasto e
 // quantita' non sono chiari.
-export function QuickConfirm({ entries: initial, meal: initialMeal, dayLabel, onConfirm, onClose }: Props) {
+export function QuickConfirm({ entries: initial, meal: initialMeal, ai, dayLabel, onConfirm, onClose }: Props) {
   const [entries, setEntries] = useState(initial);
   const [meal, setMeal] = useState<MealKey | null>(initialMeal);
   const set = (i: number, e: ParsedEntry) => setEntries(entries.map((x, j) => (j === i ? e : x)));
@@ -32,6 +34,7 @@ export function QuickConfirm({ entries: initial, meal: initialMeal, dayLabel, on
           <div>
             <h3 className="font-extrabold">Controlla prima di aggiungere</h3>
             <p className="text-xs text-neutral-400">{dayLabel}</p>
+            {ai && <p className="text-[11px] text-blue-600 dark:text-gold-400 mt-1">Letto dall'AI: valori stimati per 100 g, controllali. Gli alimenti nuovi restano salvati per le prossime volte.</p>}
           </div>
           <button aria-label="Chiudi" onClick={onClose} className="text-neutral-400 p-1">
             <X size={20} />
@@ -56,7 +59,13 @@ export function QuickConfirm({ entries: initial, meal: initialMeal, dayLabel, on
           return (
             <div key={i} className="rounded-2xl border border-neutral-200 dark:border-neutral-700 p-3 space-y-2">
               <div className="flex items-center justify-between gap-2">
-                <span className="text-sm font-bold">{e.food.name}</span>
+                <span className="text-sm font-bold">
+                  {e.food.name}
+                  {e.food.source === 'ai' && <span className="ml-1.5 text-[10px] font-extrabold rounded-md px-1.5 py-0.5 bg-gold text-neutral-950 align-middle">AI</span>}
+                  <span className="block text-[10px] font-semibold text-neutral-400">
+                    per 100 g: {e.food.kcal} kcal · C {e.food.carbs} · P {e.food.pro} · G {e.food.fats}
+                  </span>
+                </span>
                 {entries.length > 1 && (
                   <button aria-label="Togli" onClick={() => setEntries(entries.filter((_, j) => j !== i))} className="text-neutral-400 p-1">
                     <X size={16} />

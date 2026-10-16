@@ -134,3 +134,30 @@ describe('frasi con piu alimenti', () => {
     expect(r.map((e) => [e.food.id, rawGrams(e.food, e.portion)])).toEqual([['off_1', 170]]);
   });
 });
+
+describe('parole sconosciute e risposta AI', () => {
+  it('manda all AI solo se resta qualcosa che non conosco', async () => {
+    const { unknownWords } = await import('../src/lib/parser');
+    expect(unknownWords('ho mangiato a colazione 2 uova 100 g di albume e uno yogurt greco 0', BASE_FOODS)).toEqual([]);
+    expect(unknownWords('a pranzo petto di pollo e riso basmati', BASE_FOODS)).toEqual([]);
+    expect(unknownWords('a cena lasagne e un cornetto', BASE_FOODS)).toEqual(['lasagne', 'cornetto']);
+  });
+  it('ripulisce la risposta del modello e la trasforma in voci', async () => {
+    // @ts-expect-error modulo JS del server
+    const { cleanResult } = await import('../server/aiParse.mjs');
+    const { aiEntries } = await import('../src/lib/ai');
+    const r = cleanResult({ pasto: 'cena', alimenti: [
+      { nome: 'lasagne', grammi: '300', pezzi: null, kcal_100g: 160, proteine_100g: 8, carboidrati_100g: 15, grassi_100g: 7.5 },
+      { nome: 'cornetto', grammi: null, pezzi: 1, peso_pezzo_g: 60, kcal_100g: 410, proteine_100g: 7, carboidrati_100g: 48, grassi_100g: 21 },
+      { nome: 'mela', grammi: null, pezzi: null, kcal_100g: 52 },
+      { nome: 'errore', kcal_100g: 'abc' },
+    ] });
+    expect(r.pasto).toBe('cena');
+    const e = aiEntries(r, BASE_FOODS);
+    expect(e.map((x) => [x.food.id, rawGrams(x.food, x.portion), x.qtyGiven])).toEqual([
+      ['ai_lasagne', 300, true],
+      ['ai_cornetto', 60, true],
+      ['f28', 0, false],
+    ]);
+  });
+});

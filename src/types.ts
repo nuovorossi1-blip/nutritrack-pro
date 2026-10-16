@@ -7,7 +7,7 @@ export const MEALS: { key: MealKey; label: string; emoji: string }[] = [
   { key: 'spuntini', label: 'Spuntini / Extra', emoji: '🍎' },
 ];
 
-export type FoodSource = 'base' | 'off' | 'personale';
+export type FoodSource = 'base' | 'off' | 'personale' | 'ai';
 
 /** Valori per 100 g (a crudo per gli alimenti con cookedFactor). */
 export interface Food {
