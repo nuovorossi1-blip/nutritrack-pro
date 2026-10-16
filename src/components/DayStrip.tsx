@@ -14,19 +14,19 @@ export function DayStrip({ selected, today, daysWithData, onSelect }: Props) {
   const days = dayStrip(selected, today);
   const [calendar, setCalendar] = useState(false);
   return (
-    <section className="bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200/70 dark:border-neutral-800 shadow-sm p-3">
+    <section className="bg-[#191a1c] text-white rounded-[26px] border border-[#343538] shadow-sm p-3">
       <div className="flex items-center gap-1">
         <button aria-label="Giorno precedente" onClick={() => onSelect(addDays(selected, -1))} className="w-9 h-9 rounded-full flex items-center justify-center text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800">
           <ChevronLeft size={18} />
         </button>
-        <div className="flex-1 grid grid-cols-5 gap-1.5">
+        <div className="flex-1 grid grid-cols-5 gap-1">
           {days.map((d) => {
             const active = d === selected;
             return (
               <button
                 key={d}
                 onClick={() => onSelect(d)}
-                className={`rounded-2xl py-2 flex flex-col items-center transition ${active ? 'bg-gold text-neutral-950 shadow-md shadow-gold-500/30' : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'}`}
+                className={`rounded-[18px] py-2 flex flex-col items-center transition ${active ? 'bg-gold text-neutral-950 shadow-md shadow-gold-500/30' : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'}`}
               >
                 <span className={`text-[10px] font-bold tracking-wide ${active ? 'text-neutral-800' : 'text-neutral-400'}`}>{shortLabel(d, today)}</span>
                 <span className="text-lg font-extrabold leading-tight">{parseISO(d).getDate()}</span>
@@ -52,7 +52,7 @@ export function DayStrip({ selected, today, daysWithData, onSelect }: Props) {
               Torna a oggi
             </button>
           )}
-          <button onClick={() => setCalendar(true)} className="text-xs font-bold text-neutral-500 dark:text-neutral-300 flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 rounded-full px-3 py-2">
+          <button onClick={() => setCalendar(true)} className="text-xs font-bold text-white flex items-center gap-1 bg-[#292a2d] rounded-full px-3 py-2">
             <CalendarDays size={14} /> Calendario
           </button>
         </div>
