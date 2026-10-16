@@ -31,8 +31,8 @@ export function withServing(food: Food, grams: number | undefined, units: number
   const slice = /fett[ae]|biscottat/i.test(food.name);
   return { ...food, servingGrams: grams, servingUnits: units,
     pieceWeight: valid ? grams / units : undefined, pieceWeightEstimated: false,
-    unitName: slice ? 'fetta' : food.unitName && food.unitName !== 'porzione' ? food.unitName : 'pezzo',
-    unitPlural: slice ? 'fette' : food.unitPlural && food.unitPlural !== 'porzioni' ? food.unitPlural : 'pezzi' };
+    unitName: food.unitName && food.unitName !== 'porzione' ? food.unitName : slice ? 'fetta' : 'pezzo',
+    unitPlural: food.unitPlural && food.unitPlural !== 'porzioni' ? food.unitPlural : slice ? 'fette' : 'pezzi' };
 }
 
 /** Grammi a crudo (o del prodotto) corrispondenti alla quantita' inserita. */

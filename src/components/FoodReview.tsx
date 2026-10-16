@@ -2,6 +2,7 @@ import { Sparkles, X } from 'lucide-react';
 import { useState } from 'react';
 import type { Food } from '../types';
 import { NumberInput } from './NumberInput';
+import { pluralIt } from './PortionSetup';
 import { kcalFromMacros, plausibilityWarnings } from '../lib/plausibility';
 import { askAi } from '../lib/ai';
 import { withServing } from '../lib/nutrition';
@@ -63,7 +64,7 @@ export function FoodReview({ food, missing = [], title, onSave, onClose }: Props
 
   return (
     <div className="safe-sheet-overlay fixed inset-0 z-50 bg-neutral-950/60 flex items-end sm:items-center justify-center" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="safe-bottom-sheet bg-white dark:bg-neutral-900 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-3">
+      <div className="ios-sheet safe-bottom-sheet bg-white dark:bg-neutral-900 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-3">
         <div className="flex items-start justify-between">
           <h3 className="font-extrabold">{title}</h3>
           <button aria-label="Chiudi" onClick={onClose} className="text-neutral-400 p-1">
@@ -130,6 +131,7 @@ export function FoodReview({ food, missing = [], title, onSave, onClose }: Props
               <NumberInput value={servingUnits} placeholder="Es. 1 o 2" onChange={(value) => { setServingUnits(value); setF(withServing(f, servingGrams, value)); }} className="w-full mt-1 rounded-xl p-3 bg-white dark:bg-neutral-900" />
             </label>
           </div>
+          <label className="block text-xs">Nome della porzione<input aria-label="Nome della porzione" value={f.unitName || ''} placeholder="Es. fetta, biscotto, misurino" onChange={(event) => setF({...f,unitName:event.target.value,unitPlural:pluralIt(event.target.value)})} className="w-full mt-1 rounded-xl p-3 bg-white dark:bg-neutral-900" /></label>
           {f.pieceWeight && <p className="text-xs font-semibold">1 {f.unitName || 'pezzo'} = {Number(f.pieceWeight.toFixed(2))} g</p>}
         </fieldset>
         <label className="block">

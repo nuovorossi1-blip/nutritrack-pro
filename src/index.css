@@ -42,18 +42,50 @@ div.meal-content {
 }
 
 body {
-  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Inter, system-ui, 'Segoe UI', Roboto, sans-serif;
   -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Stile iPhone: pulsanti che "rimbalzano" al tocco e campi a pillola. */
+button:not(:disabled) {
+  transition: transform 0.15s ease, background-color 0.15s ease, opacity 0.15s ease;
+}
+button:not(:disabled):active {
+  transform: scale(0.97);
+}
+input:not([type='checkbox']):not([type='radio']):not([type='file']),
+select,
+textarea {
+  border-radius: 1.125rem;
+}
+
+/* Fogli dal basso che salgono morbidi, come su iOS. */
+@keyframes ios-sheet-up {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+.ios-sheet {
+  animation: ios-sheet-up 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 /* Superfici morbide e controlli arrotondati, coerenti in tutta l'app. */
-.rounded-3xl { border-radius: 2rem; }
-.rounded-2xl { border-radius: 1.5rem; }
-.rounded-xl { border-radius: 1.2rem; }
 .dark body {
   background: radial-gradient(ellipse at 10% 0%, #17213b55, transparent 55%), #0a0a0c;
 }
 button { -webkit-tap-highlight-color: transparent; }
 input[type='number']::-webkit-inner-spin-button {
   -webkit-appearance: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ios-sheet { animation: none; }
+  button:not(:disabled) { transition: none; }
+  button:not(:disabled):active { transform: none; }
 }

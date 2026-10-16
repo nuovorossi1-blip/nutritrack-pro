@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { Food, QtyMode } from '../types';
 import { macrosFor, portionLabel, rawGrams, withServing, type Portion } from '../lib/nutrition';
 import { NumberInput } from './NumberInput';
+import { pluralIt } from './PortionSetup';
 import { plausibilityWarnings } from '../lib/plausibility';
 
 interface Props {
@@ -43,7 +44,7 @@ export function PortionEditor({ food: originalFood, initial, confirmLabel, onCon
 
   return (
     <div className="safe-sheet-overlay fixed inset-0 z-50 bg-neutral-950/60 flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="safe-bottom-sheet bg-white dark:bg-neutral-900 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4">
+      <div className="ios-sheet safe-bottom-sheet bg-white dark:bg-neutral-900 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4">
         <div className="flex items-start justify-between gap-3">
           <div>
             <h3 className="font-extrabold text-base">{food.name}</h3>
@@ -78,6 +79,7 @@ export function PortionEditor({ food: originalFood, initial, confirmLabel, onCon
           {(editingServing || !food.pieceWeight) && <div className="grid grid-cols-2 gap-3 rounded-2xl bg-neutral-100 dark:bg-neutral-800 p-3">
             <label className="text-xs">Peso porzione (g)<NumberInput value={servingGrams} placeholder="Es. 7 o 14" onChange={(value) => { setServingGrams(value); setFood(withServing(food,value,servingUnits)); }} className="w-full mt-1 p-3 rounded-xl bg-white dark:bg-neutral-900" /></label>
             <label className="text-xs">Pezzi nella porzione<NumberInput value={servingUnits} placeholder="Es. 1 o 2" onChange={(value) => { setServingUnits(value); setFood(withServing(food,servingGrams,value)); }} className="w-full mt-1 p-3 rounded-xl bg-white dark:bg-neutral-900" /></label>
+            <label className="col-span-2 text-xs">Nome della porzione<input aria-label="Nome della porzione" value={food.unitName || ''} placeholder="Es. fetta, biscotto, misurino" onChange={(event) => setFood({...food,unitName:event.target.value,unitPlural:pluralIt(event.target.value)})} className="w-full mt-1 p-3 rounded-xl bg-white dark:bg-neutral-900" /></label>
           </div>}
         </div>}
         {food.counterpartId && <div className="flex rounded-2xl bg-neutral-100 dark:bg-neutral-800 p-1 gap-1">
@@ -110,7 +112,7 @@ export function PortionEditor({ food: originalFood, initial, confirmLabel, onCon
               onChange={(n) => setP({ ...p, qty: n ?? 0 })}
               className="w-full text-center text-2xl font-extrabold bg-neutral-50 dark:bg-neutral-800 rounded-2xl py-2 border border-neutral-200 dark:border-neutral-700"
             />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-neutral-400 font-bold">{p.mode === 'grams' ? 'g' : 'pz'}</span>
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-neutral-400 font-bold">{p.mode === 'grams' ? 'g' : p.qty === 1 ? food.unitName || 'pz' : food.unitPlural || 'pz'}</span>
           </div>
           <button aria-label="Più" onClick={() => setP({ ...p, qty: Math.round((p.qty + step) * 10) / 10 })} className="w-11 h-11 rounded-2xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
             <Plus size={18} />

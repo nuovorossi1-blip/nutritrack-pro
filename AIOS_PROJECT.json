@@ -56,6 +56,6 @@
   "last_session": {
     "model": "Codex (GPT-6)",
     "date": "2026-10-16",
-    "summary": "Revisione pubblicata e verificata LIVE: proteine salvate prima AI, porzioni grammi/pezzi, calendario bubble,35schede USDA crudo/cotto, colori macro e voce compatta a destra.46test/build e QA completi ok. APK1.0.3 firma stabile/download SHA256 verificati; Google preferito e formattazioneAPI33+. Test fisici telefono e workflow scope restano aperti."
+    "summary": "Revisione pubblicata e verificata LIVE con commit concorrenti Claude integrati: proteine salvate, porzioni grammi/pezzi/nomi, calendario bubble,35schede USDA crudo/cotto, colori macro e voce compatta auto-crescente.48test/build/QA ok. APK1.0.3 firma/download verificati, Google preferito e formattingAPI33+. Test fisici telefono e workflow scope aperti."
   }
 }

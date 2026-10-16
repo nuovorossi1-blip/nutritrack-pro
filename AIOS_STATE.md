@@ -170,6 +170,10 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Andr
 - **Chiave OpenRouter dell'AI su Vercel = quella di nuovorossi1 (OPENROUTER_API_KEY, tipo sensitive)**, già approvata dall'utente per l'AI — data: 2026-10-16
 - **Account nuovo per Vercel + Supabase: smaugdrago@gmail.com**, collegato dall'utente con "Collega account" — data: 2026-10-16
 
+- **Campo di inserimento (16/10, richiesta utente, contributi Claude integrati)**: campo1riga auto-crescente fino128px, microfono44px dentro a destra, Inserisci subito sotto. APK1.0.3 Codex firmato come precedente preferisce Google disponibile e richiede formattingAPI33+, senza activity esterna. Precisione/punteggiatura da confermare sul telefono.
+- **Porzione dalla confezione (16/10, contributi Claude integrati)**: nome/plurale personalizzabili (helper PortionSetup), peso totale e numero pezzi con withServing; quantit? mangiata distinta, macro100g invariati. Nome/peso/grammi/pezzi persistiti su cloud. Test1fetta7g e14g/2pezzi, nomi biscotto/biscotti e cambio7.5g verificati.
+- **Stile iPhone (16/10, richiesta utente)**: angoli più tondi in tutta l'app tramite `borderRadius` in tailwind.config.js (lg 0.875rem, xl 1.125rem, 2xl 1.5rem, 3xl 2rem: le classi `rounded-*` restano le stesse), font di sistema Apple prima di Inter, pulsanti che si rimpiccioliscono al tocco, campi a pillola, fogli dal basso animati (`.ios-sheet`). Calendario: `CalendarSheet.tsx` (foglio dal basso, griglia dal lunedì, cerchi, oggi con anello oro, scelto pieno blu, pallino sui giorni con pasti, futuri spenti) al posto del selettore data del telefono — data: 2026-10-16
+
 ---
 
 ## 9. Trappole di questo progetto
@@ -193,9 +197,15 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Andr
 
 **Modello:** Codex (GPT-6) · **Data:** 2026-10-16
 
+Integrati senza force-push i commit concorrenti Claude ae8b425/85248ec/b6dfea5.
+Conservati font Apple, motion/riduzione movimento, nome porzione e plurale,
+campo auto-crescente e test monthGrid/withPortion;48test totali positivi.
+QA completo locale e LIVE ripetuto dopo merge, inclusi nomi porzione persistiti e
+ponte voce simulato. APK1.0.3 invariato, download SHA256 ancora identico.
+
 Richieste consolidate: riuso proteine salvate + stile iPhone/bubble + porzioni per pezzo
 + voce Google compatta + catalogo comune crudo/cotto + colori macro e centratura.
-Implementate tutte,46test e build positivi. QA browser locale con account temporaneo:
+Implementate tutte,48test e build positivi dopo integrazione dei commit concorrenti di Claude. QA browser locale con account temporaneo:
 Egg White originale riusata senzaAI, porzioni14g/2=7g con macro100g invariati e cloud;
 modifica porzione7g/1 e quantita mangiata; patate/pasta integrale crude/cotte senza
 doppie conversioni; frutta/plurali/formati pasta/pane tostato; colori C/P/G e soglie
@@ -207,12 +217,12 @@ Non promettere stessa accuratezza/punteggiatura su tutti i telefoni; richiede pr
 Vocale allegato1792181263446-file_3.oga2.04s: solo 'Stavamo continuando con'.
 Tentativo STT locale bloccato da controllo applicazioni DLL av, non aggirato;
 trascrizione via OpenRouter gia collegato, nessuna credenziale inviata al modello.
-Pubblicazione finale dpl_GL5Ah1K3TNgZneqV4LvtogwLXjad READY sul dominio canonico.
+Pubblicazione finale dpl_AxhRf1hCpm7np9BvkcQHp18Ha5Av READY sul dominio canonico.
 Prova completa LIVE riuscita, anche 7.5g preservati nel cambio unita e misurino senza
 peso che chiede grammi senza aggiungere1g. Verde100%/rossooltre verificati in UI.
 Utenti temporanei eliminati. Download APK1.0.3/code3 SHA256 identico al build firmato:
 87A3C5B5D15EE4BDE2748E7D6CE6C32BFD579C514E0791CBE9E079E7166DA982.
-46test/build positivi; nessuna credenziale nel codice o nei test. Nessun nuovo account/costo fisso.
+48test/build positivi; nessuna credenziale nel codice o nei test. Nessun nuovo account/costo fisso.
 Workflow GitHub NON attivo per scope workflow mancante; template pronto gia conservato.
 
 ---
@@ -233,7 +243,7 @@ Workflow GitHub NON attivo per scope workflow mancante; template pronto gia cons
 
 | Data | Modello | Cosa è stato fatto |
 |---|---|---|
-| 2026-10-16 | Codex (GPT-6) | Revisione serale: prodotti salvati prima AI, porzioni grammi/pezzi, calendario bubble, voce Google preferita con UI compatta,35schede USDA crudo/cotto, colori macro e centratura;46test e QA locale ok. APK1.0.3 firma stabile, pubblicazione/LIVE/SHA256 verificati; prove fisiche aperte. |
+| 2026-10-16 | Codex (GPT-6) | Revisione serale: prodotti salvati prima AI, porzioni grammi/pezzi, calendario bubble, voce Google preferita con UI compatta,35schede USDA crudo/cotto, colori macro e centratura;48test e QA locale/LIVE ok. APK1.0.3 firma stabile, pubblicazione/LIVE/SHA256 verificati; prove fisiche aperte. |
 | 2026-10-16 | Codex (GPT-6) | APK Android1.0.1 compilato/firma verificata, download pubblico SHA256 identico e banner mobile LIVE ok,33 test. Capacitor remoto, updater e dettatura nativa. Workflow solo template per scope mancante; prove telefono ancora aperte. |
 | 2026-10-16 | Codex (GPT-6) | Nuovo dettaglio pasto come screenshot: hero, griglia2×2 macro, elenco swipe, barre giornaliere e Aggiungi altro con picker separato. Build/browser locale/cloud320px ok; prova completa sul sito pubblico riuscita, account temporaneo eliminato. |
 | 2026-10-16 | Codex (GPT-6) | Swipe breve/lungo per eliminare alimenti con azione rossa e Annulla; scroll verticale sicuro. Build e browser touch/cloud locale ok; prova touch completa riuscita anche sul sito pubblico; utente temporaneo eliminato. |

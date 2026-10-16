@@ -16,7 +16,7 @@ export function DayStrip({ selected, today, daysWithData, onSelect }: Props) {
   return (
     <section className="bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200/70 dark:border-neutral-800 shadow-sm p-3">
       <div className="flex items-center gap-1">
-        <button aria-label="Giorno precedente" onClick={() => onSelect(addDays(selected, -1))} className="w-8 h-8 rounded-xl flex items-center justify-center text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800">
+        <button aria-label="Giorno precedente" onClick={() => onSelect(addDays(selected, -1))} className="w-9 h-9 rounded-full flex items-center justify-center text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800">
           <ChevronLeft size={18} />
         </button>
         <div className="flex-1 grid grid-cols-5 gap-1.5">
@@ -39,7 +39,7 @@ export function DayStrip({ selected, today, daysWithData, onSelect }: Props) {
           aria-label="Giorno successivo"
           disabled={selected >= today}
           onClick={() => onSelect(addDays(selected, 1))}
-          className="w-8 h-8 rounded-xl flex items-center justify-center text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-30"
+          className="w-9 h-9 rounded-full flex items-center justify-center text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-30"
         >
           <ChevronRight size={18} />
         </button>

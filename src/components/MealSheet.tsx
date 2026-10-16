@@ -366,7 +366,7 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
             setPicking(null);
           }}
           onConfirm={(p, food) => {
-            if (food.id === picking.food.id && (food.pieceWeight !== picking.food.pieceWeight || food.servingGrams !== picking.food.servingGrams || food.servingUnits !== picking.food.servingUnits)) onSaveFood(food);
+            if (food.id === picking.food.id && (food.pieceWeight !== picking.food.pieceWeight || food.servingGrams !== picking.food.servingGrams || food.servingUnits !== picking.food.servingUnits || food.unitName !== picking.food.unitName || food.unitPlural !== picking.food.unitPlural)) onSaveFood(food);
             if (picking.itemId) onUpdate(picking.itemId, food, p);
             else onAdd(food, p);
             setPicking(null);
