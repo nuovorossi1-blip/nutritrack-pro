@@ -2,6 +2,7 @@ import { Camera, Download, Mic, Upload, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { DENIED_HELP, permissionState, requestPermission, type Device, type PermState } from '../lib/permissions';
 import type { AppData, Goals } from '../types';
+import { NumberInput } from './NumberInput';
 
 const PRESETS: { label: string; goals: Goals }[] = [
   { label: 'Definizione', goals: { kcal: 1700, carbs: 150, pro: 160, fats: 50 } },
@@ -51,12 +52,10 @@ export function SettingsModal({ data, onSaveGoals, onImport, onClose, toast }: P
   const field = (key: keyof Goals, label: string) => (
     <label className="block">
       <span className="text-[11px] font-bold text-slate-500">{label}</span>
-      <input
-        type="number"
-        inputMode="numeric"
-        min={0}
+      <NumberInput
+        decimals={false}
         value={g[key]}
-        onChange={(e) => setG({ ...g, [key]: Math.max(0, parseInt(e.target.value) || 0) })}
+        onChange={(n) => setG({ ...g, [key]: n ?? 0 })}
         className="w-full mt-0.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm font-semibold"
       />
     </label>

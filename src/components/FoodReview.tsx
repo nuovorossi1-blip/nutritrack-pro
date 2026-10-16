@@ -1,6 +1,7 @@
 import { X } from 'lucide-react';
 import { useState } from 'react';
 import type { Food } from '../types';
+import { NumberInput } from './NumberInput';
 
 // Peso cotto / peso crudo, come negli alimenti di base. I valori della scheda restano quelli a crudo.
 const COOKING = [
@@ -25,12 +26,9 @@ export function FoodReview({ food, missing = [], title, onSave, onClose }: Props
   const numField = (key: 'kcal' | 'pro' | 'carbs' | 'fats', label: string) => (
     <label className="block">
       <span className={`text-[11px] font-bold ${missing.includes(label.toLowerCase()) ? 'text-rose-500' : 'text-slate-500'}`}>{label}</span>
-      <input
-        type="number"
-        inputMode="decimal"
-        min={0}
+      <NumberInput
         value={f[key]}
-        onChange={(e) => setF({ ...f, [key]: Math.max(0, parseFloat(e.target.value) || 0) })}
+        onChange={(n) => setF({ ...f, [key]: n ?? 0 })}
         className="w-full mt-0.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm font-semibold"
       />
     </label>
@@ -69,14 +67,10 @@ export function FoodReview({ food, missing = [], title, onSave, onClose }: Props
         </div>
         <label className="block">
           <span className="text-[11px] font-bold text-slate-500">Peso di una porzione / confezione in g (facoltativo, es. vasetto 150)</span>
-          <input
-            type="number"
-            inputMode="decimal"
-            min={0}
-            value={f.pieceWeight ?? ''}
-            onChange={(e) => {
-              const v = parseFloat(e.target.value);
-              setF(v > 0 ? { ...f, pieceWeight: v, unitName: f.unitName || 'porzione', unitPlural: f.unitPlural || 'porzioni' } : { ...f, pieceWeight: undefined });
+          <NumberInput
+            value={f.pieceWeight}
+            onChange={(v) => {
+              setF(v && v > 0 ? { ...f, pieceWeight: v, unitName: f.unitName || 'porzione', unitPlural: f.unitPlural || 'porzioni' } : { ...f, pieceWeight: undefined });
             }}
             className="w-full mt-0.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm"
           />

@@ -2,6 +2,7 @@ import { Minus, Plus, X } from 'lucide-react';
 import { useState } from 'react';
 import type { Food, QtyMode } from '../types';
 import { macrosFor, portionLabel, rawGrams, type Portion } from '../lib/nutrition';
+import { NumberInput } from './NumberInput';
 
 interface Props {
   food: Food;
@@ -75,12 +76,9 @@ export function PortionEditor({ food, initial, confirmLabel, onConfirm, onClose 
             <Minus size={18} />
           </button>
           <div className="flex-1 relative">
-            <input
-              type="number"
-              inputMode="decimal"
-              min={0}
+            <NumberInput
               value={p.qty}
-              onChange={(e) => setP({ ...p, qty: Math.max(0, parseFloat(e.target.value) || 0) })}
+              onChange={(n) => setP({ ...p, qty: n ?? 0 })}
               className="w-full text-center text-2xl font-extrabold bg-slate-50 dark:bg-slate-800 rounded-2xl py-2 border border-slate-200 dark:border-slate-700"
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-bold">{p.mode === 'grams' ? 'g' : 'pz'}</span>

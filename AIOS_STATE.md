@@ -84,6 +84,7 @@ da sola all'accesso a Windows con l'attività pianificata "NutriTrack PRO locale
 | Pasti senza data, "azzera" cancellava tutto | Prototipo con un solo giorno | Dati per giorno `days[AAAA-MM-GG]`, azzera solo il giorno scelto (16/10). |
 | Sincronizzazione Supabase senza login (profilo scritto a mano, dati di tutti leggibili) | Prototipo Gemini | Tolta nella versione React; tornerà con login vero e RLS (fase 3). |
 | Ricerca per nome di Open Food Facts bloccata nel browser | search.openfoodfacts.org non manda l'intestazione CORS | Passa da `/off-search` (proxy Vite in locale, rewrite vercel.json online, nessuna funzione Vercel) (16/10). |
+| Campo grammi: svuotandolo e scrivendo 100 usciva "0100" (segnalato dall'utente con screenshot dal telefono) | `<input type="number">` con valore forzato a 0 quando vuoto; toccando un campo già attivo il cursore restava in mezzo | `NumberInput`: testo libero (anche vuoto), selezione di tutto a ogni tocco, virgola = punto; usato in quantità, valori alimento, obiettivi. Provato: 100, 150, 75,5 e + (16/10). |
 | A mezzanotte l'app restava sul giorno vecchio | In `App.tsx` l'aggiornamento di setSelected leggeva il ref già cambiato | Valore precedente copiato prima; provato con orologio simulato (16/10). |
 
 ---
@@ -136,6 +137,7 @@ l'utente la provi e dica se procedere con la fase 2 (CIQUAL).
 
 | Data | Modello | Cosa è stato fatto |
 |---|---|---|
+| 2026-10-16 | Claude Opus 5.5 | Corretto campo grammi "0100" (NumberInput) |
 | 2026-10-16 | Claude Opus 5.5 | Fotocamera per codici a barre + sezione Permessi (fotocamera/microfono) nella web app |
 | 2026-10-16 | Claude Opus 5.5 | Link di prova nutritrack.redapp.dev via tunnel Cloudflare pc-windows |
 | 2026-10-16 | Claude Opus 5.5 | Fase 1: app React sul PC (giorni, pasti, parole, Open Food Facts nome/codice, storico, mezzanotte), 12 test, avvio automatico sul PC |
