@@ -126,24 +126,33 @@ export function VoiceInput({ text, onText, onInsert, busy, onError }: {
     } catch (error) { report((error as Error).message); finish(); }
   };
 
+  // Campo compatto che cresce con il testo (al massimo 4 righe), richiesta utente 16/10.
+  useEffect(() => {
+    const el = input.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${Math.min(el.scrollHeight, 128)}px`;
+  }, [text]);
+
+  // Microfono DENTRO il campo, a destra; Inserisci subito sotto, a tutta larghezza.
   return (
-    <div className="mt-3 space-y-3">
-      <textarea ref={input} value={text} onChange={(event) => onText(event.target.value)}
-        onFocus={() => requestAnimationFrame(() => controls.current?.scrollIntoView({ block: 'center' }))}
-        onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); if (phase === 'idle') onInsert(); } }}
-        placeholder="Cosa hai mangiato?" rows={2}
-        className="w-full resize-y bg-neutral-900/80 placeholder-neutral-400 text-base rounded-2xl px-4 py-3 border border-blue-700/50 focus:border-blue-400 outline-none" />
-      <div ref={controls} className="flex items-center gap-4">
+    <div ref={controls} className="mt-3 space-y-2.5">
+      <div className="relative">
+        <textarea ref={input} value={text} onChange={(event) => onText(event.target.value)}
+          onFocus={() => requestAnimationFrame(() => controls.current?.scrollIntoView({ block: 'center' }))}
+          onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); if (phase === 'idle') onInsert(); } }}
+          placeholder="Cosa hai mangiato?" rows={1}
+          className="block w-full resize-none overflow-y-auto bg-neutral-900/80 placeholder-neutral-400 text-base leading-6 rounded-2xl pl-4 pr-14 py-3 border border-blue-700/50 focus:border-blue-400 outline-none" />
         <button type="button" onClick={() => void toggle()} disabled={busy || phase === 'finishing'}
           aria-label={active ? 'Ferma microfono' : 'Attiva microfono'} aria-pressed={active}
-          className={`w-[72px] h-[72px] shrink-0 rounded-full flex items-center justify-center disabled:opacity-60 ${active ? 'bg-red-600 text-white ring-4 ring-red-500/25' : 'bg-neutral-800 text-white border border-neutral-600'}`}>
-          <Mic size={34} aria-hidden="true" />
-        </button>
-        <button onClick={onInsert} disabled={busy || phase !== 'idle' || !text.trim()}
-          className="min-h-14 flex-1 bg-blu hover:brightness-110 disabled:opacity-50 rounded-2xl px-4 py-3 font-bold">
-          {busy ? 'Leggo…' : 'Inserisci'}
+          className={`absolute right-1.5 bottom-1.5 w-10 h-10 rounded-full flex items-center justify-center disabled:opacity-60 ${active ? 'bg-red-600 text-white ring-4 ring-red-500/25 animate-pulse' : 'text-blue-200 hover:bg-white/10'}`}>
+          <Mic size={22} aria-hidden="true" />
         </button>
       </div>
+      <button onClick={onInsert} disabled={busy || phase !== 'idle' || !text.trim()}
+        className="w-full min-h-12 bg-blu hover:brightness-110 disabled:opacity-50 rounded-2xl px-4 py-3 font-bold">
+        {busy ? 'Leggo…' : 'Inserisci'}
+      </button>
       <p role="status" className="sr-only">
         {phase === 'starting' ? 'Avvio microfono…' : phase === 'listening' ? 'Microfono acceso' : phase === 'finishing' ? 'Microfono spento · completo il testo' : 'Microfono spento'}
       </p>
