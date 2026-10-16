@@ -201,13 +201,13 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
   return (
     <div className="app-screen app-home min-h-screen">
       <header className="bg-[#17181b]/95 dark:bg-[#17181b]/95 backdrop-blur sticky top-0 z-30 border-b border-[#23252c] text-white">
-        <div className="home-container h-16 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <div className="w-10 h-10 shrink-0 rounded-full bg-[#f5b935] flex items-center justify-center text-neutral-950 shadow-md shadow-amber-400/30">
+        <div className="home-container h-14 sm:h-16 flex items-center justify-between gap-1.5">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 min-w-0">
+            <div className="hidden min-[430px]:flex w-10 h-10 shrink-0 rounded-full bg-[#f5b935] flex items-center justify-center text-neutral-950 shadow-md shadow-amber-400/30">
               <Flame size={20} />
             </div>
             <div>
-              <h1 className="text-base sm:text-lg font-extrabold tracking-tight whitespace-nowrap text-white">NutriTrack PRO</h1>
+              <h1 className="text-[12px] min-[380px]:text-sm sm:text-lg font-extrabold tracking-tight whitespace-nowrap text-white">NutriTrack PRO</h1>
               {userId && (
                 <p className={`text-[10px] font-semibold ${sync === 'errore' ? 'text-red-500' : 'text-neutral-400'}`}>
                   {sync === 'ok' ? '☁ Salvato' : sync === 'salvo' ? '☁ Salvataggio…' : '⚠ Non salvato: controlla la rete'}
@@ -216,14 +216,15 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
               <p className="hidden sm:block text-[11px] text-neutral-400 font-medium">Pasti, macro, crudo/cotto</p>
             </div>
           </div>
-          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-            <button aria-label="Profilo e obiettivi" onClick={() => setSettings(true)} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#26272b] flex items-center justify-center">
+          <DayStrip compact selected={selected} today={today} daysWithData={daysWithData} onSelect={setSelected} />
+          <div className="flex items-center gap-0.5 sm:gap-2 shrink-0">
+            <button aria-label="Profilo e obiettivi" onClick={() => setSettings(true)} className="w-7 h-8 min-[380px]:w-8 min-[380px]:h-9 sm:w-10 sm:h-10 rounded-full bg-[#26272b] flex items-center justify-center">
               <Settings size={19} />
             </button>
-            <button aria-label="Azzera giorno" title="Azzera il giorno scelto" onClick={resetDay} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#26272b] flex items-center justify-center">
+            <button aria-label="Azzera giorno" title="Azzera il giorno scelto" onClick={resetDay} className="w-7 h-8 min-[380px]:w-8 min-[380px]:h-9 sm:w-10 sm:h-10 rounded-full bg-[#26272b] flex items-center justify-center">
               <RotateCcw size={16} />
             </button>
-            <button aria-label="Tema" onClick={() => update((d) => ({ ...d, dark: !d.dark }))} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#26272b] flex items-center justify-center">
+            <button aria-label="Tema" onClick={() => update((d) => ({ ...d, dark: !d.dark }))} className="w-7 h-8 min-[380px]:w-8 min-[380px]:h-9 sm:w-10 sm:h-10 rounded-full bg-[#26272b] flex items-center justify-center">
               {data.dark ? <Sun size={16} className="text-gold-400" /> : <Moon size={16} />}
             </button>
           </div>
@@ -232,7 +233,6 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
 
       <main className="home-container pt-2 space-y-3">
         <AndroidDownloadBanner />
-        <DayStrip selected={selected} today={today} daysWithData={daysWithData} onSelect={setSelected} />
         {!data.profile && (
           <button onClick={() => setSettings(true)} className="w-full text-left rounded-3xl p-4 bg-blu text-white shadow-md">
             <div className="font-extrabold">Completa il tuo profilo</div>
