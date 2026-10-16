@@ -1,3 +1,4 @@
+import { useAndroidBack } from '../native/navigation';
 import { Camera, Download, Mic, Upload, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { DENIED_HELP, permissionState, requestPermission, type Device, type PermState } from '../lib/permissions';
@@ -17,6 +18,7 @@ interface Props {
 }
 
 export function SettingsModal({ data, onSaveProfile, onImport, onClose, toast, email, userId, onLogout }: Props) {
+  useAndroidBack(onClose);
   const [perm, setPerm] = useState<Record<Device, PermState>>({ camera: 'unknown', microphone: 'unknown' });
   useEffect(() => {
     Promise.all([permissionState('camera'), permissionState('microphone')]).then(([camera, microphone]) => setPerm({ camera, microphone }));

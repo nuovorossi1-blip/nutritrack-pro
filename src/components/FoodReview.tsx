@@ -1,3 +1,4 @@
+import { useAndroidBack } from '../native/navigation';
 import { Sparkles, X } from 'lucide-react';
 import { useState } from 'react';
 import type { Food } from '../types';
@@ -26,6 +27,7 @@ interface Props {
 // Prima di salvare un prodotto si vedono (e si correggono) i valori:
 // i dati di Open Food Facts li inseriscono gli utenti e possono sbagliare.
 export function FoodReview({ food, missing = [], title, onSave, onClose }: Props) {
+  useAndroidBack(onClose);
   const [f, setF] = useState<Food>(food);
   const [servingGrams, setServingGrams] = useState<number | undefined>(food.servingGrams ?? food.pieceWeight);
   const [servingUnits, setServingUnits] = useState<number | undefined>(food.servingUnits ?? 1);

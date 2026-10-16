@@ -56,6 +56,6 @@
   "last_session": {
     "model": "Codex (GPT-6)",
     "date": "2026-10-16",
-    "summary": "Revisione pubblicata e verificata LIVE con commit concorrenti Claude integrati: proteine salvate, porzioni grammi/pezzi/nomi, calendario bubble,35schede USDA crudo/cotto, colori macro e voce compatta auto-crescente.48test/build/QA ok. APK1.0.3 firma/download verificati, Google preferito e formattingAPI33+. Test fisici telefono e workflow scope aperti."
+    "summary": "Supporto Android3pulsanti/gesti: Back gerarchico, minimize alla radice, insets laterali landscape e bordi swipe protetti.50test/build e QA bridge mobile positivi; aggiornamento web senza nuovoAPK. Test fisici ancora aperti."
   }
 }

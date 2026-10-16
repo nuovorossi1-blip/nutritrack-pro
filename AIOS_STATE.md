@@ -40,6 +40,8 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Andr
 
 ## 3. Cosa funziona
 
+- [FACT] Navigazione Android pulsante/gesto Back gerarchica, radice minimizeApp, bordi swipe24px riservati e insets laterali landscape.50test/build e QA bridge mobile positivi; prova fisica delle due modalit? ancora da confermare. UI aggiornata remotamente, APK1.0.3 invariato.
+
 - [FACT] Revisione16/10 sera: calendario custom bubble con mese/anno, giorni tondi, futuro disabilitato, tastiera/Escape/focus e320px; bordi piu morbidi nell'app. C azzurro/P arancione/G giallo,100%verde e oltre rosso; macro nelle card pasti centrati. Browser locale e LIVE positivi anche per soglie di completamento/superamento.
 - [FACT] Porzioni: peso totale in grammi + pezzi contenuti separati dai pezzi/grammi da mangiare.14g/2fette=7g per fetta; valori100g invariati, preview e salvataggio personalizzato. Nessun fallback100g per pezzo sconosciuto. OFF usa serving_size/serving_quantity e mai peso confezione come porzione. Test logici e browser locale/LIVE/cloud7g28kcal con fixture400kcal/100g positivi. Decimali nel cambio unita preservati; conteggi senza peso pezzo chiedono grammi, mai1g inventato.
 - [FACT] Prodotti salvati: alias locali proteine in polvere, marca e sottotipo, ultimo uso poi ordine salvataggio (cloud updated_at desc). Egg White PROZIS viene riusato con ID e macro originali, zero chiamataAI nel test; barrette/yogurt/albume liquido esclusi dalla categoria. Supportati nomi100% e marca. Se marca/tipo espliciti non coincidono non vengono sostituiti silenziosamente. Nessun alimento reale dell'utente letto/modificato: QA su account temporanei.
@@ -193,37 +195,31 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Andr
 
 ---
 
-## 10. Dove si è fermato l'ultimo lavoro
+## 10. Dove si ? fermato l'ultimo lavoro
 
-**Modello:** Codex (GPT-6) · **Data:** 2026-10-16
+**Modello:** Codex (GPT-6) ? **Data:** 2026-10-16
 
-Integrati senza force-push i commit concorrenti Claude ae8b425/85248ec/b6dfea5.
-Conservati font Apple, motion/riduzione movimento, nome porzione e plurale,
-campo auto-crescente e test monthGrid/withPortion;48test totali positivi.
-QA completo locale e LIVE ripetuto dopo merge, inclusi nomi porzione persistiti e
-ponte voce simulato. APK1.0.3 invariato, download SHA256 ancora identico.
+Richiesta supporto navigazione Android classica3pulsanti e gesti.
+Aggiunto gestore Back unico App.backButton: priorit? finestra visibile, calendario,
+scanner, porzione/review, picker, pasto; chiusura swipe aperto prima del pasto;
+profilo, conferma rapida, privacy e aggiornamento gestiti. Voce attiva: Back ferma
+microfono prima di uscire. Dalla radice minimizeApp, senza navigare fuori dal sito.
+Barre Home/Recenti lasciate al sistema; nessuna modalit? imposta dall'app.
+Insets nativi dinamici gi? esistenti Capacitor8 viewport-fit=contain preservati:
+WebView sopra3tasti/linea gesti e tastiera. Aggiunta protezione sinistra/destra
+per landscape a schermate/footer/fogli e insets scanner/privacy/updater.
+Swipe alimento ignora24px ai bordi per non interferire con Back laterale.
+50test/build positivi. Browser Edge mobile con bridge nativo simulato: calendario,
+profilo, porzione?picker?pasto?diario?minimize, inset0/24/48, landscape bordo48,
+zero errori JS. Utente temporaneo eliminato. Primo QA fallito solo selettore ricerca
+errato, corretto e ripetuto positivo. Prova fisica gesti/tasti/IME/Home/Recenti da
+confermare sul telefono. Nessun nuovo APK necessario: App plugin gi? in1.0.3;
+aggiornamento web remoto pubblicato con verifica LIVE (vedi registro centrale).
 
-Richieste consolidate: riuso proteine salvate + stile iPhone/bubble + porzioni per pezzo
-+ voce Google compatta + catalogo comune crudo/cotto + colori macro e centratura.
-Implementate tutte,48test e build positivi dopo integrazione dei commit concorrenti di Claude. QA browser locale con account temporaneo:
-Egg White originale riusata senzaAI, porzioni14g/2=7g con macro100g invariati e cloud;
-modifica porzione7g/1 e quantita mangiata; patate/pasta integrale crude/cotte senza
-doppie conversioni; frutta/plurali/formati pasta/pane tostato; colori C/P/G e soglie
-verde/rosso; microfono nel campo a destra e Inserisci sotto; calendario bubble320px.
-Bridge voce simulato positivo (start/stop/parziali/finale/errori/background); non acustico.
-APK1.0.3/code3 compilato, firma identica precedente,4.133.592byte. Servizio Google
-preferito quando disponibile e EXTRA_ENABLE_FORMATTING suAPI33+, nessuna activity Google.
-Non promettere stessa accuratezza/punteggiatura su tutti i telefoni; richiede prova fisica.
-Vocale allegato1792181263446-file_3.oga2.04s: solo 'Stavamo continuando con'.
-Tentativo STT locale bloccato da controllo applicazioni DLL av, non aggirato;
-trascrizione via OpenRouter gia collegato, nessuna credenziale inviata al modello.
-Pubblicazione finale dpl_AxhRf1hCpm7np9BvkcQHp18Ha5Av READY sul dominio canonico.
-Prova completa LIVE riuscita, anche 7.5g preservati nel cambio unita e misurino senza
-peso che chiede grammi senza aggiungere1g. Verde100%/rossooltre verificati in UI.
-Utenti temporanei eliminati. Download APK1.0.3/code3 SHA256 identico al build firmato:
-87A3C5B5D15EE4BDE2748E7D6CE6C32BFD579C514E0791CBE9E079E7166DA982.
-48test/build positivi; nessuna credenziale nel codice o nei test. Nessun nuovo account/costo fisso.
-Workflow GitHub NON attivo per scope workflow mancante; template pronto gia conservato.
+Precedente revisione conservata: merge aeecf02 con contributi Claude,
+prodotti salvati, porzioni14g/2pezzi=7g, nomi/plurali,35schede USDA, stile bubble,
+macro colori, Google voce compatta. APK1.0.3/code3 invariato e firma stabile.
+Test fisici audio/punteggiatura/installazione/fotocamera e scope workflow aperti.
 
 ---
 

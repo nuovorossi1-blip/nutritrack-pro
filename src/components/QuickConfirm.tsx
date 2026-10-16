@@ -1,3 +1,4 @@
+import { useAndroidBack } from '../native/navigation';
 import { X } from 'lucide-react';
 import { useState } from 'react';
 import type { MealKey } from '../types';
@@ -21,6 +22,7 @@ interface Props {
 // Riepilogo dell'inserimento a parole: niente viene aggiunto finche' pasto e
 // quantita' non sono chiari.
 export function QuickConfirm({ entries: initial, meal: initialMeal, ai, dayLabel, onConfirm, onClose }: Props) {
+  useAndroidBack(onClose);
   const [entries, setEntries] = useState(initial);
   const [meal, setMeal] = useState<MealKey | null>(initialMeal);
   const set = (i: number, e: ParsedEntry) => setEntries(entries.map((x, j) => (j === i ? e : x)));

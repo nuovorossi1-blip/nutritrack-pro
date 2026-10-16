@@ -17,7 +17,8 @@ export function SwipeFoodRow({ id, name, open, onOpen, onRemove, children }: Pro
   const ignoreClick = useRef(false);
   const start = (e: PointerEvent<HTMLLIElement>) => {
     ignoreClick.current = false;
-    if (!e.isPrimary || e.button !== 0) return;
+    // Keep the screen edges available for Android system Back gestures.
+    if (!e.isPrimary || e.button !== 0 || e.clientX < 24 || e.clientX > window.innerWidth - 24) return;
     drag.current = { x: e.clientX, y: e.clientY, start: open ? -ACTION : 0, value: open ? -ACTION : 0,
       width: e.currentTarget.clientWidth, horizontal: false };
   };

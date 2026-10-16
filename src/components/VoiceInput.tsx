@@ -1,3 +1,4 @@
+import { useAndroidBack } from '../native/navigation';
 import { Mic } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import type { PluginListenerHandle } from '@capacitor/core';
@@ -28,6 +29,11 @@ export function VoiceInput({ text, onText, onInsert, busy, onError }: {
   const input = useRef<HTMLTextAreaElement>(null);
   const controls = useRef<HTMLDivElement>(null);
   const active = phase === 'starting' || phase === 'listening';
+
+  useAndroidBack(() => {
+    const current = session.current;
+    if (current) { current.stopped = true; setPhase('finishing'); current.stop?.(); }
+  }, 90, active);
 
   useEffect(() => {
     const showControls = () => {

@@ -5,6 +5,17 @@
 :root {
   --app-safe-top: max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px));
   --app-safe-bottom: max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px));
+  --app-safe-left: max(env(safe-area-inset-left, 0px), var(--safe-area-inset-left, 0px));
+  --app-safe-right: max(env(safe-area-inset-right, 0px), var(--safe-area-inset-right, 0px));
+}
+
+.app-screen, div.meal-content, .meal-add-footer, div.safe-sheet-overlay {
+  padding-left: calc(1rem + var(--app-safe-left));
+  padding-right: calc(1rem + var(--app-safe-right));
+}
+
+.safe-scanner {
+  padding: var(--app-safe-top) var(--app-safe-right) var(--app-safe-bottom) var(--app-safe-left);
 }
 
 div.safe-sheet-overlay {

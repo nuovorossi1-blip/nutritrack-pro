@@ -1,3 +1,4 @@
+import { useAndroidBack } from '../native/navigation';
 import { X } from 'lucide-react';
 
 // Testi di base da far rivedere al titolare: non sono una consulenza legale.
@@ -20,9 +21,10 @@ export const TERMS = [
 ];
 
 export function LegalModal({ kind, onClose }: { kind: 'privacy' | 'termini'; onClose: () => void }) {
+  useAndroidBack(onClose, 70);
   const items = kind === 'privacy' ? PRIVACY : TERMS;
   return (
-    <div className="fixed inset-0 z-[70] bg-neutral-950/70 flex items-end sm:items-center justify-center" onClick={(e) => e.target === e.currentTarget && onClose()}>
+    <div className="safe-sheet-overlay fixed inset-0 z-[70] bg-neutral-950/70 flex items-end sm:items-center justify-center" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="bg-white dark:bg-neutral-900 w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl p-5 space-y-3 max-h-[88vh] overflow-y-auto">
         <div className="flex items-start justify-between">
           <h3 className="font-extrabold text-lg">{kind === 'privacy' ? 'Informativa privacy' : "Condizioni d'uso"}</h3>

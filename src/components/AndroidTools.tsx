@@ -1,3 +1,4 @@
+import { useAndroidBack } from '../native/navigation';
 import { useEffect, useState } from 'react';
 import { App as NativeApp } from '@capacitor/app';
 import { ApkUpdater, isAndroidApp, remoteAndroidVersion, type AndroidVersion } from '../native/android';
@@ -23,6 +24,7 @@ export function AndroidDownloadBanner() {
 export function AndroidTools() {
   const [release, setRelease] = useState<AndroidVersion | null>(null);
   const [state, setState] = useState<'ready' | 'permission' | 'downloading' | 'error'>('ready');
+  useAndroidBack(() => { if (!release?.mandatory && state !== 'downloading') setRelease(null); }, 100, !!release);
   useEffect(() => {
     if (!isAndroidApp()) return;
     let alive = true;
@@ -52,7 +54,7 @@ export function AndroidTools() {
 
   if (!isAndroidApp() || !release) return null;
   return (
-    <div role="dialog" aria-modal="true" aria-label="Aggiornamento Android" className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-4">
+    <div role="dialog" aria-modal="true" aria-label="Aggiornamento Android" className="safe-sheet-overlay fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-4">
       <section className="max-w-md w-full rounded-3xl bg-neutral-900 text-white p-5 space-y-3">
         <h2 className="text-xl font-extrabold">NutriTrack {release.version}</h2>
         <p className="text-sm text-neutral-300">{release.notes}</p>

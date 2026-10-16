@@ -1,3 +1,4 @@
+import { useAndroidBack } from '../native/navigation';
 import { ArrowLeft, Barcode, Camera, Pencil, PlusCircle, Search, Star, Trash2 } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
 import type { AppData, Food, MealItem, MealKey } from '../types';
@@ -61,6 +62,12 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
   const [picking, setPicking] = useState<{ food: Food; initial?: Portion; itemId?: string } | null>(null);
   // back: da dove si e' arrivati (correzione dalla schermata della quantita'), per tornarci dopo il salvataggio.
   const [review, setReview] = useState<{ food: Food; missing: string[]; title: string; back?: { initial?: Portion; itemId?: string } } | null>(null);
+
+  useAndroidBack(() => {
+    if (openSwipe) setOpenSwipe(null);
+    else if (adding) changeView(false);
+    else onClose();
+  }, 20);
 
   const local = useMemo(() => {
     const q = normalize(query).trim();

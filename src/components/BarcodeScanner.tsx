@@ -1,3 +1,4 @@
+import { useAndroidBack } from '../native/navigation';
 import { X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { cameraErrorMessage, mediaSupported } from '../lib/permissions';
@@ -11,6 +12,7 @@ interface Props {
 // scaricata solo quando si apre lo scanner).
 export function BarcodeScanner({ onDetected, onClose }: Props) {
   const video = useRef<HTMLVideoElement>(null);
+  useAndroidBack(onClose, 70);
   const [error, setError] = useState('');
   const done = useRef(false);
   // Callback in un ref: la fotocamera non deve ripartire a ogni nuovo render del genitore.
@@ -51,7 +53,7 @@ export function BarcodeScanner({ onDetected, onClose }: Props) {
   }, []);
 
   return (
-    <div className="fixed inset-0 z-[55] bg-black flex flex-col">
+    <div className="safe-scanner fixed inset-0 z-[55] bg-black flex flex-col">
       <div className="flex items-center justify-between p-4 text-white">
         <span className="font-bold">Inquadra il codice a barre</span>
         <button aria-label="Chiudi" onClick={onClose} className="p-1">

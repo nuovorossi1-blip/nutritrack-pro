@@ -1,3 +1,4 @@
+import { useAndroidBack } from '../native/navigation';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { parseISO, toISO } from '../lib/dates';
@@ -16,6 +17,7 @@ export function CalendarSheet({ selected, today, daysWithData, onSelect, onClose
   selected: string; today: string; daysWithData: Set<string>; onSelect: (day: string) => void; onClose: () => void;
 }) {
   const initial = parseISO(selected);
+  useAndroidBack(onClose, 80);
   const [month, setMonth] = useState(new Date(initial.getFullYear(), initial.getMonth(), 1));
   const panel = useRef<HTMLDivElement>(null);
   const latest = parseISO(today);

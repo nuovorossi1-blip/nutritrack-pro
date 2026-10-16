@@ -1,3 +1,4 @@
+import { useAndroidBack } from '../native/navigation';
 import { Minus, Plus, X } from 'lucide-react';
 import { useState } from 'react';
 import type { Food, QtyMode } from '../types';
@@ -22,6 +23,7 @@ export function defaultPortion(food: Food): Portion {
 }
 
 export function PortionEditor({ food: originalFood, initial, confirmLabel, onConfirm, onClose, onEditFood, alternatives = [] }: Props) {
+  useAndroidBack(onClose);
   const [food, setFood] = useState(originalFood);
   const [editingServing, setEditingServing] = useState(false);
   const [servingGrams, setServingGrams] = useState<number | undefined>(originalFood.servingGrams ?? originalFood.pieceWeight);
