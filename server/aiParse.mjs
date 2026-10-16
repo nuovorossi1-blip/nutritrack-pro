@@ -34,7 +34,9 @@ Rispondi SOLO con un oggetto JSON, senza testo prima o dopo, con questa forma:
    "kcal_100g": numero, "proteine_100g": numero, "carboidrati_100g": numero, "grassi_100g": numero}]}
 Regole:
 - "pasto" solo se la frase lo dice (merenda/snack = "spuntini"), altrimenti null.
-- Un elemento per ogni alimento nominato. Piatti unici (lasagne, pizza margherita, parmigiana) come un solo alimento.
+- Un elemento per ogni alimento nominato. Piatti unici come UN solo elemento, senza dividerli negli ingredienti: "pizza tonno e cipolle", "pizza margherita", "lasagne", "parmigiana", "panino prosciutto e formaggio".
+- nome: specifico, con tipo o marca se detti, cosi' prodotti diversi con lo stesso nome restano distinti: "cornetto (bar)" per la brioche, "Cornetto Algida (gelato)" per il gelato, "pizza tonno e cipolle". Con una marca nota (Algida, Mulino Bianco, Ferrero, Barilla...) usa i valori di quel prodotto.
+- Pizza senza "fetta"/"trancio" = pizza intera da pizzeria: pezzi 1, peso_pezzo_g circa 330. "fetta"/"trancio" di pizza = 120 g.
 - PASTA, RISO, CEREALI con condimento ("pasta al pomodoro", "riso al pesto"): DUE elementi, la pasta/riso e il condimento (es. "sugo di pomodoro", peso_pezzo_g tipico della porzione di condimento, pezzi 1).
 - Grammi di pasta, riso, cereali, legumi secchi SENZA la parola cotto/cotta: sono grammi A CRUDO, quindi valori per 100 g A CRUDO (pasta secca circa 355 kcal, riso circa 350). Solo se la frase dice "cotto/cotta" usa valori da cotto.
 - grammi: solo se la frase indica un peso. pezzi: numero di pezzi/porzioni. Articolo o numero davanti all'alimento = pezzi ("una birra" = 1, "un filo d'olio" = 1, "un'insalata" = 1, "due fette di pizza" = 2). Se non c'e' nessuna quantita' lascia grammi e pezzi null: NON inventare.
@@ -84,8 +86,19 @@ export async function aiParse(text, { apiKey, model, ip = 'locale' }) {
   if (!frase) return { status: 400, body: { errore: 'Frase vuota' } };
   if (!apiKey) return { status: 503, body: { errore: 'AI non configurata su questo server' } };
   if (!allowed(ip)) return { status: 429, body: { errore: "Limite giornaliero dell'AI raggiunto: riprova domani o inserisci a mano" } };
+  // Di solito risponde in 2-5 s; ogni tanto OpenRouter resta appeso: dopo 12 s si riprova una volta.
+  let last = { status: 502, body: { errore: "L'AI non ha risposto in tempo" } };
+  for (const wait of [12000, 14000]) {
+    last = await callModel(frase, apiKey, model, wait);
+    if (last.status === 200 || !last.retry) break;
+  }
+  delete last.retry;
+  return last;
+}
+
+async function callModel(frase, apiKey, model, wait) {
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 25000);
+  const timer = setTimeout(() => ctrl.abort(), wait);
   try {
     const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -107,12 +120,13 @@ export async function aiParse(text, { apiKey, model, ip = 'locale' }) {
         ],
       }),
     });
-    if (!res.ok) return { status: 502, body: { errore: `AI non disponibile (errore ${res.status})` } };
+    if (!res.ok) return { status: 502, retry: res.status >= 500 || res.status === 429, body: { errore: `AI non disponibile (errore ${res.status})` } };
     const data = await res.json();
     const content = data?.choices?.[0]?.message?.content || '';
     return { status: 200, body: cleanResult(extractJson(content)) };
   } catch (e) {
-    return { status: 502, body: { errore: e.name === 'AbortError' ? "L'AI non ha risposto in tempo" : "Risposta dell'AI non leggibile" } };
+    const timeout = e.name === 'AbortError';
+    return { status: 502, retry: true, body: { errore: timeout ? "L'AI non ha risposto in tempo" : "Risposta dell'AI non leggibile" } };
   } finally {
     clearTimeout(timer);
   }

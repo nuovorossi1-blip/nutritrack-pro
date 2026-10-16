@@ -52,10 +52,11 @@ da sola all'accesso a Windows con l'attività pianificata "NutriTrack PRO locale
 - [FACT] Correzione dei valori: nel riquadro dell'avviso istruzioni in 3 passi (valori dall'etichetta / pulsante «Valori tipici dall'AI» che chiede «100 g di <nome> <marca>» e riempie i campi / scegliere un'altra scheda) e, se le kcal non tornano, «Usa N kcal (dai macro)». Dalla schermata della quantità «Correggi i valori per 100 g» anche per alimenti già salvati: dopo il salvataggio si torna alla stessa voce. Provato: tonno 403 → AI 132 kcal (P 29,9, G 1), poi corretto a mano 190 sulla voce già inserita.
 - [FACT] Riepilogo come lo screenshot dell'utente del 16/10: titolo «Riepilogo», Mangiate · arco di 270° con Rimanenti (oro) · Eccesso; sotto barre Carboidrati (oro) / Proteine (blu) / Grassi (bianco) con «x / y g». Oltre l'obiettivo: Rimanenti 0, arco pieno rosso, Eccesso «+N» rosso, bordo rosso e frase «Hai superato l'obiettivo di N kcal (X%)»; macro oltre l'obiettivo con barra rossa e «+N g». «Bruciate» tolto su richiesta dell'utente (non esiste un conteggio dell'attività).
 - [FACT] Frequenti del pasto: + blu che aggiunge subito stesso alimento e stessa quantità dell'ultima volta (tocco sul nome = cambia quantità) e riquadro «↻ Ripeti <pasto> di <giorno>» che copia l'ultimo pasto dello stesso tipo (`lastMealBefore`). Provato: ieri 60 g riso + 200 g pollo → oggi + riso = 60 g 213 kcal; Ripeti = riso 60 g + pollo 200 g.
+- [FACT] Piatti e marche (frasi utente 16/10): istruzioni AI = piatti unici non divisi («pizza tonno e cipolle» un solo elemento), nome con tipo/marca («cornetto (bar)» ≠ «Cornetto Algida (gelato)»), pizza senza «fetta» = intera 330 g. Nel riconoscimento locale i nomi salvati con «e/con» vengono protetti prima di dividere la frase (`protectNames`), così «una pizza tonno e cipolle» la seconda volta si aggiunge subito senza AI. Server: secondo tentativo automatico se OpenRouter non risponde in 12 s. Provato: pizza tonno e cipolle 825 kcal, cornetto bar 240, Cornetto Algida 150, seconda pizza aggiunta in 0,3 s.
 - [FACT] Profilo (nome, sesso, età, peso, altezza, attività: sedentario / 1-3 / 3-5 / 6-7 allenamenti / atleta / altro con mantenimento a mano) → metabolismo basale (Mifflin-St Jeor) e mantenimento (× 1,2-1,9), `src/lib/metabolism.ts`. Esempio provato: uomo 35 anni 80 kg 180 cm 1-3 allenamenti → basale 1755, mantenimento 2410.
 - [FACT] Obiettivo Dieta (-20%) / Mantenimento / Massa (+10%): calorie e macro suggeriti (proteine 2,2/1,8/2 g per kg, grassi 25%, carboidrati il resto). Calorie modificabili; l'utente scrive due macro e sceglie quale è «auto» (calcolato dalle kcal): 2000 kcal, 200 P, 200 C → grassi 44 g. Avviso se i due macro superano le kcal. Riquadro "Completa il tuo profilo" finché manca; nel riepilogo «Ciao Nome · Dieta».
 - [FACT] Crea alimento a mano. Obiettivi con profili rapidi. Backup/ripristino JSON. Tema scuro. Azzera il giorno scelto (con conferma).
-- [FACT] Test: 23 test logica (giorni, crudo/cotto, parole, Open Food Facts, storico) ok; tsc ok; build ok; prova completa in Edge senza errori.
+- [FACT] Test: 24 test logica (giorni, crudo/cotto, parole, Open Food Facts, storico) ok; tsc ok; build ok; prova completa in Edge senza errori.
 
 ## 4. Cosa è in lavorazione
 
@@ -153,6 +154,7 @@ l'utente la provi e dica se procedere con la fase 2 (CIQUAL).
 
 | Data | Modello | Cosa è stato fatto |
 |---|---|---|
+| 2026-10-16 | Claude Opus 5.5 | AI: piatti unici, marche, pizza intera; nomi salvati con «e» protetti; secondo tentativo |
 | 2026-10-16 | Claude Opus 5.5 | «Bruciate» sostituito da «Eccesso» in rosso oltre l'obiettivo |
 | 2026-10-16 | Claude Opus 5.5 | Riepilogo Mangiate/Rimanenti/Bruciate con arco; + rapido sui frequenti e «Ripeti l'ultimo pasto» |
 | 2026-10-16 | Claude Opus 5.5 | Pulsanti per correggere i valori (dai macro, valori tipici dall'AI, correzione di alimenti salvati) |

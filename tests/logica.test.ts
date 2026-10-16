@@ -190,3 +190,16 @@ describe('ripeti l ultimo pasto', () => {
     expect(lastMealBefore(d, 'cena', '2026-10-16')).toBeNull();
   });
 });
+
+describe('piatti salvati con "e" nel nome', () => {
+  it('pizza tonno e cipolle resta una pizza, il tonno da solo resta tonno', async () => {
+    const { unknownWords } = await import('../src/lib/parser');
+    const pizza = { id: 'ai_pizza-tonno-e-cipolle', name: 'Pizza tonno e cipolle', kcal: 250, pro: 10, carbs: 30, fats: 10, pieceWeight: 330, unitName: 'porzione', source: 'ai' as const };
+    const cornetto = { id: 'ai_cornetto-bar', name: 'Cornetto (bar)', kcal: 400, pro: 7, carbs: 50, fats: 20, pieceWeight: 60, unitName: 'porzione', source: 'ai' as const };
+    const foods = [pizza, cornetto, ...BASE_FOODS];
+    const r = parseFoodText('a cena una pizza tonno e cipolle e 80 g di tonno', foods);
+    expect(r.map((e) => [e.food.id, rawGrams(e.food, e.portion)])).toEqual([['ai_pizza-tonno-e-cipolle', 330], ['f8', 80]]);
+    expect(unknownWords('a cena una pizza tonno e cipolle', foods)).toEqual([]);
+    expect(parseFoodText('a colazione un cornetto bar', foods).map((e) => e.food.id)).toEqual(['ai_cornetto-bar']);
+  });
+});

@@ -72,8 +72,34 @@ type Token =
   | { kind: 'cooked' }
   | { kind: 'word' };
 
-/** Alimento che inizia alla parola i: prima quelli salvati dall'utente (nome intero), poi le regole. */
-function foodAt(words: string[], i: number, foods: Food[]): { food: Food; rule?: Rule; len: number } | null {
+const SEP = /\s+e\s+|\s+con\s+|,|\+|;|\s+poi\s+/;
+
+/**
+ * Nomi salvati che contengono "e"/"con" ("pizza tonno e cipolle", "panino prosciutto e formaggio"):
+ * prima di dividere la frase sui separatori vengono sostituiti da un segnaposto, cosi' restano interi.
+ */
+function protectNames(text: string, foods: Food[]): { text: string; held: Map<string, Food> } {
+  const held = new Map<string, Food>();
+  let t = text;
+  const named = foods
+    .filter((f) => f.source !== 'base')
+    .map((f) => ({ f, n: normalize(f.name).split(/[^a-z0-9]+/).filter(Boolean).join(' ') }))
+    .filter((x) => SEP.test(` ${x.n} `))
+    .sort((a, b) => b.n.length - a.n.length);
+  named.forEach(({ f, n }, i) => {
+    const re = new RegExp(`(^|[^a-z0-9])${n.replace(/ /g, '[^a-z0-9]+')}(?=[^a-z0-9]|$)`, 'g');
+    if (!re.test(t)) return;
+    const key = `zzsalvato${String(i).replace(/\d/g, (d) => 'abcdefghij'[+d])}`;
+    t = t.replace(re, `$1${key}`);
+    held.set(key, f);
+  });
+  return { text: t, held };
+}
+
+/** Alimento che inizia alla parola i: segnaposto dei nomi protetti, poi quelli salvati (nome intero), poi le regole. */
+function foodAt(words: string[], i: number, foods: Food[], held?: Map<string, Food>): { food: Food; rule?: Rule; len: number } | null {
+  const kept = held?.get(words[i]);
+  if (kept) return { food: kept, len: 1 };
   let best: { food: Food; len: number } | null = null;
   for (const f of foods) {
     if (f.source === 'base') continue;
@@ -90,7 +116,7 @@ function foodAt(words: string[], i: number, foods: Food[]): { food: Food; rule?:
   return null;
 }
 
-function tokenize(chunk: string, foods: Food[]): Token[] {
+function tokenize(chunk: string, foods: Food[], held?: Map<string, Food>): Token[] {
   const words = chunk.match(/\d+(?:[.,]\d+)?|[a-z]+|%/g) || [];
   const out: Token[] = [];
   for (let i = 0; i < words.length; i++) {
@@ -116,7 +142,7 @@ function tokenize(chunk: string, foods: Food[]): Token[] {
       } else out.push({ kind: 'qty', value: NUMBER_WORDS[w], grams: false });
       continue;
     }
-    const hit = foodAt(words, i, foods);
+    const hit = foodAt(words, i, foods, held);
     if (hit) {
       out.push({ kind: 'food', food: hit.food, rule: hit.rule });
       i += hit.len - 1;
@@ -134,8 +160,9 @@ function tokenize(chunk: string, foods: Food[]): Token[] {
  */
 export function parseFoodText(text: string, foods: Food[]): ParsedEntry[] {
   const out: ParsedEntry[] = [];
-  for (const chunk of normalize(text).split(/\s+e\s+|\s+con\s+|,|\+|;|\s+poi\s+/)) {
-    const tokens = tokenize(chunk, foods);
+  const { text: safe, held } = protectNames(normalize(text), foods);
+  for (const chunk of safe.split(SEP)) {
+    const tokens = tokenize(chunk, foods, held);
     const foodIdx = tokens.map((t, i) => (t.kind === 'food' ? i : -1)).filter((i) => i >= 0);
     if (!foodIdx.length) continue;
     const owner = (i: number) => foodIdx.find((f) => f > i) ?? [...foodIdx].reverse().find((f) => f < i)!;
@@ -169,12 +196,13 @@ const NOT_FOOD = new Set(
 
 export function unknownWords(text: string, foods: Food[]): string[] {
   const out: string[] = [];
-  for (const chunk of normalize(text).split(/\s+e\s+|\s+con\s+|,|\+|;|\s+poi\s+/)) {
+  const { text: safe, held } = protectNames(normalize(text), foods);
+  for (const chunk of safe.split(SEP)) {
     const words = chunk.match(/\d+(?:[.,]\d+)?|[a-z]+|%/g) || [];
     for (let i = 0; i < words.length; i++) {
       const w = words[i];
       if (!/^[a-z]{3,}$/.test(w) || NOT_FOOD.has(w) || NUMBER_WORDS[w] !== undefined || COOKED.test(w) || UNIT_WORDS.test(w)) continue;
-      const hit = foodAt(words, i, foods);
+      const hit = foodAt(words, i, foods, held);
       if (hit) {
         i += hit.len - 1;
         continue;
