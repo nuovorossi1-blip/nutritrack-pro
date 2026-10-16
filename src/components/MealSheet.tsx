@@ -12,6 +12,7 @@ import { FoodReview } from './FoodReview';
 import { plausibilityWarnings } from '../lib/plausibility';
 import { BarcodeScanner } from './BarcodeScanner';
 import { searchUsda, type UsdaResult } from '../lib/usda';
+import { SwipeFoodRow } from './SwipeFoodRow';
 
 type Tab = 'frequenti' | 'cerca' | 'barcode' | 'crea';
 
@@ -50,6 +51,7 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
   const [usdaBusy, setUsdaBusy] = useState(false);
   const [code, setCode] = useState('');
   const [scanning, setScanning] = useState(false);
+  const [openSwipe, setOpenSwipe] = useState<string | null>(null);
 
   const [picking, setPicking] = useState<{ food: Food; initial?: Portion; itemId?: string } | null>(null);
   // back: da dove si e' arrivati (correzione dalla schermata della quantita'), per tornarci dopo il salvataggio.
@@ -154,7 +156,8 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
               {items.map((it) => {
                 const food = foods.find((f) => f.id === it.foodId);
                 return (
-                  <li key={it.id} className="flex items-center gap-2 py-2.5 px-1">
+                  <SwipeFoodRow key={it.id} id={it.id} name={it.name} open={openSwipe === it.id}
+                    onOpen={(open) => setOpenSwipe(open ? it.id : null)} onRemove={() => { setOpenSwipe(null); onRemove(it.id); }}>
                     <div className="min-w-0 flex-1">
                       <div className="text-sm font-semibold truncate">{it.name}</div>
                       <div className="text-[11px] text-neutral-400">
@@ -169,11 +172,12 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
                     <button aria-label="Elimina" onClick={() => onRemove(it.id)} className="p-2 text-neutral-400 hover:text-red-500">
                       <Trash2 size={16} />
                     </button>
-                  </li>
+                  </SwipeFoodRow>
                 );
               })}
             </ul>
           )}
+          {items.length > 0 && <p className="text-[10px] text-neutral-400 pt-2">Scorri una riga verso sinistra per eliminare. Uno swipe lungo la elimina subito; puoi annullare.</p>}
         </section>
 
         <section className="bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200/70 dark:border-neutral-800 p-3 space-y-3">

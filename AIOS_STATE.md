@@ -40,6 +40,8 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. Fase 4 (
 
 ## 3. Cosa funziona
 
+- [FACT] Swipe sugli alimenti del pasto (16/10/2026): breve da destra a sinistra scopre pulsante rosso Elimina, lungo oltre 60% riga (minimo 130px) elimina subito. Azioni esistenti Modifica/Elimina conservate. Scroll verticale e touchCancel non eliminano. Un solo swipe aperto per volta. Annulla per 7 secondi ripristina la voce nella posizione originale del giorno/pasto corretto, senza sovrascrivere altri cambiamenti o duplicarla. Browser touch CDP mobile locale: swipe, annullamento, persistenza cloud e riapertura riusciti; build ok, prova touch completa riuscita anche sul sito pubblico; utente temporaneo eliminato.
+
 - [FACT] Frase completa «fettina di vitello 200 g cotta pranzo»: inserimento AI diretto con Annulla, senza chiedere di ridigitare quantità/pasto. Ingredienti e macro completi, nessun avviso plausibilità, pasto riconosciuto dalla frase necessari per l'inserimento diretto. Preparazione AI cruda/cotta persistita in `Food.preparation`, nome e ID distinti; non riusa una voce cruda per una cotta o un vecchio AI ambiguo. 200 g cotti usano valori per 100 g da cotto senza seconda conversione. Macro AI restano stime e sono indicati come tali nel messaggio. In errore AI nessun ripiego sul parser parziale (evita macinato di vitello → manzo). Prova browser locale riuscita: frase reale, peso cotto, macro calcolati, Annulla, quantità mancante e errore503 senza aggiunta; prova completa sul sito pubblico riuscita, utente temporaneo eliminato.
 
 - [FACT] Ricerca USDA: da Cerca → «Cerca su USDA (alimenti generici)», query in italiano, 8.104 voci ufficiali complete (Foundation aprile 2026 + SR Legacy aprile 2018, CC0) incluse SOLO sul server. Query comuni deterministiche; altrimenti AI traduce query inglese e poi nomi italiani. Macro copiati dal record FDC validato, mai dal modello. Scheda con fonte/link/descrizione originale, crudo/cotto e % grassi mantenuti; scelta e conferma prima del salvataggio tra alimenti personali, quindi quantità e pasto. Alimento e alias italiano ritrovati sul secondo dispositivo senza ricerca esterna. Nessuna API key USDA né scraping ad ogni ricerca; aggiornamenti del catalogo richiedono nuova importazione e deploy. 30 test, build e prova completa Edge mobile locale riusciti; prova completa riuscita anche sul sito pubblico, con utente temporaneo poi eliminato. Endpoint autenticato, limiti in memoria 200/giorno globali e 40/utente per istanza, cache query 24 ore (non un limite globale distribuito). Scottona segnalata come categoria non distinta da USDA, risultati di manzo generico; niente falsa equivalenza. «Petto / fesa di tacchino (carne fresca, cruda)» chiarisce la vecchia voce locale senza cambiarne i valori.
@@ -99,6 +101,7 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. Fase 4 (
 
 | Problema | Causa vera | Soluzione |
 |---|---|---|
+| Eliminazione del cibo solo tramite icona, mancava il gesto mostrato dall’utente | Riga statica senza riconoscimento swipe e senza ripristino | SwipeFoodRow con blocco direzione, azione rossa e swipe lungo; Annulla ripristina singola voce, posizione e totali. Scroll verticale/touchCancel sicuri, prova touch/cloud locale riuscita. |
 | Frase AI completa sempre da confermare e rischio confusione crudo/cotto | aiEntries ignorava cotto nel riuso omonimo; App confermava sempre e ripiegava sul parser parziale in errore | Preparazione e ID distinti, riuso solo stessa preparazione, grammi senza doppia conversione; frase completa inserita con Annulla e stima AI; errore senza aggiunta parziale. |
 | Petto di tacchino e generici difficili da trovare | Catalogo base limitato, nome fesa ambiguo e ricerca online solo prodotti Open Food Facts | Nome locale chiarito; aggiunta ricerca USDA in italiano con descrizioni originali, 8.104 record ufficiali, scheda di conferma e salvataggio persistente sull’account. |
 | Primo accesso senza creazione profilo | Profilo e TDEE esistevano solo nelle impostazioni, senza passaggio iniziale; età scritta a mano | Schermata obbligatoria per profilo incompleto, birthDate con età calcolata, TDEE e calorie per obiettivo, salvataggio cloud prima del diario e modifica dalle impostazioni. Header adattato anche a 320 px. |
@@ -118,6 +121,8 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. Fase 4 (
 ---
 
 ## 8. Decisioni prese
+
+- **Swipe per eliminare come nell’altra app mostrata negli screenshot**, richiesta utente 16/10/2026: gesto da destra a sinistra. Implementati swipe breve con pulsante rosso, lungo diretto e Annulla per il recupero, mantenendo il tema NutriTrack.
 
 - **Frasi naturali complete da inserire direttamente**, richiesta utente 16/10/2026: «fettina di vitello 200 g cotta pranzo». Nessun obbligo di riformulare; pasto/quantità/qualificatori devono essere riconosciuti. Valori cotti separati dai crudi; niente promessa di esattezza assoluta per stime AI. Se mancano quantità/pasto o i valori sono da controllare si chiede conferma, negli altri casi Annulla disponibile.
 
@@ -166,21 +171,21 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. Fase 4 (
 
 **Modello:** Codex (GPT-6) · **Data:** 2026-10-16
 
-Utente chiarisce che vuole scrivere la frase naturale completa e ottenere l'inserimento,
-non istruzioni per formularla diversamente. Corretto il caso vitello200g cotto pranzo:
-preparazione persistita e ID/nome separati, nessun riuso di crudo come cotto, peso200g
-senza riconversione; frase completa con valori coerenti aggiunta direttamente con Annulla.
-Le stime restano esplicitamente AI; se quantità/pasto mancano o valori da controllare,
-resta il riepilogo. Errore AI non aggiunge più un sottoinsieme ambiguo dal parser locale.
-31 test e build riusciti, browser reale locale riuscito e utente temporaneo eliminato.
-Deploy manuale dpl_6sAj7LsECSkTTkD2UezJ8fB393ww READY; prova completa sul sito pubblico riuscita, utente temporaneo eliminato.
-Ricerca USDA e salvataggio già operativi; APK ancora da fare.
+Implementato swipe da destra a sinistra sugli alimenti del pasto, come richiesto negli
+screenshot: breve mostra Elimina rosso, lungo elimina direttamente; Annulla recupera
+la singola voce con ordine originale e aggiorna i totali. Scroll verticale e gesto
+cancellato non rimuovono nulla. Tap di modifica/eliminazione restano disponibili.
+Build e browser touch CDP mobile locale riusciti, inclusa persistenza su cloud dopo
+eliminazione/ripristino e riapertura; utente temporaneo e dati eliminati.
+Prima prova: gesto sulle icone escluso, corretto per farlo partire anche da destra.
+Deploy manuale dpl_3TE6WCq84Gmg4ipmEUiYfYVL1E9B READY; prova touch completa riuscita anche sul sito pubblico; utente temporaneo eliminato.
+Nessuna modifica server, database o dipendenza per questa funzione.
 
 ---
 
 ## 11. Prossimi passi
 
-1. [utente] Ricaricare NutriTrack, aprire un pasto → Cerca, scrivere il nome in italiano e premere «Cerca su USDA (alimenti generici)». Scegliere la variante, controllare e salvare: da quel momento resta fra i propri alimenti.
+1. [utente] Ricaricare NutriTrack, aprire un pasto con alimenti e provare lo swipe verso sinistra: breve scopre Elimina, lungo elimina subito; Annulla recupera la voce.
 2. Decidere con l'utente se nutritrack.redapp.dev deve puntare a Vercel (CNAME) e spegnere la copia sul PC, o restare sul PC.
 3. Valutare CIQUAL come ampliamento del catalogo USDA già disponibile; migliorare traduzioni e sinonimi con esempi reali.
 4. Fase 4: APK Android auto-aggiornante (modulo AI-OS) con permessi fotocamera/microfono e ricerca Open Food Facts nativa.
@@ -193,6 +198,7 @@ Ricerca USDA e salvataggio già operativi; APK ancora da fare.
 
 | Data | Modello | Cosa è stato fatto |
 |---|---|---|
+| 2026-10-16 | Codex (GPT-6) | Swipe breve/lungo per eliminare alimenti con azione rossa e Annulla; scroll verticale sicuro. Build e browser touch/cloud locale ok; prova touch completa riuscita anche sul sito pubblico; utente temporaneo eliminato. |
 | 2026-10-16 | Codex (GPT-6) | Frasi AI complete aggiunte direttamente con Annulla; distinzione persistita crudo/cotto e nessun fallback ambiguo in errore. 31 test/build/browser locale ok, prova completa sul sito pubblico riuscita, utente temporaneo eliminato. |
 | 2026-10-16 | Codex (GPT-6) | Ricerca USDA in italiano, 8.104 record ufficiali, fonte e scheda di conferma, salvataggio cloud e riutilizzo senza ricerca. Tacchino locale chiarito. 30 test/build/Edge mobile locale ok; prova completa riuscita anche sul sito pubblico, con utente temporaneo poi eliminato. |
 | 2026-10-16 | Codex (GPT-6) | Creazione profilo al primo accesso, data nascita ed età automatica, TDEE e calorie per tre obiettivi, salvataggio cloud con riprova e modifica manuale persistita. 27 test e build ok, Edge mobile locale ok. Deploy Vercel READY; prova browser completa riuscita anche sul sito pubblico. |

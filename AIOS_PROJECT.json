@@ -56,6 +56,6 @@
   "last_session": {
     "model": "Codex (GPT-6)",
     "date": "2026-10-16",
-    "summary": "Frasi AI complete inserite direttamente con Annulla, preparazioni crude/cotte separate e niente ripiego ambiguo in errore. 31 test/build/browser locale ok; prova completa sul sito pubblico riuscita, utente temporaneo eliminato."
+    "summary": "Swipe a sinistra sugli alimenti: azione rossa, swipe lungo diretto e Annulla con ripristino. Build e prova touch/cloud locale ok; prova touch completa riuscita anche sul sito pubblico; utente temporaneo eliminato."
   }
 }

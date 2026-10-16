@@ -340,7 +340,21 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
             toast(`Aggiunto: ${copies.map((i) => `${i.name.split(' (')[0]} ${i.label}`).join(' + ')}`);
           }}
           onUpdate={(itemId, food, p) => setMeal(openMeal, (l) => l.map((i) => (i.id === itemId ? buildItem(food, p, itemId) : i)))}
-          onRemove={(itemId) => setMeal(openMeal, (l) => l.filter((i) => i.id !== itemId))}
+          onRemove={(itemId) => {
+            const meal = openMeal;
+            const date = selected;
+            const index = day[meal].findIndex((i) => i.id === itemId);
+            const removed = day[meal][index];
+            if (!removed) return;
+            setMeal(meal, (l) => l.filter((i) => i.id !== itemId));
+            toast(`Eliminato: ${removed.name}`, false, { label: 'Annulla', run: () => update((d) => {
+              const log = getDay(d, date);
+              if (log[meal].some((i) => i.id === removed.id)) return d;
+              const items = [...log[meal]];
+              items.splice(Math.min(index, items.length), 0, removed);
+              return withDay(d, date, { ...log, [meal]: items });
+            }) });
+          }}
         />
       )}
       {quick && <QuickConfirm entries={quick.entries} meal={quick.meal} ai={quick.ai} dayLabel={longLabel(selected)} onClose={() => setQuick(null)} onConfirm={confirmQuick} />}
