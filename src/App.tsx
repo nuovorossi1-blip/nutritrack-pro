@@ -5,12 +5,13 @@ import { MEALS } from './types';
 import { buildItem, sumMacros, type Portion } from './lib/nutrition';
 import { allFoods, getDay, useAppData, useToday, withDay } from './lib/store';
 import { longLabel } from './lib/dates';
-import { mealFromHour, mealFromText, parseFoodText } from './lib/parser';
+import { mealFromText, parseFoodText, type ParsedEntry } from './lib/parser';
 import { DENIED_HELP } from './lib/permissions';
 import { DayStrip } from './components/DayStrip';
 import { Summary } from './components/Summary';
 import { MealSheet } from './components/MealSheet';
 import { SettingsModal } from './components/SettingsModal';
+import { QuickConfirm } from './components/QuickConfirm';
 
 interface Toast {
   id: number;
@@ -67,12 +68,19 @@ export default function App() {
       return withDay(d, selected, { ...log, [meal]: fn(log[meal]) });
     });
 
+  const [quick, setQuick] = useState<{ entries: ParsedEntry[]; meal: MealKey | null } | null>(null);
+
+  // Mai aggiungere alla cieca: pasto e quantita' si confermano nel riquadro.
   const addQuick = () => {
     const entries = parseFoodText(text, allFoods(data));
     if (!entries.length) return toast('Alimento non riconosciuto. Prova: "200g di pasta cotta a pranzo"', true);
-    const meal = mealFromText(text) || (selected === today ? mealFromHour(new Date().getHours()) : 'pranzo');
+    setQuick({ entries, meal: mealFromText(text) });
+  };
+
+  const confirmQuick = (entries: ParsedEntry[], meal: MealKey) => {
     const items = entries.map((e) => buildItem(e.food, e.portion));
     setMeal(meal, (l) => [...l, ...items]);
+    setQuick(null);
     setText('');
     toast(`Aggiunto a ${MEALS.find((m) => m.key === meal)!.label}: ${items.map((i) => i.label).join(' + ')}`);
   };
@@ -207,6 +215,7 @@ export default function App() {
           onRemove={(itemId) => setMeal(openMeal, (l) => l.filter((i) => i.id !== itemId))}
         />
       )}
+      {quick && <QuickConfirm entries={quick.entries} meal={quick.meal} dayLabel={longLabel(selected)} onClose={() => setQuick(null)} onConfirm={confirmQuick} />}
       {settings && <SettingsModal data={data} toast={toast} onClose={() => setSettings(false)} onSaveGoals={(g) => update((d) => ({ ...d, goals: g }))} onImport={(d) => update(() => d)} />}
 
       <div className="fixed bottom-4 inset-x-0 z-[60] flex flex-col items-center gap-2 pointer-events-none px-4">

@@ -8,32 +8,32 @@ import type { Portion } from './nutrition';
 interface Rule {
   word: RegExp;
   id: string;
+  /** Come si conta di solito (pezzi o grammi) quando la quantita' manca. */
   mode: QtyMode;
-  qty: number;
 }
 
 const RULES: Rule[] = [
-  { word: /^album[ei]$/, id: 'f_white', mode: 'pieces', qty: 3 },
-  { word: /^tuorl[oi]$/, id: 'f_yolk', mode: 'pieces', qty: 1 },
-  { word: /^uov[oa]$/, id: 'f_egg', mode: 'pieces', qty: 2 },
-  { word: /^poll[oi]$/, id: 'f3', mode: 'grams', qty: 200 },
-  { word: /^tacchin[oi]$/, id: 'f4', mode: 'grams', qty: 150 },
-  { word: /^(manzo|macinat[oa])$/, id: 'f5', mode: 'grams', qty: 150 },
-  { word: /^salmone$/, id: 'f6', mode: 'grams', qty: 180 },
-  { word: /^(merluzz[oi]|nasell[oi])$/, id: 'f7', mode: 'grams', qty: 200 },
-  { word: /^tonno$/, id: 'f8', mode: 'grams', qty: 80 },
-  { word: /^(riso|basmati)$/, id: 'f11', mode: 'grams', qty: 80 },
-  { word: /^(pasta|spaghetti|rigatoni|penne|fusilli|maccheroni|farfalle|linguine)$/, id: 'f12', mode: 'grams', qty: 80 },
-  { word: /^(avena|fiocchi)$/, id: 'f14', mode: 'grams', qty: 50 },
-  { word: /^pane$/, id: 'f16', mode: 'pieces', qty: 2 },
-  { word: /^patat[ae]$/, id: 'f17', mode: 'grams', qty: 200 },
-  { word: /^olio$/, id: 'f21', mode: 'pieces', qty: 1 },
-  { word: /^(arachidi|peanut)$/, id: 'f22', mode: 'pieces', qty: 1 },
-  { word: /^(mandorl[ae]|noci)$/, id: 'f23', mode: 'grams', qty: 30 },
-  { word: /^(yogurt|fage)$/, id: 'f26', mode: 'pieces', qty: 1 },
-  { word: /^latte$/, id: 'f27', mode: 'grams', qty: 200 },
-  { word: /^mel[ae]$/, id: 'f28', mode: 'pieces', qty: 1 },
-  { word: /^banan[ae]$/, id: 'f29', mode: 'pieces', qty: 1 },
+  { word: /^album[ei]$/, id: 'f_white', mode: 'pieces' },
+  { word: /^tuorl[oi]$/, id: 'f_yolk', mode: 'pieces' },
+  { word: /^uov[oa]$/, id: 'f_egg', mode: 'pieces' },
+  { word: /^poll[oi]$/, id: 'f3', mode: 'grams' },
+  { word: /^tacchin[oi]$/, id: 'f4', mode: 'grams' },
+  { word: /^(manzo|macinat[oa])$/, id: 'f5', mode: 'grams' },
+  { word: /^salmone$/, id: 'f6', mode: 'grams' },
+  { word: /^(merluzz[oi]|nasell[oi])$/, id: 'f7', mode: 'grams' },
+  { word: /^tonno$/, id: 'f8', mode: 'grams' },
+  { word: /^(riso|basmati)$/, id: 'f11', mode: 'grams' },
+  { word: /^(pasta|spaghetti|rigatoni|penne|fusilli|maccheroni|farfalle|linguine)$/, id: 'f12', mode: 'grams' },
+  { word: /^(avena|fiocchi)$/, id: 'f14', mode: 'grams' },
+  { word: /^pane$/, id: 'f16', mode: 'pieces' },
+  { word: /^patat[ae]$/, id: 'f17', mode: 'grams' },
+  { word: /^olio$/, id: 'f21', mode: 'pieces' },
+  { word: /^(arachidi|peanut)$/, id: 'f22', mode: 'pieces' },
+  { word: /^(mandorl[ae]|noci)$/, id: 'f23', mode: 'grams' },
+  { word: /^(yogurt|fage)$/, id: 'f26', mode: 'pieces' },
+  { word: /^latte$/, id: 'f27', mode: 'grams' },
+  { word: /^mel[ae]$/, id: 'f28', mode: 'pieces' },
+  { word: /^banan[ae]$/, id: 'f29', mode: 'pieces' },
 ];
 
 const NUMBER_WORDS: Record<string, number> = {
@@ -56,16 +56,11 @@ export function mealFromText(text: string): MealKey | null {
   return null;
 }
 
-export function mealFromHour(h: number): MealKey {
-  if (h < 11) return 'colazione';
-  if (h < 15) return 'pranzo';
-  if (h < 18) return 'spuntini';
-  return 'cena';
-}
-
 export interface ParsedEntry {
   food: Food;
   portion: Portion;
+  /** false se nella frase non c'e' nessuna quantita': va chiesta, non inventata. */
+  qtyGiven: boolean;
 }
 
 function findFood(words: string[], foods: Food[], phrase: string): { food: Food; rule?: Rule } | null {
@@ -105,11 +100,11 @@ export function parseFoodText(text: string, foods: Food[]): ParsedEntry[] {
     if (gramMatch) {
       portion = { mode: 'grams', qty: parseFloat(gramMatch[1].replace(',', '.')), cooked };
     } else if (food.pieceWeight && (mentionsUnit || rule?.mode === 'pieces' || (num !== undefined && num <= 10))) {
-      portion = { mode: 'pieces', qty: num ?? rule?.qty ?? 1, cooked };
+      portion = { mode: 'pieces', qty: num ?? 0, cooked };
     } else {
-      portion = { mode: 'grams', qty: num ?? rule?.qty ?? food.pieceWeight ?? 100, cooked };
+      portion = { mode: 'grams', qty: num ?? 0, cooked };
     }
-    out.push({ food, portion });
+    out.push({ food, portion, qtyGiven: !!gramMatch || num !== undefined });
   }
   return out;
 }

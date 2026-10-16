@@ -40,14 +40,14 @@ da sola all'accesso a Windows con l'attività pianificata "NutriTrack PRO locale
 - [FACT] Ogni giorno ha i suoi pasti e parte da 0; a mezzanotte, se si guarda "oggi", l'app passa da sola al giorno nuovo (provato simulando le 23:59:30 → 00:00:15). Il giorno prima resta consultabile.
 - [FACT] Riepilogo del giorno: anello kcal + carboidrati/proteine/grassi rispetto agli obiettivi.
 - [FACT] 4 pasti con dettaglio: aggiungi, modifica quantità (grammi/pezzi, crudo/cotto), elimina.
-- [FACT] Inserimento rapido a parole (parole chiave, NON AI) con dettatura: "200g di pasta cotta e 150g di pollo cotto a pranzo" → 95g + 203g crudi, 562 kcal. Parole intere: "panna", "melanzane", "olive" non vengono più scambiate. Numeri a parole ("due uova"). Pasto dal testo, altrimenti dall'ora.
+- [FACT] Inserimento rapido a parole (parole chiave, NON AI) con dettatura: "200g di pasta cotta e 150g di pollo cotto a pranzo" → 95g + 203g crudi, 562 kcal. Parole intere: "panna", "melanzane", "olive" non vengono più scambiate. Numeri a parole ("due uova"). Prima di aggiungere mostra un riepilogo: pasto e quantità si scelgono lì se la frase non li dice (mai indovinati).
 - [FACT] Frequenti per pasto calcolati dallo storico vero (conteggio + ultima porzione).
 - [FACT] Ricerca per nome su Open Food Facts (passa da /off-search: inoltro di Vite in locale, rewrite in vercel.json online) con prodotti completi e venduti in Italia in cima, schede doppie tolte; ricerca per codice a barre (world.openfoodfacts.org, diretta). Risposte in cache sul dispositivo 7 giorni.
 - [FACT] Prima di salvare un prodotto si vedono e correggono i valori (valori mancanti segnalati), peso porzione e "si cuoce?" (pasta/riso/carne/pesce) per pesarlo anche da cotto. Prova: codice 8076800195057 → Spaghetti n.5 Barilla 359 kcal.
 - [FACT] Fotocamera: scansione del codice a barre nel browser (ZXing caricato solo all'apertura, EAN-13/8, UPC, Code128), messaggi chiari se il permesso è bloccato. Provato con fotocamera simulata (EAN 8076800195057 → Spaghetti n.5) in locale e su nutritrack.redapp.dev.
 - [FACT] Impostazioni → Permessi: stato di fotocamera e microfono, pulsante Consenti (fa comparire la richiesta del browser), istruzioni se bloccati. Dettatura con errori spiegati (permesso negato, nessuna voce).
 - [FACT] Crea alimento a mano. Obiettivi con profili rapidi. Backup/ripristino JSON. Tema scuro. Azzera il giorno scelto (con conferma).
-- [FACT] Test: 12 test logica (giorni, crudo/cotto, parole, Open Food Facts, storico) ok; tsc ok; build ok; prova completa in Edge senza errori.
+- [FACT] Test: 13 test logica (giorni, crudo/cotto, parole, Open Food Facts, storico) ok; tsc ok; build ok; prova completa in Edge senza errori.
 
 ## 4. Cosa è in lavorazione
 
@@ -84,6 +84,7 @@ da sola all'accesso a Windows con l'attività pianificata "NutriTrack PRO locale
 | Pasti senza data, "azzera" cancellava tutto | Prototipo con un solo giorno | Dati per giorno `days[AAAA-MM-GG]`, azzera solo il giorno scelto (16/10). |
 | Sincronizzazione Supabase senza login (profilo scritto a mano, dati di tutti leggibili) | Prototipo Gemini | Tolta nella versione React; tornerà con login vero e RLS (fase 3). |
 | Ricerca per nome di Open Food Facts bloccata nel browser | search.openfoodfacts.org non manda l'intestazione CORS | Passa da `/off-search` (proxy Vite in locale, rewrite vercel.json online, nessuna funzione Vercel) (16/10). |
+| "petto di pollo" aggiunto subito a pranzo con 200g inventati (segnalato dall'utente) | Inserimento a parole: pasto dedotto dall'ora e quantità predefinita della regola | Riquadro "Controlla prima di aggiungere" (`QuickConfirm`): pasto da scegliere se non detto, quantità vuota da scrivere se non detta (grammi/pezzi, crudo/cotto), niente aggiunto finché non è chiaro. Test + prova su nutritrack.redapp.dev (16/10). |
 | Campo grammi: svuotandolo e scrivendo 100 usciva "0100" (segnalato dall'utente con screenshot dal telefono) | `<input type="number">` con valore forzato a 0 quando vuoto; toccando un campo già attivo il cursore restava in mezzo | `NumberInput`: testo libero (anche vuoto), selezione di tutto a ogni tocco, virgola = punto; usato in quantità, valori alimento, obiettivi. Provato: 100, 150, 75,5 e + (16/10). |
 | A mezzanotte l'app restava sul giorno vecchio | In `App.tsx` l'aggiornamento di setSelected leggeva il ref già cambiato | Valore precedente copiato prima; provato con orologio simulato (16/10). |
 
@@ -137,6 +138,7 @@ l'utente la provi e dica se procedere con la fase 2 (CIQUAL).
 
 | Data | Modello | Cosa è stato fatto |
 |---|---|---|
+| 2026-10-16 | Claude Opus 5.5 | Inserimento a parole con conferma: pasto e quantità mai indovinati |
 | 2026-10-16 | Claude Opus 5.5 | Corretto campo grammi "0100" (NumberInput) |
 | 2026-10-16 | Claude Opus 5.5 | Fotocamera per codici a barre + sezione Permessi (fotocamera/microfono) nella web app |
 | 2026-10-16 | Claude Opus 5.5 | Link di prova nutritrack.redapp.dev via tunnel Cloudflare pc-windows |

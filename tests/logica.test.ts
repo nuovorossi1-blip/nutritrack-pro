@@ -54,6 +54,11 @@ describe('inserimento a parole', () => {
       ['f16', 'pieces', 1],
     ]);
   });
+  it("senza quantità né pasto: non inventa niente", () => {
+    const r = parseFoodText('petto di pollo', BASE_FOODS);
+    expect(r.map((e) => [e.food.id, e.portion.qty, e.qtyGiven])).toEqual([['f3', 0, false]]);
+    expect(mealFromText('petto di pollo')).toBeNull();
+  });
   it('niente falsi riconoscimenti', () => {
     expect(parseFoodText('panna e melanzane con olive', BASE_FOODS)).toEqual([]);
   });
