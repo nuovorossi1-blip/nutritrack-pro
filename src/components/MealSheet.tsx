@@ -1,5 +1,5 @@
 import { useAndroidBack } from '../native/navigation';
-import { ArrowLeft, Barcode, Camera, MessageSquare, Pencil, PlusCircle, Search, Star, Trash2 } from 'lucide-react';
+import { ArrowLeft, Barcode, Camera, MessageSquare, PlusCircle, Search, Star } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
 import type { AppData, Food, MealItem, MealKey } from '../types';
 import { MEALS } from '../types';
@@ -189,20 +189,18 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
                 return (
                   <SwipeFoodRow key={it.id} id={it.id} name={it.name} open={openSwipe === it.id}
                     onOpen={(open) => setOpenSwipe(open ? it.id : null)} onRemove={() => { setOpenSwipe(null); onRemove(it.id); }}>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-sm font-semibold truncate">{it.name}</div>
-                      <div className="text-[11px] text-neutral-400">
-                        {it.label}
-                      </div>
-                    </div>
-                    <span className="text-sm font-bold whitespace-nowrap">{it.kcal} kcal</span>
-                    {food && (
-                      <button aria-label="Modifica" onClick={() => setPicking({ food, initial: { mode: it.mode, qty: it.qty, cooked: it.cooked, cookingYield: it.cookingYield }, itemId: it.id })} className="p-2 text-neutral-400 hover:text-blue-500">
-                        <Pencil size={16} />
-                      </button>
-                    )}
-                    <button aria-label="Elimina" onClick={() => onRemove(it.id)} className="p-2 text-neutral-400 hover:text-red-500">
-                      <Trash2 size={16} />
+                    <button
+                      type="button"
+                      aria-label={`Modifica ${it.name}, ${it.label}, ${it.kcal} kcal`}
+                      disabled={!food}
+                      onClick={() => { if (food) { setOpenSwipe(null); setPicking({ food, initial: { mode: it.mode, qty: it.qty, cooked: it.cooked, cookingYield: it.cookingYield }, itemId: it.id }); } }}
+                      className="flex flex-1 min-w-0 items-center justify-between gap-2 text-left py-1 disabled:cursor-default"
+                    >
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-sm font-semibold truncate">{it.name}</span>
+                        <span className="block text-[11px] text-neutral-400">{it.label}</span>
+                      </span>
+                      <span className="text-sm font-bold whitespace-nowrap">{it.kcal} kcal</span>
                     </button>
                   </SwipeFoodRow>
                 );
