@@ -20,13 +20,12 @@ export function DayStrip({ selected, today, daysWithData, onSelect, compact = fa
       <div className="flex min-w-0 flex-1 items-center justify-center gap-0.5" aria-label="Selezione giorno">
         {visible.map((d, i) => {
           const active = i === 1;
-          const future = d > today;
           return (
-            <button key={d} type="button" disabled={future}
+            <button key={d} type="button"
               aria-label={active ? `Apri calendario, ${longLabel(d)}` : `Vai a ${longLabel(d)}`}
               aria-current={active ? 'date' : undefined}
               onClick={() => active ? setCalendar(true) : onSelect(d)}
-              className={`relative min-w-0 flex-1 max-w-11 rounded-lg py-1 flex flex-col items-center justify-center leading-none disabled:opacity-25 ${active ? 'bg-[#f5b935] text-neutral-950' : 'text-neutral-300'}`}
+              className={`relative min-w-0 flex-1 max-w-11 rounded-lg py-1 flex flex-col items-center justify-center leading-none ${active ? 'bg-[#f5b935] text-neutral-950' : 'text-neutral-300'}`}
             >
               <span className="text-[8px] font-semibold truncate w-full text-center">{shortLabel(d, today)}</span>
               <span className="text-sm font-extrabold mt-0.5">{parseISO(d).getDate()}</span>
@@ -62,8 +61,7 @@ export function DayStrip({ selected, today, daysWithData, onSelect, compact = fa
         </div>
         <button
           aria-label="Giorno successivo"
-          disabled={selected >= today}
-          onClick={() => onSelect(addDays(selected, 1))}
+                    onClick={() => onSelect(addDays(selected, 1))}
           className="w-7 h-9 sm:w-9 shrink-0 rounded-full flex items-center justify-center text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-30"
         >
           <ChevronRight size={18} />
