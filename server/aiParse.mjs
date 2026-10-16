@@ -132,6 +132,26 @@ async function callModel(frase, apiKey, model, wait) {
   }
 }
 
+/**
+ * Con Supabase configurato l'AI e' solo per utenti registrati: il token di accesso
+ * dell'app viene controllato da Supabase (GET /auth/v1/user). Ritorna l'id utente o null.
+ */
+export async function verifyUser(authHeader, env) {
+  const url = env.SUPABASE_URL || env.VITE_SUPABASE_URL;
+  const anon = env.SUPABASE_ANON_KEY || env.VITE_SUPABASE_ANON_KEY;
+  if (!url || !anon) return 'senza-login';
+  const token = String(authHeader || '').replace(/^Bearer\s+/i, '');
+  if (!token) return null;
+  try {
+    const res = await fetch(`${url}/auth/v1/user`, { headers: { apikey: anon, Authorization: `Bearer ${token}` } });
+    if (!res.ok) return null;
+    const user = await res.json();
+    return user?.id || null;
+  } catch {
+    return null;
+  }
+}
+
 export function aiConfig(env) {
   return {
     apiKey: env.OPENROUTER_API_KEY || env.OPENROUTER_KEY_NUOVOROSSI1_GMAIL_COM || '',

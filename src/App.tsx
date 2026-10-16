@@ -1,6 +1,7 @@
 import { Flame, Mic, Moon, Plus, RotateCcw, Sun, Target, Wand2 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { Food, MealItem, MealKey } from './types';
+import type { AppData, Food, MealItem, MealKey } from './types';
+import { saveDiff } from './lib/cloud';
 import { MEALS } from './types';
 import { buildItem, newId, sumMacros, type Portion } from './lib/nutrition';
 import { allFoods, getDay, useAppData, useToday, withDay } from './lib/store';
@@ -29,8 +30,33 @@ type SpeechCtor = new () => {
   start: () => void;
 };
 
-export default function App() {
-  const [data, update] = useAppData();
+interface AppProps {
+  initial?: AppData;
+  storageKey?: string;
+  userId?: string;
+  email?: string;
+  onLogout?: () => void;
+}
+
+export default function App({ initial, storageKey, userId, email, onLogout }: AppProps) {
+  const [data, update] = useAppData(initial, storageKey);
+  // Salvataggio nel cloud: solo le differenze, 1,5 s dopo l'ultima modifica.
+  const [sync, setSync] = useState<'ok' | 'salvo' | 'errore'>('ok');
+  const saved = useRef<AppData | null>(initial || null);
+  useEffect(() => {
+    if (!userId || data === saved.current) return;
+    setSync('salvo');
+    const t = setTimeout(() => {
+      const snapshot = data;
+      saveDiff(userId, saved.current, snapshot)
+        .then(() => {
+          saved.current = snapshot;
+          setSync('ok');
+        })
+        .catch(() => setSync('errore'));
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [data, userId]);
   const today = useToday();
   const [selected, setSelected] = useState(today);
   const [openMeal, setOpenMeal] = useState<MealKey | null>(null);
@@ -158,6 +184,11 @@ export default function App() {
             </div>
             <div>
               <h1 className="text-lg font-extrabold tracking-tight whitespace-nowrap text-neutral-900 dark:text-white">NutriTrack PRO</h1>
+              {userId && (
+                <p className={`text-[10px] font-semibold ${sync === 'errore' ? 'text-red-500' : 'text-neutral-400'}`}>
+                  {sync === 'ok' ? '☁ Salvato' : sync === 'salvo' ? '☁ Salvataggio…' : '⚠ Non salvato: controlla la rete'}
+                </p>
+              )}
               <p className="hidden sm:block text-[11px] text-neutral-400 font-medium">Pasti, macro, crudo/cotto</p>
             </div>
           </div>
@@ -268,7 +299,7 @@ export default function App() {
         />
       )}
       {quick && <QuickConfirm entries={quick.entries} meal={quick.meal} ai={quick.ai} dayLabel={longLabel(selected)} onClose={() => setQuick(null)} onConfirm={confirmQuick} />}
-      {settings && <SettingsModal data={data} toast={toast} onClose={() => setSettings(false)} onSaveProfile={(profile, goals) => update((d) => ({ ...d, profile, goals }))} onImport={(d) => update(() => d)} />}
+      {settings && <SettingsModal data={data} email={email} userId={userId} onLogout={onLogout} toast={toast} onClose={() => setSettings(false)} onSaveProfile={(profile, goals) => update((d) => ({ ...d, profile, goals }))} onImport={(d) => update(() => d)} />}
 
       <div className="fixed bottom-4 inset-x-0 z-[60] flex flex-col items-center gap-2 pointer-events-none px-4">
         {toasts.map((t) => (

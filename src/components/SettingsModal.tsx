@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { DENIED_HELP, permissionState, requestPermission, type Device, type PermState } from '../lib/permissions';
 import type { AppData, Goals, Profile } from '../types';
 import { ProfileGoals } from './ProfileGoals';
+import { deleteMyData } from '../lib/cloud';
 
 interface Props {
   data: AppData;
@@ -10,9 +11,12 @@ interface Props {
   onImport: (d: AppData) => void;
   onClose: () => void;
   toast: (msg: string, error?: boolean) => void;
+  email?: string;
+  userId?: string;
+  onLogout?: () => void;
 }
 
-export function SettingsModal({ data, onSaveProfile, onImport, onClose, toast }: Props) {
+export function SettingsModal({ data, onSaveProfile, onImport, onClose, toast, email, userId, onLogout }: Props) {
   const [perm, setPerm] = useState<Record<Device, PermState>>({ camera: 'unknown', microphone: 'unknown' });
   useEffect(() => {
     Promise.all([permissionState('camera'), permissionState('microphone')]).then(([camera, microphone]) => setPerm({ camera, microphone }));
@@ -93,9 +97,37 @@ export function SettingsModal({ data, onSaveProfile, onImport, onClose, toast }:
           {(perm.camera === 'denied' || perm.microphone === 'denied') && <p className="text-[11px] text-red-500 mt-1">{DENIED_HELP}</p>}
         </div>
 
+        {userId && (
+          <div className="border-t border-neutral-100 dark:border-neutral-800 pt-4 space-y-2">
+            <h4 className="text-sm font-extrabold">Account</h4>
+            <p className="text-xs text-neutral-500">Accesso come <b>{email}</b>. I dati sono salvati sul tuo account e li ritrovi su ogni dispositivo.</p>
+            <div className="flex gap-2">
+              <button onClick={onLogout} className="flex-1 text-xs font-bold rounded-xl py-2.5 bg-neutral-100 dark:bg-neutral-800">
+                Esci
+              </button>
+              <button
+                onClick={async () => {
+                  if (!window.confirm('Cancellare TUTTI i tuoi dati (pasti, alimenti, profilo)? Non si può annullare.')) return;
+                  try {
+                    await deleteMyData(userId);
+                    toast('Dati cancellati');
+                    onLogout?.();
+                  } catch (e) {
+                    toast((e as Error).message, true);
+                  }
+                }}
+                className="flex-1 text-xs font-bold rounded-xl py-2.5 bg-red-600/10 text-red-500"
+              >
+                Cancella i miei dati
+              </button>
+            </div>
+            <p className="text-[10px] text-neutral-400">Per chiudere anche l'account scrivi a smaugdrago@gmail.com.</p>
+          </div>
+        )}
+
         <div className="border-t border-neutral-100 dark:border-neutral-800 pt-4">
           <h4 className="text-sm font-extrabold">Backup dei dati</h4>
-          <p className="text-xs text-neutral-500 mt-1">Per ora i dati stanno solo in questo browser. Con il login verranno salvati sul tuo account.</p>
+          <p className="text-xs text-neutral-500 mt-1">Scarica una copia dei tuoi dati (file JSON) o ripristinala.</p>
           <div className="flex gap-2 mt-3">
             <button onClick={exportBackup} className="flex-1 flex items-center justify-center gap-1.5 text-xs font-bold rounded-xl py-2.5 bg-neutral-100 dark:bg-neutral-800">
               <Download size={14} /> Scarica backup

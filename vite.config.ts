@@ -1,8 +1,8 @@
-import { defineConfig, type Plugin } from 'vite';
+import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 // @ts-expect-error modulo JS del server, senza tipi
-import { aiConfig, aiParse } from './server/aiParse.mjs';
+import { aiConfig, aiParse, verifyUser } from './server/aiParse.mjs';
 
 // La ricerca per nome di Open Food Facts (search.openfoodfacts.org) non
 // accetta richieste dirette dal browser (niente CORS): passa da /off-search.
@@ -18,7 +18,7 @@ const offProxy = {
 
 // POST /api/ai-parse sul PC (su Vercel lo stesso percorso e' api/ai-parse.js).
 // La chiave OpenRouter si legge dall'ambiente del processo, mai dal browser.
-function aiEndpoint(): Plugin {
+function aiEndpoint(env: Record<string, string>): Plugin {
   const handler = (req: IncomingMessage, res: ServerResponse, next: () => void) => {
     if (req.url !== '/api/ai-parse' || req.method !== 'POST') return next();
     let body = '';
@@ -33,7 +33,13 @@ function aiEndpoint(): Plugin {
       } catch {
         /* corpo non valido: frase vuota */
       }
-      const ip = String(req.headers['cf-connecting-ip'] || req.socket.remoteAddress || 'locale');
+      const user = await verifyUser(req.headers.authorization, env);
+      if (!user) {
+        res.statusCode = 401;
+        res.setHeader('Content-Type', 'application/json; charset=utf-8');
+        return res.end(JSON.stringify({ errore: "Accedi per usare l'AI" }));
+      }
+      const ip = String(user !== 'senza-login' ? user : req.headers['cf-connecting-ip'] || req.socket.remoteAddress || 'locale');
       const out = await aiParse(text, { ...aiConfig(process.env), ip });
       res.statusCode = out.status;
       res.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -47,9 +53,9 @@ function aiEndpoint(): Plugin {
   };
 }
 
-export default defineConfig({
-  plugins: [react(), aiEndpoint()],
+export default defineConfig(({ mode }) => ({
+  plugins: [react(), aiEndpoint(loadEnv(mode, process.cwd(), 'VITE_'))],
   server: { port: 5180, strictPort: true, proxy: offProxy },
   // allowedHosts: l'app arriva anche dal tunnel Cloudflare (nutritrack.redapp.dev).
   preview: { port: 5180, strictPort: true, host: '127.0.0.1', allowedHosts: ['nutritrack.redapp.dev'], proxy: offProxy },
-});
+}));

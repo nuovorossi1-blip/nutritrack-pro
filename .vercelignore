@@ -1,0 +1,7 @@
+.env*
+prototipo
+tests
+node_modules
+dist
+scripts
+*.log

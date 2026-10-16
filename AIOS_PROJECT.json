@@ -26,20 +26,36 @@
     "language": "TypeScript",
     "framework": "React 18 + Vite 5 (Capacitor per l'APK, fase 4)",
     "styling": "Tailwind 3",
-    "database": "per ora localStorage; fase 3 Supabase (account smaugdrago@gmail.com)",
-    "auth": "fase 3: supabase-auth con conferma mail + accettazione privacy/condizioni"
+    "database": "Supabase nutritrack-pro (ref vlikdzmixlhlrxjovrlg, eu-central-1, account smaugdrago@gmail.com) + copia locale",
+    "auth": "supabase-auth: email+password con conferma via email, privacy/condizioni e consenso dati salute alla registrazione"
   },
   "deploy": {
-    "provider": "vercel (fase 3); ora locale sul PC http://127.0.0.1:5180 (attivita' 'NutriTrack PRO locale')",
-    "site_url": "non ancora pubblicato",
-    "site_id": "",
+    "provider": "vercel (team Decisione, account smaugdrago@gmail.com, progetto nutritrack-pro); copia anche sul PC via tunnel Cloudflare",
+    "site_url": "https://nutritrack-pro-zeta.vercel.app",
+    "site_id": "prj_TiOVBVDkN4bqm9JAoet7oI9nTQ5F",
     "auto_deploy_on_push": false
   },
-  "secrets_required": [],
+  "secrets_required": [
+    {
+      "name": "VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY",
+      "where": "Vercel (progetto nutritrack-pro) e .env.local sul PC",
+      "purpose": "collegamento al database (chiave pubblica)"
+    },
+    {
+      "name": "SUPABASE_URL / SUPABASE_ANON_KEY",
+      "where": "Vercel",
+      "purpose": "la funzione dell'AI controlla che l'utente sia registrato"
+    },
+    {
+      "name": "OPENROUTER_API_KEY",
+      "where": "Vercel (sensitive); sul PC la variabile utente OPENROUTER_KEY_NUOVOROSSI1_GMAIL_COM",
+      "purpose": "AI dell'inserimento a parole"
+    }
+  ],
   "_secrets_note": "Nessun segreto nel repository. URL e chiave pubblica Supabase, se usati, li inserisce l'utente nella finestra Cloud Sync e restano nel suo browser.",
   "last_session": {
     "model": "Claude Opus 5.5",
     "date": "2026-10-16",
-    "summary": "Fase 1: app React sul PC con giorni, pasti, Open Food Facts, storico; 12 test ok."
+    "summary": "Fase 3: login, cloud Supabase con RLS, Vercel. Manca SMTP Gmail per le email agli utenti esterni."
   }
 }

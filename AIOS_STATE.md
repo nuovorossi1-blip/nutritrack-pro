@@ -25,12 +25,13 @@ storico per giorno. Online su Vercel + Supabase (account smaugdrago@gmail.com).
 
 ## 2. Dove siamo adesso
 
-Fase 1 di 4 FATTA (16/10/2026): app React + TypeScript + Vite che gira su
-questo PC. Dati salvati nel browser del PC, nessun login ancora.
+Fase 1 FATTA e fase 3 (login + cloud + Vercel) FATTA il 16/10/2026, con un limite aperto:
+le email di conferma arrivano solo agli indirizzi del team Supabase finché non si collega
+la casella Gmail (SMTP) — vedi problemi aperti. Fase 2 (CIQUAL) e fase 4 (APK) da fare.
 
-**Sul PC:** http://127.0.0.1:5180 (icona "NutriTrack PRO" sul Desktop; si avvia
-da sola all'accesso a Windows con l'attività pianificata "NutriTrack PRO locale").
-**Link di prova:** https://nutritrack.redapp.dev (tunnel Cloudflare 'pc-windows' → questo PC, porta 5180; temporaneo fino a Vercel).
+**Online (Vercel, account smaugdrago@gmail.com, team Decisione):** https://nutritrack-pro-zeta.vercel.app
+**Sul PC (stessa app e stesso database):** https://nutritrack.redapp.dev (tunnel Cloudflare) e http://127.0.0.1:5180
+**Database:** Supabase `nutritrack-pro` ref `vlikdzmixlhlrxjovrlg` (org ugwvopmwgayvxvqlroen, eu-central-1, piano free).
 
 ---
 
@@ -53,6 +54,7 @@ da sola all'accesso a Windows con l'attività pianificata "NutriTrack PRO locale
 - [FACT] Riepilogo come lo screenshot dell'utente del 16/10: titolo «Riepilogo», Mangiate · arco di 270° con Rimanenti (oro) · Eccesso; sotto barre Carboidrati (oro) / Proteine (blu) / Grassi (bianco) con «x / y g». Oltre l'obiettivo: Rimanenti 0, arco pieno rosso, Eccesso «+N» rosso, bordo rosso e frase «Hai superato l'obiettivo di N kcal (X%)»; macro oltre l'obiettivo con barra rossa e «+N g». «Bruciate» tolto su richiesta dell'utente (non esiste un conteggio dell'attività).
 - [FACT] Frequenti del pasto: + blu che aggiunge subito stesso alimento e stessa quantità dell'ultima volta (tocco sul nome = cambia quantità) e riquadro «↻ Ripeti <pasto> di <giorno>» che copia l'ultimo pasto dello stesso tipo (`lastMealBefore`). Provato: ieri 60 g riso + 200 g pollo → oggi + riso = 60 g 213 kcal; Ripeti = riso 60 g + pollo 200 g.
 - [FACT] Piatti e marche (frasi utente 16/10): istruzioni AI = piatti unici non divisi («pizza tonno e cipolle» un solo elemento), nome con tipo/marca («cornetto (bar)» ≠ «Cornetto Algida (gelato)»), pizza senza «fetta» = intera 330 g. Nel riconoscimento locale i nomi salvati con «e/con» vengono protetti prima di dividere la frase (`protectNames`), così «una pizza tonno e cipolle» la seconda volta si aggiunge subito senza AI. Server: secondo tentativo automatico se OpenRouter non risponde in 12 s. Provato: pizza tonno e cipolle 825 kcal, cornetto bar 240, Cornetto Algida 150, seconda pizza aggiunta in 0,3 s.
+- [FACT] Fase 3: login Supabase (email + password ≥ 8, conferma via email obbligatoria, «password dimenticata» e nuova password), registrazione con spunte obbligatorie per privacy + condizioni d'uso e consenso ai dati sulla salute (salvati in `profiles.accepted_terms_at / terms_version / health_consent_at` dal trigger `nuovo_utente`), testi in `src/components/Legal.tsx` (da far rivedere al titolare, non consulenza legale). Dati per utente in `profiles` / `day_logs` / `foods` con RLS (`supabase/schema.sql`); salvataggio solo delle differenze 1,5 s dopo l'ultima modifica (`src/lib/cloud.ts`), indicatore «☁ Salvato»; copia locale per utente; al primo accesso i dati della fase 1 del dispositivo vengono portati nel cloud una volta. Impostazioni → Account: Esci, Cancella i miei dati. AI solo per utenti registrati (token verificato da Supabase, limite per utente). Verificato il 16/10 con 2 utenti di prova (poi cancellati): dati ritrovati dopo aver svuotato il browser, utente 2 non vede né può scrivere i dati dell'utente 1 (RLS 403), senza login 0 righe, AI 401 senza login o con token falso; stesse prove su Vercel.
 - [FACT] Profilo (nome, sesso, età, peso, altezza, attività: sedentario / 1-3 / 3-5 / 6-7 allenamenti / atleta / altro con mantenimento a mano) → metabolismo basale (Mifflin-St Jeor) e mantenimento (× 1,2-1,9), `src/lib/metabolism.ts`. Esempio provato: uomo 35 anni 80 kg 180 cm 1-3 allenamenti → basale 1755, mantenimento 2410.
 - [FACT] Obiettivo Dieta (-20%) / Mantenimento / Massa (+10%): calorie e macro suggeriti (proteine 2,2/1,8/2 g per kg, grassi 25%, carboidrati il resto). Calorie modificabili; l'utente scrive due macro e sceglie quale è «auto» (calcolato dalle kcal): 2000 kcal, 200 P, 200 C → grassi 44 g. Avviso se i due macro superano le kcal. Riquadro "Completa il tuo profilo" finché manca; nel riepilogo «Ciao Nome · Dieta».
 - [FACT] Crea alimento a mano. Obiettivi con profili rapidi. Backup/ripristino JSON. Tema scuro. Azzera il giorno scelto (con conferma).
@@ -75,7 +77,7 @@ da sola all'accesso a Windows con l'attività pianificata "NutriTrack PRO locale
 
 | # | Problema | Da quando | Cosa si è già provato |
 |---|---|---|---|
-| 1 | Dati solo nel browser del PC: cambiando browser o pulendo i dati del sito si perdono. | 2026-10-16 | Backup JSON nelle impostazioni; si risolve con il login (fase 3). |
+| 1 | Email di conferma/nuova password: senza SMTP proprio Supabase le manda SOLO agli indirizzi del team (smaugdrago@gmail.com), max poche all'ora, e non permette testi in italiano. Gli altri utenti NON possono completare la registrazione. | 2026-10-16 | Aggiunta la voce «14) Gmail» a Collega account (password per le app di Google, prova di invio). Quando l'utente l'ha fatta: impostare SMTP smtp.gmail.com:587 su Supabase (PATCH config/auth smtp_*) e i testi italiani delle email (già pronti, rifiutati senza SMTP). |
 | 2 | Molti prodotti Open Food Facts senza peso porzione (es. Fage Total 0 → 100g). | 2026-10-16 | Campo "peso porzione" modificabile prima di salvare. |
 | 3 | Valori Open Food Facts a volte poco credibili (es. "tonno rio mare" 403 kcal/100 g). | 2026-10-16 | Avviso «⚠ valori da controllare» aggiunto il 16/10 (vedi sezione 3); i dati restano quelli di OFF, li corregge l'utente. Ordine dei risultati non ancora influenzato dall'avviso. |
 | 4 | Dettatura non provabile senza telefono vero (nel browser di prova: "Microfono non disponibile"). | 2026-10-16 | Da provare sul telefono con Chrome. |
@@ -115,6 +117,8 @@ da sola all'accesso a Windows con l'attività pianificata "NutriTrack PRO locale
 - **Poche richieste a Vercel/Supabase** — motivo: l'utente non vuole problemi di limiti. Ricerca alimenti mai tramite funzioni Vercel (solo rewrite), CIQUAL dentro l'app, cache locale delle ricerche; Supabase solo per i dati utente con salvataggi raggruppati — data: 2026-10-16
 - **Tema stile PronoBlast scuro (scuro predefinito): sfondo nero (neutral-950), schede neutral-900, testi bianchi; sfumatura ORO (`bg-gold`, colori `gold-*` in tailwind.config.js: giorno scelto, logo, anello kcal, kcal rimaste, carboidrati) e sfumatura BLU (`bg-blu`: pulsanti, proteine); grassi bianchi; rosso solo per errori e "oltre l'obiettivo".** Sostituisce la regola precedente blu/giallo/verde (richiesta utente del 16/10 pomeriggio). Non usare verde, indigo, violet, slate, amber, sky, emerald — data: 2026-10-16
 - **AI dell'inserimento: OpenRouter `openai/gpt-4o-mini` dal server, ok utente del 16/10 alla spesa** — motivo: nel test utente gpt-4.1-nano leggeva "90 g di pasta al pomodoro" come piatto cotto (135 kcal invece di ~320), perdeva alimenti e a volte non rispondeva; gpt-4o-mini corretto su 4 frasi di prova a ~1/3 del costo di gpt-4.1-mini/gemini-2.5-flash. DeepSeek V4 Flash troppo lento (7-20 s), Gemini 2.5 Flash Lite JSON non leggibile. Istruzioni: pasta/riso con condimento = due voci, grammi di pasta/riso senza «cotto» = a crudo, peso porzione sempre indicato. Su Vercel (fase 3) impostare `OPENROUTER_API_KEY` e, con il login, permettere l'AI solo agli utenti registrati — data: 2026-10-16
+- **Fase 3 su account smaugdrago@gmail.com**: Supabase nell'organizzazione «smaugdrago@gmail.com's Org» (free), regione Francoforte; Vercel team «Decisione», progetto `nutritrack-pro` (prj_TiOVBVDkN4bqm9JAoet7oI9nTQ5F). Pubblicazione con Vercel CLI dal PC (`.vercel/project.json`, token in `VERCEL_TOKEN_SMAUGDRAGO_GMAIL_COM`): il repository GitHub è di nuovorossi1-blip, quindi NIENTE pubblicazione automatica al push — data: 2026-10-16
+- **Chiave OpenRouter dell'AI su Vercel = quella di nuovorossi1 (OPENROUTER_API_KEY, tipo sensitive)**, già approvata dall'utente per l'AI — data: 2026-10-16
 - **Account nuovo per Vercel + Supabase: smaugdrago@gmail.com**, collegato dall'utente con "Collega account" — data: 2026-10-16
 
 ---
@@ -126,6 +130,10 @@ da sola all'accesso a Windows con l'attività pianificata "NutriTrack PRO locale
 - Nell'APK (fase 4) `/off-search` non esiste: usare la richiesta nativa di Capacitor verso search.openfoodfacts.org.
 - I giorni sono in ora locale (`src/lib/dates.ts`): non usare `toISOString()` per la data del giorno (darebbe il giorno UTC).
 - Fotocamera e microfono funzionano solo su HTTPS (nutritrack.redapp.dev) o su 127.0.0.1: aprendo l'app da un indirizzo http qualsiasi il browser non li concede.
+- Variabili: sul PC `.env.local` (non in git) con VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY (chiave pubblica); su Vercel VITE_SUPABASE_*, SUPABASE_URL, SUPABASE_ANON_KEY, OPENROUTER_API_KEY. `.vercelignore` esclude `.env*`. La password del database è solo nella variabile utente `SUPABASE_DBPASS_NUTRITRACK` (non serve all'app).
+- La chiave segreta Supabase (service_role / sb_secret) NON va mai nell'app né su Vercel: l'app usa solo la chiave pubblica + RLS. Le chiavi sb_secret vengono rifiutate se usate da un browser.
+- Su Supabase free i testi delle email non si possono cambiare senza SMTP proprio (errore 400 «Email template modification is not available...»).
+- Il server MCP `supabase-smaugdrago-gmail-com` non si collegava nella sessione del 16/10 (401 «JWT could not be decoded»), mentre la Management API col token funzionava: probabile sessione avviata prima che la variabile esistesse; riprovare in una chat nuova.
 - `vite.config.ts` contiene anche l'endpoint /api/ai-parse (plugin `nutritrack-ai`): funziona sia con `npm run dev` sia con `vite preview`; cambiando `server/aiParse.mjs` o `vite.config.ts` va riavviato il server locale (non basta la build). Il processo deve avere la variabile della chiave OpenRouter nell'ambiente (l'attività pianificata la eredita dall'utente).
 - Il server locale ascolta solo su 127.0.0.1; dall'esterno arriva da nutritrack.redapp.dev (regola nel tunnel Cloudflare 'pc-windows', gestito dal pannello Cloudflare, + CNAME). Vite rifiuta indirizzi sconosciuti: il nome sta in `preview.allowedHosts` di vite.config.ts. Se il PC è spento il link non risponde.
 
@@ -135,18 +143,20 @@ da sola all'accesso a Windows con l'attività pianificata "NutriTrack PRO locale
 
 **Modello:** Claude Opus 5.5 · **Data:** 2026-10-16
 
-Fase 1 completata e verificata (test, build, prova in Edge, mezzanotte
-simulata), in funzione sul PC su http://127.0.0.1:5180. In attesa che
-l'utente la provi e dica se procedere con la fase 2 (CIQUAL).
+Fase 3 pubblicata su https://nutritrack-pro-zeta.vercel.app e verificata con utenti di prova
+(cancellati: database vuoto). Manca solo l'SMTP: in attesa che l'utente usi «Collega account →
+14) Gmail» con smaugdrago@gmail.com; poi configurare SMTP + testi italiani su Supabase e provare
+una registrazione vera.
 
 ---
 
 ## 11. Prossimi passi
 
-1. L'utente prova l'app sul PC (icona "NutriTrack PRO" sul Desktop) e segnala cosa cambiare.
-2. Fase 2: scaricare CIQUAL, tradurre i nomi in italiano, inserirlo nell'app con crudo/cotto e fonte citata; USDA come riserva.
-3. Fase 3: quando l'utente ha collegato smaugdrago@gmail.com con "Collega account": progetto Supabase (auth con conferma mail, tabelle per utente con RLS, accettazione privacy/condizioni salvata), progetto Vercel con rewrite /off-search.
-4. Fase 4: APK Android auto-aggiornante + fotocamera per i codici a barre.
+1. [utente] «Collega account» → 14) Gmail con smaugdrago@gmail.com (password per le app). Poi [AI]: SMTP su Supabase (smtp.gmail.com:587, mittente «NutriTrack PRO»), testi email italiani, prova di registrazione vera.
+2. Decidere con l'utente se nutritrack.redapp.dev deve puntare a Vercel (CNAME) e spegnere la copia sul PC, o restare sul PC.
+3. Fase 2: CIQUAL in italiano negli alimenti di base.
+4. Fase 4: APK Android auto-aggiornante (modulo AI-OS) con permessi fotocamera/microfono e ricerca Open Food Facts nativa.
+5. Rivedere con l'utente i testi di privacy e condizioni (titolare, contatti).
 
 ---
 
@@ -154,6 +164,7 @@ l'utente la provi e dica se procedere con la fase 2 (CIQUAL).
 
 | Data | Modello | Cosa è stato fatto |
 |---|---|---|
+| 2026-10-16 | Claude Opus 5.5 | Fase 3: Supabase (tabelle + RLS + login con conferma email + privacy/consensi), salvataggio cloud, AI solo registrati, pubblicazione Vercel; voce Gmail in Collega account |
 | 2026-10-16 | Claude Opus 5.5 | AI: piatti unici, marche, pizza intera; nomi salvati con «e» protetti; secondo tentativo |
 | 2026-10-16 | Claude Opus 5.5 | «Bruciate» sostituito da «Eccesso» in rosso oltre l'obiettivo |
 | 2026-10-16 | Claude Opus 5.5 | Riepilogo Mangiate/Rimanenti/Bruciate con arco; + rapido sui frequenti e «Ripeti l'ultimo pasto» |

@@ -3,9 +3,9 @@ import type { AppData, DayLog, Food, MealItem, MealKey } from '../types';
 import { BASE_FOODS } from '../data/baseFoods';
 import { msToMidnight, todayISO } from './dates';
 
-// Per ora i dati restano nel browser (fase 1). Con il login (fase 3)
-// lo stesso AppData verra' salvato su Supabase per ogni utente.
-const KEY = 'nutritrack:data:v1';
+// Copia locale dei dati (anche senza rete). Con il login la chiave e' per utente
+// ("nutritrack:data:v1:<id>") e il cloud (src/lib/cloud.ts) e' la fonte principale.
+export const LOCAL_KEY = 'nutritrack:data:v1';
 
 export const DEFAULT_GOALS = { kcal: 2000, carbs: 200, pro: 150, fats: 60 };
 
@@ -13,9 +13,9 @@ export function emptyDay(): DayLog {
   return { colazione: [], pranzo: [], cena: [], spuntini: [] };
 }
 
-export function loadData(): AppData {
+export function loadData(key = LOCAL_KEY): AppData {
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(key);
     if (raw) {
       const d = JSON.parse(raw) as AppData;
       if (d && d.version === 1) return { ...d, goals: d.goals || DEFAULT_GOALS, days: d.days || {}, foods: d.foods || [], dark: d.themeV2 ? d.dark : true, themeV2: true };
@@ -26,9 +26,9 @@ export function loadData(): AppData {
   return { version: 1, goals: DEFAULT_GOALS, days: {}, foods: [], dark: true, themeV2: true };
 }
 
-export function saveData(d: AppData) {
+export function saveData(d: AppData, key = LOCAL_KEY) {
   try {
-    localStorage.setItem(KEY, JSON.stringify(d));
+    localStorage.setItem(key, JSON.stringify(d));
   } catch {
     /* spazio pieno */
   }
@@ -79,9 +79,15 @@ export function frequentFor(d: AppData, meal: MealKey, limit = 8): Frequent[] {
   return [...map.values()].sort((a, b) => b.count - a.count).slice(0, limit);
 }
 
-export function useAppData() {
-  const [data, setData] = useState<AppData>(loadData);
-  useEffect(() => saveData(data), [data]);
+/** Ci sono dati locali della fase 1 (prima del login)? */
+export function hasLocalData(key = LOCAL_KEY): boolean {
+  const d = loadData(key);
+  return Object.keys(d.days).length > 0 || d.foods.length > 0 || !!d.profile;
+}
+
+export function useAppData(initial?: AppData, key = LOCAL_KEY) {
+  const [data, setData] = useState<AppData>(() => initial || loadData(key));
+  useEffect(() => saveData(data, key), [data, key]);
   const update = useCallback((fn: (d: AppData) => AppData) => setData((d) => fn(d)), []);
   return [data, update, setData] as const;
 }

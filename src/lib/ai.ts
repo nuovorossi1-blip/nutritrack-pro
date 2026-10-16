@@ -1,6 +1,7 @@
 import type { Food, MealKey } from '../types';
 import type { ParsedEntry } from './parser';
 import { normalize } from './parser';
+import { accessToken } from './cloud';
 
 // Client dell'AI: manda solo la frase a /api/ai-parse (la chiave sta sul server).
 
@@ -22,12 +23,13 @@ export interface AiResult {
 }
 
 export async function askAi(text: string): Promise<AiResult> {
+  const token = await accessToken();
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), 30000);
   try {
     const res = await fetch('/api/ai-parse', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: JSON.stringify({ text }),
       signal: ctrl.signal,
     });

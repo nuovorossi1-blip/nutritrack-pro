@@ -1,7 +1,7 @@
-node_modules/
-dist/
+*.log
+*.tsbuildinfo
 .env
 .env.*
 .vercel/
-*.log
-*.tsbuildinfo
+dist/
+node_modules/
