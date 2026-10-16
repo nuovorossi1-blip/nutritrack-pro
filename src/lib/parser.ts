@@ -63,48 +63,95 @@ export interface ParsedEntry {
   qtyGiven: boolean;
 }
 
-function findFood(words: string[], foods: Food[], phrase: string): { food: Food; rule?: Rule } | null {
-  for (const r of RULES) {
-    if (words.some((w) => r.word.test(w))) {
-      const food = foods.find((f) => f.id === r.id);
-      if (food) return { food, rule: r };
-    }
-  }
-  // Alimenti salvati dall'utente: nome intero contenuto nella frase.
+const GRAM_UNITS: Record<string, number> = { g: 1, gr: 1, grammo: 1, grammi: 1, ml: 1, kg: 1000, chili: 1000 };
+
+type Token =
+  | { kind: 'food'; food: Food; rule?: Rule }
+  | { kind: 'qty'; value: number; grams: boolean }
+  | { kind: 'unit' }
+  | { kind: 'cooked' }
+  | { kind: 'word' };
+
+/** Alimento che inizia alla parola i: prima quelli salvati dall'utente (nome intero), poi le regole. */
+function foodAt(words: string[], i: number, foods: Food[]): { food: Food; rule?: Rule; len: number } | null {
+  let best: { food: Food; len: number } | null = null;
   for (const f of foods) {
     if (f.source === 'base') continue;
-    const name = normalize(f.name).trim();
-    if (name.length >= 3 && phrase.includes(name)) return { food: f };
+    const name = normalize(f.name).split(/[^a-z0-9]+/).filter(Boolean);
+    if (name.length && name.join(' ').length >= 3 && name.every((w, k) => words[i + k] === w) && (!best || name.length > best.len)) best = { food: f, len: name.length };
+  }
+  if (best) return best;
+  for (const r of RULES) {
+    if (r.word.test(words[i])) {
+      const food = foods.find((f) => f.id === r.id);
+      if (food) return { food, rule: r, len: 1 };
+    }
   }
   return null;
 }
 
+function tokenize(chunk: string, foods: Food[]): Token[] {
+  const words = chunk.match(/\d+(?:[.,]\d+)?|[a-z]+|%/g) || [];
+  const out: Token[] = [];
+  for (let i = 0; i < words.length; i++) {
+    const w = words[i];
+    if (/^\d/.test(w)) {
+      const value = parseFloat(w.replace(',', '.'));
+      const next = words[i + 1];
+      if (next === '%') {
+        i++; // "yogurt 0%": e' una caratteristica, non una quantita'
+        continue;
+      }
+      if (next && GRAM_UNITS[next]) {
+        out.push({ kind: 'qty', value: value * GRAM_UNITS[next], grams: true });
+        i++;
+      } else out.push({ kind: 'qty', value, grams: false });
+      continue;
+    }
+    if (NUMBER_WORDS[w] !== undefined) {
+      const next = words[i + 1];
+      if (next && GRAM_UNITS[next]) {
+        out.push({ kind: 'qty', value: NUMBER_WORDS[w] * GRAM_UNITS[next], grams: true }); // "mezzo kg"
+        i++;
+      } else out.push({ kind: 'qty', value: NUMBER_WORDS[w], grams: false });
+      continue;
+    }
+    const hit = foodAt(words, i, foods);
+    if (hit) {
+      out.push({ kind: 'food', food: hit.food, rule: hit.rule });
+      i += hit.len - 1;
+      continue;
+    }
+    out.push({ kind: UNIT_WORDS.test(w) ? 'unit' : COOKED.test(w) ? 'cooked' : 'word' });
+  }
+  return out;
+}
+
+/**
+ * Ogni pezzo di frase puo' avere piu' alimenti ("2 uova 100 g di albume"):
+ * quantita', unita' e "cotto" vanno all'alimento che segue; se dopo non c'e'
+ * nessun alimento ("pasta 80g", "pasta cotta"), a quello prima.
+ */
 export function parseFoodText(text: string, foods: Food[]): ParsedEntry[] {
   const out: ParsedEntry[] = [];
-  const phrases = normalize(text).split(/\s+e\s+|\s+con\s+|,|\+|;/);
-  for (const raw of phrases) {
-    const phrase = raw.trim();
-    if (!phrase) continue;
-    const words = phrase.split(/[^a-z0-9.,]+/).filter(Boolean);
-    const hit = findFood(words, foods, phrase);
-    if (!hit) continue;
-    const { food, rule } = hit;
-    const cooked = words.some((w) => COOKED.test(w)) && !!food.cookedFactor;
-    const gramMatch = phrase.match(/(\d+(?:[.,]\d+)?)\s*(?:g|gr|grammi|ml)\b/);
-    const numMatch = phrase.match(/(\d+(?:[.,]\d+)?)/);
-    const wordNum = words.map((w) => NUMBER_WORDS[w]).find((n) => n !== undefined);
-    const num = numMatch ? parseFloat(numMatch[1].replace(',', '.')) : wordNum;
-    const mentionsUnit = words.some((w) => UNIT_WORDS.test(w));
-
-    let portion: Portion;
-    if (gramMatch) {
-      portion = { mode: 'grams', qty: parseFloat(gramMatch[1].replace(',', '.')), cooked };
-    } else if (food.pieceWeight && (mentionsUnit || rule?.mode === 'pieces' || (num !== undefined && num <= 10))) {
-      portion = { mode: 'pieces', qty: num ?? 0, cooked };
-    } else {
-      portion = { mode: 'grams', qty: num ?? 0, cooked };
+  for (const chunk of normalize(text).split(/\s+e\s+|\s+con\s+|,|\+|;|\s+poi\s+/)) {
+    const tokens = tokenize(chunk, foods);
+    const foodIdx = tokens.map((t, i) => (t.kind === 'food' ? i : -1)).filter((i) => i >= 0);
+    if (!foodIdx.length) continue;
+    const owner = (i: number) => foodIdx.find((f) => f > i) ?? [...foodIdx].reverse().find((f) => f < i)!;
+    for (const fi of foodIdx) {
+      const t = tokens[fi] as Extract<Token, { kind: 'food' }>;
+      const mine = tokens.filter((_, i) => i !== fi && tokens[i].kind !== 'food' && owner(i) === fi);
+      const qty = mine.find((x): x is Extract<Token, { kind: 'qty' }> => x.kind === 'qty' && x.value > 0);
+      const unit = mine.some((x) => x.kind === 'unit');
+      const cooked = mine.some((x) => x.kind === 'cooked') && !!t.food.cookedFactor;
+      const pw = t.food.pieceWeight;
+      let portion: Portion;
+      if (qty?.grams) portion = { mode: 'grams', qty: qty.value, cooked };
+      else if (qty) portion = pw && (unit || t.rule?.mode === 'pieces' || qty.value <= 10) ? { mode: 'pieces', qty: qty.value, cooked } : { mode: 'grams', qty: qty.value, cooked };
+      else portion = { mode: pw && (unit || t.rule?.mode === 'pieces') ? 'pieces' : 'grams', qty: 0, cooked };
+      out.push({ food: t.food, portion, qtyGiven: !!qty });
     }
-    out.push({ food, portion, qtyGiven: !!gramMatch || num !== undefined });
   }
   return out;
 }

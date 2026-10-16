@@ -17,6 +17,7 @@ interface Toast {
   id: number;
   msg: string;
   error: boolean;
+  action?: { label: string; run: () => void };
 }
 
 type SpeechCtor = new () => {
@@ -52,10 +53,10 @@ export default function App() {
     document.documentElement.classList.toggle('dark', data.dark);
   }, [data.dark]);
 
-  const toast = (msg: string, error = false) => {
+  const toast = (msg: string, error = false, action?: Toast['action']) => {
     const id = Date.now() + Math.random();
-    setToasts((t) => [...t, { id, msg, error }]);
-    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), msg.length > 80 ? 8000 : 3200);
+    setToasts((t) => [...t, { id, msg, error, action }]);
+    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), action ? 7000 : msg.length > 80 ? 8000 : 3200);
   };
 
   const day = getDay(data, selected);
@@ -74,16 +75,30 @@ export default function App() {
   const addQuick = () => {
     const entries = parseFoodText(text, allFoods(data));
     if (!entries.length) return toast('Alimento non riconosciuto. Prova: "200g di pasta cotta a pranzo"', true);
-    setQuick({ entries, meal: mealFromText(text) });
+    const meal = mealFromText(text);
+    // Frase completa (pasto e tutte le quantita'): si aggiunge subito, con "Annulla".
+    if (meal && entries.every((e) => e.qtyGiven)) confirmQuick(entries, meal, true);
+    else setQuick({ entries, meal });
   };
 
-  const confirmQuick = (entries: ParsedEntry[], meal: MealKey) => {
+  function confirmQuick(entries: ParsedEntry[], meal: MealKey, undoable = false) {
     const items = entries.map((e) => buildItem(e.food, e.portion));
+    const day = selected;
     setMeal(meal, (l) => [...l, ...items]);
     setQuick(null);
     setText('');
-    toast(`Aggiunto a ${MEALS.find((m) => m.key === meal)!.label}: ${items.map((i) => i.label).join(' + ')}`);
-  };
+    const ids = new Set(items.map((i) => i.id));
+    const undo = () =>
+      update((d) => {
+        const log = getDay(d, day);
+        return withDay(d, day, { ...log, [meal]: log[meal].filter((i) => !ids.has(i.id)) });
+      });
+    toast(
+      `Aggiunto a ${MEALS.find((m) => m.key === meal)!.label}: ${items.map((i) => `${i.name.split(' (')[0]} ${i.label}`).join(' + ')}`,
+      false,
+      undoable ? { label: 'Annulla', run: undo } : undefined,
+    );
+  }
 
   const dictate = () => {
     const w = window as unknown as { SpeechRecognition?: SpeechCtor; webkitSpeechRecognition?: SpeechCtor };
@@ -226,8 +241,19 @@ export default function App() {
 
       <div className="fixed bottom-4 inset-x-0 z-[60] flex flex-col items-center gap-2 pointer-events-none px-4">
         {toasts.map((t) => (
-          <div key={t.id} className={`px-4 py-2.5 rounded-2xl text-xs font-bold text-white shadow-xl ${t.error ? 'bg-red-600' : 'bg-neutral-900 border border-neutral-700'}`}>
-            {t.msg}
+          <div key={t.id} className={`pointer-events-auto flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold text-white shadow-xl ${t.error ? 'bg-red-600' : 'bg-neutral-900 border border-neutral-700'}`}>
+            <span>{t.msg}</span>
+            {t.action && (
+              <button
+                onClick={() => {
+                  t.action!.run();
+                  setToasts((all) => all.filter((x) => x.id !== t.id));
+                }}
+                className="shrink-0 text-yellow-400 font-extrabold"
+              >
+                {t.action.label}
+              </button>
+            )}
           </div>
         ))}
       </div>

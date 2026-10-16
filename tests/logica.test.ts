@@ -114,3 +114,23 @@ describe('metabolismo e macro', () => {
     expect(Math.abs(macroGap(g))).toBeLessThan(5);
   });
 });
+
+describe('frasi con piu alimenti', () => {
+  const show = (t: string) => parseFoodText(t, BASE_FOODS).map((e) => `${e.food.id}:${rawGrams(e.food, e.portion)}${e.qtyGiven ? '' : '?'}`);
+  it('frase dell utente', () => {
+    const t = 'ho mangiato a colazione 2 uova 100 g di albume e uno yogurt 0';
+    expect(show(t)).toEqual(['f_egg:120', 'f_white:100', 'f26:150']);
+    expect(mealFromText(t)).toBe('colazione');
+  });
+  it('quantita dopo, cotto, 0% e kg', () => {
+    expect(show('pasta 80g e pollo 150 g cotto')).toEqual(['f12:80', 'f3:203']);
+    expect(show('yogurt greco 0% e una banana')).toEqual(['f26:0?', 'f29:150']);
+    expect(show('mezzo kg di patate')).toEqual(['f17:500']);
+    expect(show('1 kg di patate')).toEqual(['f17:1000']);
+  });
+  it('alimento salvato con nome di piu parole', () => {
+    const fage = { id: 'off_1', name: 'Fage Total 0', kcal: 54, pro: 10.3, carbs: 3, fats: 0, pieceWeight: 170, unitName: 'porzione', source: 'off' as const };
+    const r = parseFoodText('un fage total 0 a merenda', [fage, ...BASE_FOODS]);
+    expect(r.map((e) => [e.food.id, rawGrams(e.food, e.portion)])).toEqual([['off_1', 170]]);
+  });
+});
