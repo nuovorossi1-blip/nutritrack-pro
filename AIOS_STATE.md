@@ -82,6 +82,9 @@ Prototipo a file unico (`index.html`) nato con Gemini, adottato in AI-OS il
 - **Nessuna funzione finta nell'interfaccia** — motivo: regola AI-OS "niente pulsanti che non fanno niente" — data: 2026-10-16
 - **Repository GitHub privato `nutritrack-pro`** — motivo: app personale; si può rendere pubblico in seguito — data: 2026-10-16
 - Il file originale di Gemini resta in Download, non toccato.
+- **Fonti alimenti: Open Food Facts (codici a barre/confezionati) + CIQUAL (sfusi, dentro l'app) + USDA come riserva** — motivo: aperte e gratuite; CREA e BDA IEO non riutilizzabili (diritto d'autore, serve autorizzazione); OpenNutrition scartata finche' la licenza non e' chiara. Citare la fonte in app (ODbL/CIQUAL) — data: 2026-10-16
+- **Percorso: rifare in React + APK Android installabile (modulo AI-OS MODULO_ANDROID_AUTOAGGIORNANTE), prova prima su questo PC, poi Vercel + Supabase su account NUOVO dell'utente (smaugdrago@gmail.com, da collegare con l'icona 'Collega account'), con login proprio: ogni utente il suo account e i suoi dati** — data: 2026-10-16
+- **Poche richieste a Vercel/Supabase** — motivo: l'utente non vuole problemi di limiti. Regole: ricerca alimenti dal telefono direttamente a Open Food Facts (mai tramite funzioni Vercel), CIQUAL incluso nell'app, prodotti gia' cercati salvati in locale; Supabase solo per i dati dell'utente con salvataggi raggruppati — data: 2026-10-16
 
 ---
 
@@ -104,7 +107,8 @@ online: in attesa che l'utente scelga dove.
 
 ## 11. Prossimi passi
 
-1. Decidere con l'utente dove pubblicarla (Vercel, o temporaneamente su questo PC come PronoBlast/GymBuilder).
+0. [in attesa risposta utente] Cosa intende per 'accettazione' degli utenti: approvazione dell'amministratore o accettazione di privacy/condizioni.
+1. Rifare l'app in React (prova su questo PC) con Open Food Facts + CIQUAL; poi APK; poi Vercel + Supabase sull'account nuovo (vedi decisioni).
 2. Storico per giorno (pasti con data, vista dei giorni passati).
 3. Decidere il cloud: solo locale oppure login + Supabase con dati separati per utente (problema aperto 1).
 4. Rendere più precise le parole chiave (problema aperto 2).
@@ -115,4 +119,5 @@ online: in attesa che l'utente scelga dove.
 
 | Data | Modello | Cosa è stato fatto |
 |---|---|---|
+| 2026-10-16 | Claude Opus 5.5 | Decise fonti alimenti e percorso React/APK/Vercel+Supabase con login (nessun codice cambiato) |
 | 2026-10-16 | Claude Opus 5.5 | Adozione AI-OS del prototipo Gemini; tolte foto AI finta e frequenti inventati; etichette AI corrette; prova in Edge ok |
