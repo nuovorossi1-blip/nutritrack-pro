@@ -46,8 +46,10 @@ da sola all'accesso a Windows con l'attività pianificata "NutriTrack PRO locale
 - [FACT] Prima di salvare un prodotto si vedono e correggono i valori (valori mancanti segnalati), peso porzione e "si cuoce?" (pasta/riso/carne/pesce) per pesarlo anche da cotto. Prova: codice 8076800195057 → Spaghetti n.5 Barilla 359 kcal.
 - [FACT] Fotocamera: scansione del codice a barre nel browser (ZXing caricato solo all'apertura, EAN-13/8, UPC, Code128), messaggi chiari se il permesso è bloccato. Provato con fotocamera simulata (EAN 8076800195057 → Spaghetti n.5) in locale e su nutritrack.redapp.dev.
 - [FACT] Impostazioni → Permessi: stato di fotocamera e microfono, pulsante Consenti (fa comparire la richiesta del browser), istruzioni se bloccati. Dettatura con errori spiegati (permesso negato, nessuna voce).
+- [FACT] Profilo (nome, sesso, età, peso, altezza, attività: sedentario / 1-3 / 3-5 / 6-7 allenamenti / atleta / altro con mantenimento a mano) → metabolismo basale (Mifflin-St Jeor) e mantenimento (× 1,2-1,9), `src/lib/metabolism.ts`. Esempio provato: uomo 35 anni 80 kg 180 cm 1-3 allenamenti → basale 1755, mantenimento 2410.
+- [FACT] Obiettivo Dieta (-20%) / Mantenimento / Massa (+10%): calorie e macro suggeriti (proteine 2,2/1,8/2 g per kg, grassi 25%, carboidrati il resto). Calorie modificabili; l'utente scrive due macro e sceglie quale è «auto» (calcolato dalle kcal): 2000 kcal, 200 P, 200 C → grassi 44 g. Avviso se i due macro superano le kcal. Riquadro "Completa il tuo profilo" finché manca; nel riepilogo «Ciao Nome · Dieta».
 - [FACT] Crea alimento a mano. Obiettivi con profili rapidi. Backup/ripristino JSON. Tema scuro. Azzera il giorno scelto (con conferma).
-- [FACT] Test: 13 test logica (giorni, crudo/cotto, parole, Open Food Facts, storico) ok; tsc ok; build ok; prova completa in Edge senza errori.
+- [FACT] Test: 16 test logica (giorni, crudo/cotto, parole, Open Food Facts, storico) ok; tsc ok; build ok; prova completa in Edge senza errori.
 
 ## 4. Cosa è in lavorazione
 
@@ -84,6 +86,7 @@ da sola all'accesso a Windows con l'attività pianificata "NutriTrack PRO locale
 | Pasti senza data, "azzera" cancellava tutto | Prototipo con un solo giorno | Dati per giorno `days[AAAA-MM-GG]`, azzera solo il giorno scelto (16/10). |
 | Sincronizzazione Supabase senza login (profilo scritto a mano, dati di tutti leggibili) | Prototipo Gemini | Tolta nella versione React; tornerà con login vero e RLS (fase 3). |
 | Ricerca per nome di Open Food Facts bloccata nel browser | search.openfoodfacts.org non manda l'intestazione CORS | Passa da `/off-search` (proxy Vite in locale, rewrite vercel.json online, nessuna funzione Vercel) (16/10). |
+| Campo calorie aggiornato con un passaggio di ritardo dopo la scelta dell'obiettivo | `NumberInput` riallineava il testo in useEffect (render successivo) | Riallineato nello stesso render (stato `seen`) (16/10). |
 | "petto di pollo" aggiunto subito a pranzo con 200g inventati (segnalato dall'utente) | Inserimento a parole: pasto dedotto dall'ora e quantità predefinita della regola | Riquadro "Controlla prima di aggiungere" (`QuickConfirm`): pasto da scegliere se non detto, quantità vuota da scrivere se non detta (grammi/pezzi, crudo/cotto), niente aggiunto finché non è chiaro. Test + prova su nutritrack.redapp.dev (16/10). |
 | Campo grammi: svuotandolo e scrivendo 100 usciva "0100" (segnalato dall'utente con screenshot dal telefono) | `<input type="number">` con valore forzato a 0 quando vuoto; toccando un campo già attivo il cursore restava in mezzo | `NumberInput`: testo libero (anche vuoto), selezione di tutto a ogni tocco, virgola = punto; usato in quantità, valori alimento, obiettivi. Provato: 100, 150, 75,5 e + (16/10). |
 | A mezzanotte l'app restava sul giorno vecchio | In `App.tsx` l'aggiornamento di setSelected leggeva il ref già cambiato | Valore precedente copiato prima; provato con orologio simulato (16/10). |
@@ -139,6 +142,7 @@ l'utente la provi e dica se procedere con la fase 2 (CIQUAL).
 
 | Data | Modello | Cosa è stato fatto |
 |---|---|---|
+| 2026-10-16 | Claude Opus 5.5 | Profilo utente, metabolismo/mantenimento, obiettivo dieta/mantenimento/massa, macro con terzo calcolato dalle kcal |
 | 2026-10-16 | Claude Opus 5.5 | Palette blu/bianco/giallo/nero/verde/rosso; intestazione su una riga sul telefono |
 | 2026-10-16 | Claude Opus 5.5 | Inserimento a parole con conferma: pasto e quantità mai indovinati |
 | 2026-10-16 | Claude Opus 5.5 | Corretto campo grammi "0100" (NumberInput) |

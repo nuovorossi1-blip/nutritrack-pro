@@ -56,7 +56,27 @@ export interface MealItem extends Macros {
 
 export type DayLog = Record<MealKey, MealItem[]>;
 
-export interface Goals extends Macros {}
+export type Sex = 'M' | 'F';
+export type ActivityKey = 'sedentario' | 'leggero' | 'moderato' | 'intenso' | 'atleta' | 'altro';
+export type Plan = 'mantenimento' | 'dieta' | 'massa';
+export type MacroKey = 'pro' | 'carbs' | 'fats';
+
+export interface Profile {
+  name: string;
+  sex: Sex;
+  age: number;
+  weight: number;
+  height: number;
+  activity: ActivityKey;
+  /** Solo con attivita' 'altro': mantenimento scritto a mano dall'utente. */
+  customTdee?: number;
+}
+
+export interface Goals extends Macros {
+  plan?: Plan;
+  /** Macro calcolato dalle kcal e dagli altri due. */
+  auto?: MacroKey;
+}
 
 export interface AppData {
   version: 1;
@@ -66,4 +86,5 @@ export interface AppData {
   /** Alimenti salvati dall'utente (personali e da Open Food Facts). */
   foods: Food[];
   dark: boolean;
+  profile?: Profile;
 }

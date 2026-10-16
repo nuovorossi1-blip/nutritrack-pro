@@ -18,7 +18,9 @@ function Bar({ label, value, goal, color }: { label: string; value: number; goal
   );
 }
 
-export function Summary({ total, goals }: { total: Macros; goals: Goals }) {
+const PLAN_LABEL = { dieta: 'Dieta', mantenimento: 'Mantenimento', massa: 'Massa' };
+
+export function Summary({ total, goals, name }: { total: Macros; goals: Goals; name?: string }) {
   const pct = goals.kcal > 0 ? Math.min(100, (total.kcal / goals.kcal) * 100) : 0;
   const left = goals.kcal - total.kcal;
   const R = 52;
@@ -37,7 +39,7 @@ export function Summary({ total, goals }: { total: Macros; goals: Goals }) {
           </div>
         </div>
         <div>
-          <div className="text-xs font-bold uppercase tracking-wide text-neutral-400">Calorie del giorno</div>
+          <div className="text-xs font-bold uppercase tracking-wide text-neutral-400">{name ? `Ciao ${name} · ` : ''}{goals.plan ? PLAN_LABEL[goals.plan] : 'Calorie del giorno'}</div>
           <div className={`text-xl font-extrabold mt-1 ${left < 0 ? 'text-red-500' : 'text-blue-600 dark:text-blue-400'}`}>{left < 0 ? `${-left} kcal oltre` : `${left} kcal rimaste`}</div>
           <p className="text-xs text-neutral-400 mt-1">Ogni giorno riparte da 0 a mezzanotte.</p>
         </div>

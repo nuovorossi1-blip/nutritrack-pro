@@ -126,7 +126,7 @@ export default function App() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button aria-label="Obiettivi e impostazioni" onClick={() => setSettings(true)} className="h-10 px-3 rounded-2xl bg-neutral-100 dark:bg-neutral-800 text-xs font-bold flex items-center gap-1.5">
+            <button aria-label="Profilo e obiettivi" onClick={() => setSettings(true)} className="h-10 px-3 rounded-2xl bg-neutral-100 dark:bg-neutral-800 text-xs font-bold flex items-center gap-1.5">
               <Target size={16} /> <span className="hidden sm:inline">Obiettivi</span>
             </button>
             <button aria-label="Azzera giorno" title="Azzera il giorno scelto" onClick={resetDay} className="w-10 h-10 rounded-2xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
@@ -141,7 +141,13 @@ export default function App() {
 
       <main className="max-w-2xl mx-auto px-4 pt-4 space-y-4">
         <DayStrip selected={selected} today={today} daysWithData={daysWithData} onSelect={setSelected} />
-        <Summary total={total} goals={data.goals} />
+        {!data.profile && (
+          <button onClick={() => setSettings(true)} className="w-full text-left rounded-3xl p-4 bg-blue-600 text-white shadow-md">
+            <div className="font-extrabold">Completa il tuo profilo</div>
+            <div className="text-xs text-blue-100 mt-0.5">Età, peso, altezza e attività: l'app stima il tuo mantenimento e calcola calorie e macro per il tuo obiettivo.</div>
+          </button>
+        )}
+        <Summary total={total} goals={data.goals} name={data.profile?.name} />
 
         <section className="rounded-3xl p-4 sm:p-5 text-white bg-gradient-to-br from-blue-900 via-blue-950 to-neutral-950 shadow-xl">
           <div className="flex items-center gap-2">
@@ -216,7 +222,7 @@ export default function App() {
         />
       )}
       {quick && <QuickConfirm entries={quick.entries} meal={quick.meal} dayLabel={longLabel(selected)} onClose={() => setQuick(null)} onConfirm={confirmQuick} />}
-      {settings && <SettingsModal data={data} toast={toast} onClose={() => setSettings(false)} onSaveGoals={(g) => update((d) => ({ ...d, goals: g }))} onImport={(d) => update(() => d)} />}
+      {settings && <SettingsModal data={data} toast={toast} onClose={() => setSettings(false)} onSaveProfile={(profile, goals) => update((d) => ({ ...d, profile, goals }))} onImport={(d) => update(() => d)} />}
 
       <div className="fixed bottom-4 inset-x-0 z-[60] flex flex-col items-center gap-2 pointer-events-none px-4">
         {toasts.map((t) => (

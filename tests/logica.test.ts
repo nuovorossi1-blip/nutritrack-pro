@@ -89,3 +89,28 @@ describe('storico', () => {
     expect(Object.keys(d.days)).toEqual(['2026-10-15']);
   });
 });
+
+describe('metabolismo e macro', () => {
+  const me = { name: 'Prova', sex: 'M' as const, age: 35, weight: 80, height: 180, activity: 'leggero' as const };
+  it('uomo 35 anni, 80 kg, 180 cm, 1-3 allenamenti: basale 1755, mantenimento circa 2410', async () => {
+    const { bmr, tdee } = await import('../src/lib/metabolism');
+    expect(bmr(me)).toBe(1755);
+    expect(tdee(me)).toBe(2410);
+    expect(tdee({ ...me, activity: 'altro', customTdee: 2450 })).toBe(2450);
+    expect(tdee({ ...me, weight: 0 })).toBeNull();
+  });
+  it('dieta 2000 kcal con 200 P e 200 C: grassi 44 g (400 kcal / 9)', async () => {
+    const { withAutoMacro, macroGap } = await import('../src/lib/metabolism');
+    const g = withAutoMacro({ kcal: 2000, pro: 200, carbs: 200, fats: 0, auto: 'fats' });
+    expect(g.fats).toBe(44);
+    expect(Math.abs(macroGap(g))).toBeLessThan(5);
+  });
+  it('obiettivo: dieta -20%, massa +10%, macro che tornano con le kcal', async () => {
+    const { planKcal, suggestedGoals, macroGap } = await import('../src/lib/metabolism');
+    expect(planKcal(2410, 'dieta')).toBe(1930);
+    expect(planKcal(2410, 'massa')).toBe(2650);
+    const g = suggestedGoals(1930, 'dieta', 80);
+    expect(g).toMatchObject({ pro: 176, fats: 54, plan: 'dieta' });
+    expect(Math.abs(macroGap(g))).toBeLessThan(5);
+  });
+});

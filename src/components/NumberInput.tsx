@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 interface Props {
   value: number | undefined;
@@ -16,10 +16,13 @@ const parse = (t: string) => (t.trim() === '' ? undefined : parseFloat(t.replace
 // quello digitato, a ogni tocco si seleziona tutto, la virgola vale come punto.
 export function NumberInput({ value, onChange, className, decimals = true, placeholder }: Props) {
   const [text, setText] = useState(fmt(value));
-  useEffect(() => {
+  const [seen, setSeen] = useState(value);
+  // Valore cambiato da fuori (pulsanti +/-, obiettivo scelto): testo aggiornato nello
+  // stesso render, senza un passaggio in ritardo come con useEffect.
+  if (value !== seen) {
+    setSeen(value);
     if (parse(text) !== value) setText(fmt(value));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
+  }
   return (
     <input
       type="text"

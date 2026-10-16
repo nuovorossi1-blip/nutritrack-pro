@@ -1,25 +1,18 @@
 import { Camera, Download, Mic, Upload, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { DENIED_HELP, permissionState, requestPermission, type Device, type PermState } from '../lib/permissions';
-import type { AppData, Goals } from '../types';
-import { NumberInput } from './NumberInput';
-
-const PRESETS: { label: string; goals: Goals }[] = [
-  { label: 'Definizione', goals: { kcal: 1700, carbs: 150, pro: 160, fats: 50 } },
-  { label: 'Mantenimento', goals: { kcal: 2100, carbs: 220, pro: 150, fats: 65 } },
-  { label: 'Massa', goals: { kcal: 2600, carbs: 320, pro: 170, fats: 70 } },
-];
+import type { AppData, Goals, Profile } from '../types';
+import { ProfileGoals } from './ProfileGoals';
 
 interface Props {
   data: AppData;
-  onSaveGoals: (g: Goals) => void;
+  onSaveProfile: (p: Profile, g: Goals) => void;
   onImport: (d: AppData) => void;
   onClose: () => void;
   toast: (msg: string, error?: boolean) => void;
 }
 
-export function SettingsModal({ data, onSaveGoals, onImport, onClose, toast }: Props) {
-  const [g, setG] = useState<Goals>(data.goals);
+export function SettingsModal({ data, onSaveProfile, onImport, onClose, toast }: Props) {
   const [perm, setPerm] = useState<Record<Device, PermState>>({ camera: 'unknown', microphone: 'unknown' });
   useEffect(() => {
     Promise.all([permissionState('camera'), permissionState('microphone')]).then(([camera, microphone]) => setPerm({ camera, microphone }));
@@ -49,18 +42,6 @@ export function SettingsModal({ data, onSaveGoals, onImport, onClose, toast }: P
       </div>
     );
   };
-  const field = (key: keyof Goals, label: string) => (
-    <label className="block">
-      <span className="text-[11px] font-bold text-neutral-500">{label}</span>
-      <NumberInput
-        decimals={false}
-        value={g[key]}
-        onChange={(n) => setG({ ...g, [key]: n ?? 0 })}
-        className="w-full mt-0.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl px-3 py-2 text-sm font-semibold"
-      />
-    </label>
-  );
-
   const exportBackup = () => {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
@@ -90,34 +71,20 @@ export function SettingsModal({ data, onSaveGoals, onImport, onClose, toast }: P
     <div className="fixed inset-0 z-50 bg-neutral-950/60 flex items-end sm:items-center justify-center" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="bg-white dark:bg-neutral-900 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4 max-h-[92vh] overflow-y-auto">
         <div className="flex items-start justify-between">
-          <h3 className="font-extrabold">Obiettivi e impostazioni</h3>
+          <h3 className="font-extrabold">Profilo e obiettivi</h3>
           <button aria-label="Chiudi" onClick={onClose} className="text-neutral-400 p-1">
             <X size={20} />
           </button>
         </div>
-        <div className="flex gap-2">
-          {PRESETS.map((p) => (
-            <button key={p.label} onClick={() => setG(p.goals)} className="flex-1 text-xs font-bold rounded-xl py-2 bg-neutral-100 dark:bg-neutral-800 hover:bg-blue-50 dark:hover:bg-blue-950">
-              {p.label}
-            </button>
-          ))}
-        </div>
-        <div className="grid grid-cols-2 gap-2">
-          {field('kcal', 'Kcal')}
-          {field('carbs', 'Carboidrati (g)')}
-          {field('pro', 'Proteine (g)')}
-          {field('fats', 'Grassi (g)')}
-        </div>
-        <button
-          onClick={() => {
-            onSaveGoals(g);
-            toast('Obiettivi salvati');
+        <ProfileGoals
+          profile={data.profile}
+          goals={data.goals}
+          onSave={(profile, goals) => {
+            onSaveProfile(profile, goals);
+            toast('Profilo e obiettivi salvati');
             onClose();
           }}
-          className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl py-3"
-        >
-          Salva obiettivi
-        </button>
+        />
 
         <div className="border-t border-neutral-100 dark:border-neutral-800 pt-4">
           <h4 className="text-sm font-extrabold">Permessi</h4>
