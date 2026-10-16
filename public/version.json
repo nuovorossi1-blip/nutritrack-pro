@@ -1,0 +1,7 @@
+{
+    "apkUrl":  "https://nutritrack-pro-zeta.vercel.app/nutritrack.apk?v=1",
+    "mandatory":  false,
+    "versionCode":  1,
+    "version":  "1.0.1",
+    "notes":  "Prima versione Android di NutriTrack PRO."
+}

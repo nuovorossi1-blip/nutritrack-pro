@@ -30,7 +30,7 @@ si apre la creazione del profilo prima del diario: nome, data di nascita, sesso,
 peso, altezza, attività e obiettivo. Calcolo automatico di età, TDEE, calorie e macro;
 modifica successiva da Profilo e obiettivi. I profili completi precedenti restano validi.
 SMTP Gmail e testi italiani configurati; l'utente ha confermato la registrazione.
-Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. Fase 4 (APK) da fare.
+Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Android 1.0.1 compilato e firmato; download pubblico verificato. Pipeline automatica e prove su telefono ancora aperte.
 
 **Online (Vercel, account smaugdrago@gmail.com, team Decisione):** https://nutritrack-pro-zeta.vercel.app
 **Sul PC (stessa app e stesso database):** https://nutritrack.redapp.dev (tunnel Cloudflare) e http://127.0.0.1:5180
@@ -71,19 +71,18 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. Fase 4 (
 - [FACT] Profilo (nome, sesso, età, peso, altezza, attività: sedentario / 1-3 / 3-5 / 6-7 allenamenti / atleta / altro con mantenimento a mano) → metabolismo basale (Mifflin-St Jeor) e mantenimento (× 1,2-1,9), `src/lib/metabolism.ts`. Esempio provato: uomo 35 anni 80 kg 180 cm 1-3 allenamenti → basale 1755, mantenimento 2410.
 - [FACT] Obiettivo Dieta (-20%) / Mantenimento / Massa (+10%): calorie e macro suggeriti (proteine 2,2/1,8/2 g per kg, grassi 25%, carboidrati il resto). Calorie modificabili; l'utente scrive due macro e sceglie quale è «auto» (calcolato dalle kcal): 2000 kcal, 200 P, 200 C → grassi 44 g. Avviso se i due macro superano le kcal. Riquadro "Completa il tuo profilo" finché manca; nel riepilogo «Ciao Nome · Dieta».
 - [FACT] Crea alimento a mano. Obiettivi con profili rapidi. Backup/ripristino JSON. Tema scuro. Azzera il giorno scelto (con conferma).
-- [FACT] Test: 31 test logica e USDA (giorni, crudo/cotto, parole, Open Food Facts, storico, profilo, provenienza valori) ok; tsc ok; build ok; prova completa in Edge senza errori.
+- [FACT] Test: 33 test logica, Android e USDA (giorni, crudo/cotto, parole, Open Food Facts, storico, profilo, provenienza valori) ok; tsc ok; build ok; prova completa in Edge senza errori.
 
-## 4. Cosa è in lavorazione
+## 4. Cosa e in lavorazione
 
-- → APK Android richiesto esplicitamente dall'utente. Capacitor 8.5.3, app.nutritrack.pro, URL Vercel remoto, updater/version.json, banner web, dettatura nativa e permessi. Firma stabile in GitHub Secrets, NON in git. Pipeline Android APK in preparazione/avvio; file scaricabile non ancora verificato. Installazione, fotocamera e dettatura da verificare sul telefono reale: build/controlli desktop non equivalgono alla prova su dispositivo.
-
-- → niente (fase 1 chiusa)
+- APK 1.0.1 compilato con JDK21/SDK36, firma v2 verificata da apksigner, package app.nutritrack.pro, minSDK24 e target36. File public/nutritrack.apk (4.129.416 byte), version.json code1. Pubblicazione completata: https://nutritrack-pro-zeta.vercel.app/nutritrack.apk . Download pubblico SHA256 identico al build firmato. Shell Capacitor carica il sito Vercel: API/OFF restano sullo stesso dominio. Plugin aggiornamenti legge versione installata da PackageManager; dettatura nativa italiana. Installazione/fotocamera/microfono/update su telefono ancora da verificare.
+- Pipeline pronta in scripts/android-build.workflow.yml ma NON ATTIVA: push del workflow rifiutato da GitHub per scope workflow mancante. Segreti cifrati firma stabile e Vercel impostati; nessun keystore nel repository. Per attivarla rinnovare autorizzazione GitHub con scope workflow, poi spostare template in .github/workflows/build-apk.yml. Nessun rinnovo richiesto per scaricare questo APK.
 
 ## 5. Cosa manca ancora
 
 - Catalogo generico: ricerca USDA in italiano implementata (8.104 voci); valutare CIQUAL come ampliamento successivo e migliorare ulteriormente sinonimi e traduzioni.
 - Fase 3: login, cloud e Vercel pubblicati; SMTP configurato, manca solo la verifica reale delle email (vedi problema 1).
-- Fase 4: APK Android auto-aggiornante (modulo AI-OS, come GymBuilder): permessi Android CAMERA e RECORD_AUDIO nel manifest + richiesta in app; ricerca Open Food Facts nell'APK tramite richiesta nativa (niente CORS).
+- Android: completare test fisici installazione, login, barcode, dettatura e aggiornamento; attivare workflow dopo autorizzazione GitHub scope workflow.
 - Vera analisi del piatto da foto con un modello AI (tolta la versione finta).
 
 ---
@@ -162,7 +161,7 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. Fase 4 (
 
 - Il server locale (`vite preview`) serve la cartella `dist`: dopo ogni modifica al codice rifare `npm run build`, altrimenti sul PC si vede la versione vecchia.
 - La ricerca per nome funziona solo passando da `/off-search`: aprendo `dist/index.html` come file, o su un hosting senza la regola di vercel.json, la ricerca per nome fallisce (il codice a barre invece va).
-- Nell'APK (fase 4) `/off-search` non esiste: usare la richiesta nativa di Capacitor verso search.openfoodfacts.org.
+- Nell'APK la shell carica il sito Vercel remoto: /off-search e API restano sul medesimo dominio. Non passare a bundle locale senza adeguare proxy e autenticazione.
 - I giorni sono in ora locale (`src/lib/dates.ts`): non usare `toISOString()` per la data del giorno (darebbe il giorno UTC).
 - Fotocamera e microfono funzionano solo su HTTPS (nutritrack.redapp.dev) o su 127.0.0.1: aprendo l'app da un indirizzo http qualsiasi il browser non li concede.
 - Variabili: sul PC `.env.local` (non in git) con VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY (chiave pubblica); su Vercel VITE_SUPABASE_*, SUPABASE_URL, SUPABASE_ANON_KEY, OPENROUTER_API_KEY. `.vercelignore` esclude `.env*`. La password del database è solo nella variabile utente `SUPABASE_DBPASS_NUTRITRACK` (non serve all'app).
@@ -179,24 +178,25 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. Fase 4 (
 
 **Modello:** Codex (GPT-6) · **Data:** 2026-10-16
 
-Schermata dettaglio pasto implementata come riferimento: hero emoji, riepilogo2×2,
-alimenti con quantità/kcal e swipe,4barre rispetto agli obiettivi giornalieri,
-pulsante fisso Aggiungi altro. Picker separato con strumenti esistenti e ritorno
-automatico al dettaglio dopo conferma porzione; back torna al dettaglio o chiude pasto.
-Build e browser locale riusciti: aggiunta, modifica quantità, swipe/Annulla con totali
-e barre aggiornati, cloud,320px, zero errori JS; account temporaneo eliminato.
-Nessun nuovo pacchetto/server/database, solo UI. Deploy dpl_GP1ZiFDby4FSMkpJ9w2g2bfVCwS3 READY; prova completa sul sito pubblico riuscita, account temporaneo eliminato.
-Riferimenti immagini utente: telegram-llm/dati/allegati/1792163879318-file_0.jpg e
-1792163883588-file_1.jpg. Quote per pasto NON implementate: confronto giornaliero esplicito.
+APK richiesto dall'utente: build locale assembleDebug riuscita, firma apksigner valida,
+versione1.0.1/code1, Android7+ (minSDK24),4.129.416 byte. Nessun .env o APK annidato.
+Toolchain in LOCALAPPDATA/NutriTrackAndroidTools, nessun PATH permanente.
+Errori corretti: assegnazioni Gradle versione; argomenti PowerShell puntati.
+33 test positivi; build Vercel e download pubblico verificati (SHA256 identico).
+Banner Edge mobile LIVE: link corretto, chiusura, nessun overflow/errore JS.
+Deploy dpl_QhVojni66xP4QWWuPrmisquGKKeD READY sul dominio canonico.
+GitHub workflow NON attivo per scope workflow mancante: template scripts/android-build.workflow.yml.
+Codice Android e template su GitHub, firma stabile solo nello store locale protetto e GitHub Secret.
+Prova fisica di installazione/login/barcode/dettatura/aggiornamento ancora da fare.
 
 ---
 
 ## 11. Prossimi passi
 
-1. [utente] Ricaricare NutriTrack e toccare Colazione: verificare dettaglio, riepilogo e barre. Per inserire un alimento usare Aggiungi altro; swipe e Annulla restano disponibili.
+1. [utente] Scaricare/installare APK e provare login, diario, fotocamera barcode e dettatura. Test fisico ancora da confermare.
 2. Decidere con l'utente se nutritrack.redapp.dev deve puntare a Vercel (CNAME) e spegnere la copia sul PC, o restare sul PC.
 3. Valutare CIQUAL come ampliamento del catalogo USDA già disponibile; migliorare traduzioni e sinonimi con esempi reali.
-4. Fase 4: APK Android auto-aggiornante (modulo AI-OS) con permessi fotocamera/microfono e ricerca Open Food Facts nativa.
+4. Autorizzazione GitHub scope workflow e attivazione template; test aggiornamento tra due versionCode sul telefono.
 5. Rivedere con l'utente i testi di privacy e condizioni (titolare, contatti).
 6. Verificare il recupero password via email con l'utente (registrazione confermata riuscita).
 
@@ -206,6 +206,7 @@ Riferimenti immagini utente: telegram-llm/dati/allegati/1792163879318-file_0.jpg
 
 | Data | Modello | Cosa è stato fatto |
 |---|---|---|
+| 2026-10-16 | Codex (GPT-6) | APK Android1.0.1 compilato/firma verificata, download pubblico SHA256 identico e banner mobile LIVE ok,33 test. Capacitor remoto, updater e dettatura nativa. Workflow solo template per scope mancante; prove telefono ancora aperte. |
 | 2026-10-16 | Codex (GPT-6) | Nuovo dettaglio pasto come screenshot: hero, griglia2×2 macro, elenco swipe, barre giornaliere e Aggiungi altro con picker separato. Build/browser locale/cloud320px ok; prova completa sul sito pubblico riuscita, account temporaneo eliminato. |
 | 2026-10-16 | Codex (GPT-6) | Swipe breve/lungo per eliminare alimenti con azione rossa e Annulla; scroll verticale sicuro. Build e browser touch/cloud locale ok; prova touch completa riuscita anche sul sito pubblico; utente temporaneo eliminato. |
 | 2026-10-16 | Codex (GPT-6) | Frasi AI complete aggiunte direttamente con Annulla; distinzione persistita crudo/cotto e nessun fallback ambiguo in errore. 31 test/build/browser locale ok, prova completa sul sito pubblico riuscita, utente temporaneo eliminato. |

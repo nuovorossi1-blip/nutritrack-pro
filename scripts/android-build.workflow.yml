@@ -31,9 +31,10 @@ jobs:
         run: |
           npm ci
           npm test
-          npm run build
           rm -f public/nutritrack.apk
+          npm run build
           npx cap sync android
+          echo "ANDROID_VERSION_CODE=$((GITHUB_RUN_NUMBER + 1))" >> "$GITHUB_ENV"
       - name: Firma stabile e SDK
         env:
           SIGNING_STORE: ${{ secrets.ANDROID_DEBUG_KEYSTORE_B64 }}
@@ -47,16 +48,17 @@ jobs:
         working-directory: android
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon -PbuildVersionCode=${{ github.run_number }} -PbuildVersionName=1.0.${{ github.run_number }}
+          ./gradlew assembleDebug --no-daemon -PbuildVersionCode=$ANDROID_VERSION_CODE -PbuildVersionName=1.0.$ANDROID_VERSION_CODE
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify app/build/outputs/apk/debug/app-debug.apk
-          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging app/build/outputs/apk/debug/app-debug.apk | head -n 10
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging app/build/outputs/apk/debug/app-debug.apk > "$RUNNER_TEMP/apk-badging.txt"
+          head -n 10 "$RUNNER_TEMP/apk-badging.txt"
       - name: Prepara download e versione
         run: |
           mkdir -p public
           cp android/app/build/outputs/apk/debug/app-debug.apk public/nutritrack.apk
           node --input-type=module <<'JS'
           import {writeFileSync} from 'node:fs';
-          const code=Number(process.env.GITHUB_RUN_NUMBER);
+          const code=Number(process.env.ANDROID_VERSION_CODE);
           writeFileSync('public/version.json',JSON.stringify({version:`1.0.${code}`,versionCode:code,apkUrl:`https://nutritrack-pro-zeta.vercel.app/nutritrack.apk?v=${code}`,releaseUrl:'https://github.com/nuovorossi1-blip/nutritrack-pro/releases/latest',notes:'Aggiornamenti di NutriTrack PRO: diario, alimenti e funzioni Android.',mandatory:false},null,2)+'\n');
           JS
       - uses: actions/upload-artifact@v7
@@ -69,7 +71,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add public/nutritrack.apk public/version.json
-          git commit -m "build: publish Android 1.0.${{ github.run_number }}"
+          git commit -m "build: publish Android 1.0.$ANDROID_VERSION_CODE"
           git pull --rebase origin main
           git push origin HEAD:main
       - name: Pubblica sul sito esistente
@@ -82,6 +84,6 @@ jobs:
           printf '%s' '{"orgId":"team_120YIJ1W9Lw7prbsmDAkzla5","projectId":"prj_TiOVBVDkN4bqm9JAoet7oI9nTQ5F"}' > "$EXPORT/.vercel/project.json"
           npx --yes vercel@62.4.0 deploy --cwd "$EXPORT" --prod --yes --token "$VERCEL_TOKEN" --scope decisione
           curl --fail --retry 5 --retry-delay 3 "https://nutritrack-pro-zeta.vercel.app/version.json?t=${{ github.run_number }}" -o "$RUNNER_TEMP/published-version.json"
-          test "$(jq -r .versionCode "$RUNNER_TEMP/published-version.json")" = "${{ github.run_number }}"
+          test "$(jq -r .versionCode "$RUNNER_TEMP/published-version.json")" = "$ANDROID_VERSION_CODE"
           curl --fail --retry 3 "https://nutritrack-pro-zeta.vercel.app/nutritrack.apk?v=${{ github.run_number }}" -o "$RUNNER_TEMP/published.apk"
           cmp public/nutritrack.apk "$RUNNER_TEMP/published.apk"
