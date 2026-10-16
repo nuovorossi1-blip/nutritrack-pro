@@ -40,7 +40,7 @@ export function Summary({ total, goals, name }: Props) {
 
   return (
     <section>
-      <div className="flex items-end justify-between px-1 mb-2">
+      <div className="flex flex-wrap items-end justify-between gap-x-2 gap-y-1 px-1 mb-2">
         <h2 className="text-2xl font-extrabold">Riepilogo</h2>
         <span className="text-[10px] sm:text-xs font-bold text-[#f5b935] uppercase tracking-tight text-right">
           {name ? `${name} · ` : ''}
@@ -49,12 +49,12 @@ export function Summary({ total, goals, name }: Props) {
         </span>
       </div>
       <div className={`bg-[#191a1c] text-white rounded-[26px] border shadow-sm p-3 sm:p-5 ${over ? 'border-red-500/70' : 'border-[#343538]'}`}>
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-1">
           <div className="text-center">
-            <div className="text-2xl font-extrabold">{fmt(total.kcal)}</div>
-            <div className="text-sm text-neutral-500 dark:text-neutral-300">Mangiate</div>
+            <div className="text-xl sm:text-2xl font-extrabold">{fmt(total.kcal)}</div>
+            <div className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-300">Mangiate</div>
           </div>
-          <div className="relative w-[116px] h-[116px] sm:w-36 sm:h-36">
+          <div className="relative w-[clamp(90px,28vw,116px)] h-[clamp(90px,28vw,116px)] sm:w-36 sm:h-36">
             <svg viewBox="0 0 120 120" className="w-full h-full rotate-[135deg]">
               <defs>
                 <linearGradient id="arco-oro" x1="0" y1="0" x2="1" y2="1">
@@ -69,8 +69,8 @@ export function Summary({ total, goals, name }: Props) {
               )}
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-3xl font-extrabold">{fmt(left)}</span>
-              <span className="text-sm text-neutral-500 dark:text-neutral-300">Rimanenti</span>
+              <span className="text-2xl sm:text-3xl font-extrabold">{fmt(left)}</span>
+              <span className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-300">Rimanenti</span>
             </div>
           </div>
           <div className="text-center">
@@ -83,7 +83,7 @@ export function Summary({ total, goals, name }: Props) {
             Hai superato l'obiettivo di {fmt(excess)} kcal ({Math.round((excess / goals.kcal) * 100)}%).
           </p>
         )}
-        <div className="grid grid-cols-3 gap-2 mt-3">
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mt-3">
           <Macro label="Carboidrati" value={total.carbs} goal={goals.carbs} kind="carbs" />
           <Macro label="Proteine" value={total.pro} goal={goals.pro} kind="pro" />
           <Macro label="Grassi" value={total.fats} goal={goals.fats} kind="fats" />
