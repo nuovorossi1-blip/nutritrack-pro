@@ -92,6 +92,34 @@ describe('storico', () => {
 
 describe('metabolismo e macro', () => {
   const me = { name: 'Prova', sex: 'M' as const, age: 35, weight: 80, height: 180, activity: 'leggero' as const };
+  it('data di nascita: compleanno, cambio anno e date non valide', async () => {
+    const { ageFromBirthDate } = await import('../src/lib/metabolism');
+    expect(ageFromBirthDate('1991-10-16', new Date(2026, 9, 15))).toBe(34);
+    expect(ageFromBirthDate('1991-10-16', new Date(2026, 9, 16))).toBe(35);
+    expect(ageFromBirthDate('1991-12-31', new Date(2027, 0, 1))).toBe(35);
+    for (const invalid of ['', '2026-02-30', '2026-13-01', '2099-01-01', '1800-01-01']) {
+      expect(ageFromBirthDate(invalid, new Date(2026, 9, 16))).toBeNull();
+    }
+    expect(ageFromBirthDate('2000-02-29', new Date(2026, 9, 16))).toBe(26);
+  });
+  it('primo accesso: profilo incompleto richiede setup, vecchi profili completi restano validi', async () => {
+    const { needsProfileSetup } = await import('../src/lib/metabolism');
+    const goals = { kcal: 2410, pro: 144, carbs: 308, fats: 67, plan: 'mantenimento' as const };
+    expect(needsProfileSetup(undefined, goals)).toBe(true);
+    expect(needsProfileSetup({ ...me, name: ' ' }, goals)).toBe(true);
+    expect(needsProfileSetup({ ...me, height: 0 }, goals)).toBe(true);
+    expect(needsProfileSetup({ ...me, weight: NaN }, goals)).toBe(true);
+    expect(needsProfileSetup(me, { ...goals, plan: undefined })).toBe(true);
+    expect(needsProfileSetup(me, goals)).toBe(false);
+    expect(needsProfileSetup({ ...me, birthDate: '2099-01-01' }, goals)).toBe(true);
+    expect(needsProfileSetup({ ...me, activity: 'altro', customTdee: 0 }, goals)).toBe(true);
+  });
+  it('il metabolismo usa la data di nascita anche se la vecchia eta salvata e diversa', async () => {
+    const { bmr, profileAge } = await import('../src/lib/metabolism');
+    const p = { ...me, birthDate: '1991-01-01', age: 99 };
+    expect(bmr(p)).toBe(Math.round(10 * 80 + 6.25 * 180 - 5 * profileAge(p) + 5));
+    expect(profileAge(p)).not.toBe(99);
+  });
   it('uomo 35 anni, 80 kg, 180 cm, 1-3 allenamenti: basale 1755, mantenimento circa 2410', async () => {
     const { bmr, tdee } = await import('../src/lib/metabolism');
     expect(bmr(me)).toBe(1755);

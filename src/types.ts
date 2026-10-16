@@ -65,6 +65,8 @@ export interface Profile {
   name: string;
   sex: Sex;
   age: number;
+  /** Data locale AAAA-MM-GG; age resta per i profili precedenti. */
+  birthDate?: string;
   weight: number;
   height: number;
   activity: ActivityKey;

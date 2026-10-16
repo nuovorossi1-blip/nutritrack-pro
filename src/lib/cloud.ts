@@ -51,7 +51,7 @@ export async function saveDiff(userId: string, prev: AppData | null, next: AppDa
   const now = new Date().toISOString();
 
   if (!prev || JSON.stringify(profilePart(prev)) !== JSON.stringify(profilePart(next))) {
-    jobs.push(supabase.from('profiles').update({ data: profilePart(next), updated_at: now }).eq('user_id', userId));
+    jobs.push(supabase.from('profiles').update({ data: profilePart(next), updated_at: now }).eq('user_id', userId).select('user_id').single());
   }
 
   const dayKeys = new Set([...Object.keys(prev?.days || {}), ...Object.keys(next.days)]);

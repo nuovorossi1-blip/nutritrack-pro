@@ -18,7 +18,7 @@
       "upgraded_from_older_aios"
     ],
     "date": "2026-10-16",
-    "created_by_model": "Codex (GPT-6)",
+    "created_by_model": "Claude Opus 5.5",
     "previous_history_available": false,
     "_note": "Prototipo HTML unico generato con Gemini (file nutritrack_pro_calcolatore_macro_e_pasti_con_ai.html), adottato in AI-OS il 2026-10-16. Nessuna storia precedente."
   },
@@ -56,6 +56,6 @@
   "last_session": {
     "model": "Codex (GPT-6)",
     "date": "2026-10-16",
-    "summary": "SMTP Gmail nuovorossi1@gmail.com e testi italiani configurati e verificati via API. Manca prova reale di registrazione e ricezione email."
+    "summary": "Creazione profilo al primo accesso con data di nascita, TDEE e calorie per obiettivo, modificabili dalle impostazioni; cloud e compatibilità profili precedenti verificati. Deploy Vercel READY e prova browser completa sul sito pubblico riuscita."
   }
 }

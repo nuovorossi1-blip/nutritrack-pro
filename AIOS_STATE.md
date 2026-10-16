@@ -25,10 +25,11 @@ storico per giorno. Online su Vercel + Supabase (account smaugdrago@gmail.com).
 
 ## 2. Dove siamo adesso
 
-Fase 1 e fase 3 (login + cloud + Vercel) pubblicate. SMTP Gmail configurato il
-16/10/2026 con nuovorossi1@gmail.com e mittente NutriTrack PRO; testi italiani
-per conferma, recupero password e cambio email. PATCH e rilettura GET verificate.
-Resta da provare una registrazione reale con ricezione, conferma e login.
+Fase 1 e fase 3 pubblicate. Al primo accesso, se il profilo manca o non è completo,
+si apre la creazione del profilo prima del diario: nome, data di nascita, sesso,
+peso, altezza, attività e obiettivo. Calcolo automatico di età, TDEE, calorie e macro;
+modifica successiva da Profilo e obiettivi. I profili completi precedenti restano validi.
+SMTP Gmail e testi italiani configurati; l'utente ha confermato la registrazione.
 Fase 2 (CIQUAL) e fase 4 (APK) da fare.
 
 **Online (Vercel, account smaugdrago@gmail.com, team Decisione):** https://nutritrack-pro-zeta.vercel.app
@@ -38,6 +39,8 @@ Fase 2 (CIQUAL) e fase 4 (APK) da fare.
 ---
 
 ## 3. Cosa funziona
+
+- [FACT] Primo accesso: schermata «Creiamo il tuo profilo» per profili assenti/incompleti. Nome, data di nascita, sesso, peso, altezza, attività e obiettivo obbligatori; selezioni esplicite, niente sesso/attività scelti in automatico per utenti nuovi. Calorie e macro si aggiornano anche se si cambia peso dopo aver scelto l'obiettivo. Salvataggio iniziale attende conferma cloud; errore rete mostra riprova senza perdere i campi. Profili precedenti con età e senza data di nascita ancora utilizzabili. Profilo e calorie manuali persistono anche su un altro dispositivo. Test 27/27, build e prova Edge mobile locale riusciti il 16/10/2026.
 
 - [FACT] Barra dei giorni come PronoBlast (5 giorni, OGGI/IERI, frecce, pallino sui giorni con dati) + calendario per scegliere qualsiasi giorno passato; niente giorni futuri.
 - [FACT] Ogni giorno ha i suoi pasti e parte da 0; a mezzanotte, se si guarda "oggi", l'app passa da sola al giorno nuovo (provato simulando le 23:59:30 → 00:00:15). Il giorno prima resta consultabile.
@@ -79,7 +82,7 @@ Fase 2 (CIQUAL) e fase 4 (APK) da fare.
 
 | # | Problema | Da quando | Cosa si è già provato |
 |---|---|---|---|
-| 1 | Verifica completa delle email di registrazione/recupero password ancora da fare. | 2026-10-16 | Codex: SMTP Gmail nuovorossi1@gmail.com configurato su Supabase (smtp.gmail.com:587, mittente NutriTrack PRO), conferma obbligatoria mantenuta e testi italiani salvati. PATCH riuscita e GET con confronto dei campi riuscito. Il collegamento Gmail aveva superato la prova di invio dello script. Nessuna nuova email inviata in questa sessione; manca prova dalla registrazione reale fino al login. |
+| 1 | Recupero password via email da provare con l'utente. | 2026-10-16 | SMTP Gmail configurato e verificato. L'utente ha confermato la registrazione il 16/10 prima di richiedere la creazione del profilo iniziale. Non richiedere nuovamente il collegamento Gmail. |
 | 2 | Molti prodotti Open Food Facts senza peso porzione (es. Fage Total 0 → 100g). | 2026-10-16 | Campo "peso porzione" modificabile prima di salvare. |
 | 3 | Valori Open Food Facts a volte poco credibili (es. "tonno rio mare" 403 kcal/100 g). | 2026-10-16 | Avviso «⚠ valori da controllare» aggiunto il 16/10 (vedi sezione 3); i dati restano quelli di OFF, li corregge l'utente. Ordine dei risultati non ancora influenzato dall'avviso. |
 | 4 | Dettatura non provabile senza telefono vero (nel browser di prova: "Microfono non disponibile"). | 2026-10-16 | Da provare sul telefono con Chrome. |
@@ -92,6 +95,7 @@ Fase 2 (CIQUAL) e fase 4 (APK) da fare.
 
 | Problema | Causa vera | Soluzione |
 |---|---|---|
+| Primo accesso senza creazione profilo | Profilo e TDEE esistevano solo nelle impostazioni, senza passaggio iniziale; età scritta a mano | Schermata obbligatoria per profilo incompleto, birthDate con età calcolata, TDEE e calorie per obiettivo, salvataggio cloud prima del diario e modifica dalle impostazioni. Header adattato anche a 320 px. |
 | Scheda "Foto AI" finta: qualsiasi foto diventava sempre "Pollo, Riso e Verdure" 135 kcal/100g | Gemini aveva simulato l'analisi (funzione `analyzePhotoFood` con dati fissi) | Scheda, sezione e funzione tolte (16/10). Va rifatta solo con un modello vero. |
 | Frequenti già pieni al primo avvio (es. albumi usati 12 volte) | Storico inventato dentro `state.frequentPerMeal` | Frequenti calcolati dallo storico reale (16/10). |
 | L'app diceva "Assistente AI" ma non c'è nessuna AI | Etichette del prototipo | Rinominato "Inserimento rapido a parole" (16/10). |
@@ -108,6 +112,8 @@ Fase 2 (CIQUAL) e fase 4 (APK) da fare.
 ---
 
 ## 8. Decisioni prese
+
+- **Profilo al primo accesso obbligatorio:** nome, data di nascita, sesso, peso, altezza necessaria al calcolo, attività e obiettivo (perdere peso/mantenere/mettere massa); calorie automatiche modificabili dalle impostazioni. Richiesta utente 16/10/2026, implementata da Codex.
 
 - **Mittente email NutriTrack PRO: nuovorossi1@gmail.com** - scelto dall'utente in Collega account, opzione 14. Indipendente dagli account Supabase/Vercel smaugdrago@gmail.com. Configurazione SMTP e testi italiani verificati da Codex il 16/10/2026.
 
@@ -146,25 +152,28 @@ Fase 2 (CIQUAL) e fase 4 (APK) da fare.
 
 ## 10. Dove si è fermato l'ultimo lavoro
 
-**Modello:** Codex (GPT-6) - **Data:** 2026-10-16
+**Modello:** Codex (GPT-6) · **Data:** 2026-10-16
 
-Ripresa richiesta dopo il limite di Claude. Opzione 14 completata dall'utente con
-nuovorossi1@gmail.com e nome app NutriTrack: password per app Gmail valida,
-come confermato dal registro account (salvata solo dopo prova SMTP riuscita).
-Supabase/Vercel restano su smaugdrago@gmail.com; il mittente Gmail e' indipendente.
-SMTP smtp.gmail.com:587 e testi italiani configurati e verificati via API.
-Nessun invio email nuovo in questa sessione. Nessun codice o deploy modificato.
-Manca prova reale di registrazione, ricezione email, conferma e accesso.
+Creazione profilo iniziale e modifica successiva implementate e pubblicate su Vercel
+(deploy dpl_21qMJHbgENh6eBCHyWxgoSVpkPct, READY). Primo deploy dal repository BLOCCATO
+per autore Git non membro del team Vercel; risolto pubblicando con CLI autenticata
+su esportazione dei sorgenti senza .git e senza .env, senza modificare permessi.
+Percorso usato: Temp/nutritrack-publish-20261016-162720.
+Test 27/27 e build riusciti; browser mobile locale: primo accesso, tre obiettivi,
+errore rete e riprova, cloud e secondo dispositivo, calorie manuali persistite,
+compatibilità profili precedenti. Account di prova eliminati. Stessa prova completa riuscita anche su https://nutritrack-pro-zeta.vercel.app; utente temporaneo eliminato.
+APK e CIQUAL non implementati; obiettivo finale resta web + APK con profilo personale.
 
 ---
 
 ## 11. Prossimi passi
 
-1. [utente] Registrarsi su https://nutritrack-pro-zeta.vercel.app, controllare anche Spam, confermare la mail e completare il login. SMTP configurato: non rifare Collega account. Poi provare il recupero password.
+1. [utente] Ricaricare https://nutritrack-pro-zeta.vercel.app e compilare il profilo iniziale. Dopo il salvataggio si apre il diario; calorie e profilo si modificano dal pulsante Profilo e obiettivi in alto.
 2. Decidere con l'utente se nutritrack.redapp.dev deve puntare a Vercel (CNAME) e spegnere la copia sul PC, o restare sul PC.
 3. Fase 2: CIQUAL in italiano negli alimenti di base.
 4. Fase 4: APK Android auto-aggiornante (modulo AI-OS) con permessi fotocamera/microfono e ricerca Open Food Facts nativa.
 5. Rivedere con l'utente i testi di privacy e condizioni (titolare, contatti).
+6. Verificare il recupero password via email con l'utente (registrazione confermata riuscita).
 
 ---
 
@@ -172,6 +181,7 @@ Manca prova reale di registrazione, ricezione email, conferma e accesso.
 
 | Data | Modello | Cosa è stato fatto |
 |---|---|---|
+| 2026-10-16 | Codex (GPT-6) | Creazione profilo al primo accesso, data nascita ed età automatica, TDEE e calorie per tre obiettivi, salvataggio cloud con riprova e modifica manuale persistita. 27 test e build ok, Edge mobile locale ok. Deploy Vercel READY; prova browser completa riuscita anche sul sito pubblico. |
 | 2026-10-16 | Codex (GPT-6) | SMTP Gmail e testi italiani configurati su Supabase; confronto PATCH/GET riuscito. Nessun codice o deploy modificato. Manca prova reale delle email. |
 | 2026-10-16 | Claude Opus 5.5 | Fase 3: Supabase (tabelle + RLS + login con conferma email + privacy/consensi), salvataggio cloud, AI solo registrati, pubblicazione Vercel; voce Gmail in Collega account |
 | 2026-10-16 | Claude Opus 5.5 | AI: piatti unici, marche, pizza intera; nomi salvati con «e» protetti; secondo tentativo |

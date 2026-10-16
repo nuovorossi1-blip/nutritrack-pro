@@ -13,9 +13,9 @@ export const ACTIVITIES: { key: ActivityKey; label: string; factor: number }[] =
 ];
 
 export const PLANS: { key: Plan; label: string; factor: number }[] = [
-  { key: 'dieta', label: 'Dieta', factor: 0.8 },
-  { key: 'mantenimento', label: 'Mantenimento', factor: 1 },
-  { key: 'massa', label: 'Massa', factor: 1.1 },
+  { key: 'dieta', label: 'Perdere peso', factor: 0.8 },
+  { key: 'mantenimento', label: 'Mantenere', factor: 1 },
+  { key: 'massa', label: 'Mettere massa', factor: 1.1 },
 ];
 
 /** Grammi di proteine per kg di peso, per obiettivo. */
@@ -27,19 +27,39 @@ export const KCAL_PER_G: Record<MacroKey, number> = { pro: 4, carbs: 4, fats: 9 
 
 const round10 = (n: number) => Math.round(n / 10) * 10;
 
+export function ageFromBirthDate(value: string, today = new Date()): number | null {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+  const [y, m, d] = value.split('-').map(Number);
+  const birth = new Date(y, m - 1, d);
+  if (birth.getFullYear() !== y || birth.getMonth() !== m - 1 || birth.getDate() !== d) return null;
+  let age = today.getFullYear() - y;
+  if (today.getMonth() < m - 1 || (today.getMonth() === m - 1 && today.getDate() < d)) age--;
+  return age > 0 && age <= 120 ? age : null;
+}
+
+export function profileAge(p: Profile): number {
+  return p.birthDate ? ageFromBirthDate(p.birthDate) ?? 0 : p.age;
+}
+
 export function profileComplete(p?: Profile): p is Profile {
-  return !!p && p.age > 0 && p.weight > 0 && p.height > 0;
+  return !!p && Number.isFinite(profileAge(p)) && profileAge(p) > 0 && profileAge(p) <= 120
+    && Number.isFinite(p.weight) && p.weight > 0 && Number.isFinite(p.height) && p.height > 0
+    && (p.sex === 'M' || p.sex === 'F') && ACTIVITIES.some((a) => a.key === p.activity);
+}
+
+export function needsProfileSetup(p: Profile | undefined, goals: Goals): boolean {
+  return !profileComplete(p) || !p.name?.trim() || !PLANS.some((pl) => pl.key === goals.plan) || !tdee(p);
 }
 
 export function bmr(p: Profile): number {
-  const base = 10 * p.weight + 6.25 * p.height - 5 * p.age;
+  const base = 10 * p.weight + 6.25 * p.height - 5 * profileAge(p);
   return Math.round(base + (p.sex === 'M' ? 5 : -161));
 }
 
 /** Calorie di mantenimento (null se manca qualcosa). */
 export function tdee(p?: Profile): number | null {
   if (!p) return null;
-  if (p.activity === 'altro') return p.customTdee && p.customTdee > 0 ? round10(p.customTdee) : null;
+  if (p.activity === 'altro') return p.customTdee && Number.isFinite(p.customTdee) && p.customTdee > 0 ? round10(p.customTdee) : null;
   if (!profileComplete(p)) return null;
   const f = ACTIVITIES.find((a) => a.key === p.activity)?.factor ?? 1.2;
   return round10(bmr(p) * f);
