@@ -1,5 +1,4 @@
 import type { Goals, Macros } from '../types';
-import { progressColor } from '../lib/macroStyle';
 
 const PLAN_LABEL = { dieta: 'Dieta', mantenimento: 'Mantenimento', massa: 'Massa' };
 const fmt = (n: number) => Math.round(n).toLocaleString('it-IT');
