@@ -30,7 +30,7 @@ questo PC. Dati salvati nel browser del PC, nessun login ancora.
 
 **Sul PC:** http://127.0.0.1:5180 (icona "NutriTrack PRO" sul Desktop; si avvia
 da sola all'accesso a Windows con l'attività pianificata "NutriTrack PRO locale").
-**Online:** non ancora pubblicato.
+**Link di prova:** https://nutritrack.redapp.dev (tunnel Cloudflare 'pc-windows' → questo PC, porta 5180; temporaneo fino a Vercel).
 
 ---
 
@@ -106,7 +106,7 @@ da sola all'accesso a Windows con l'attività pianificata "NutriTrack PRO locale
 - La ricerca per nome funziona solo passando da `/off-search`: aprendo `dist/index.html` come file, o su un hosting senza la regola di vercel.json, la ricerca per nome fallisce (il codice a barre invece va).
 - Nell'APK (fase 4) `/off-search` non esiste: usare la richiesta nativa di Capacitor verso search.openfoodfacts.org.
 - I giorni sono in ora locale (`src/lib/dates.ts`): non usare `toISOString()` per la data del giorno (darebbe il giorno UTC).
-- Il server locale ascolta solo su 127.0.0.1: non è raggiungibile dal telefono (nessuna pubblicazione Tailscale fatta, per non toccare quelle di PronoBlast/GymBuilder/Guacamole).
+- Il server locale ascolta solo su 127.0.0.1; dall'esterno arriva da nutritrack.redapp.dev (regola nel tunnel Cloudflare 'pc-windows', gestito dal pannello Cloudflare, + CNAME). Vite rifiuta indirizzi sconosciuti: il nome sta in `preview.allowedHosts` di vite.config.ts. Se il PC è spento il link non risponde.
 
 ---
 
@@ -133,6 +133,7 @@ l'utente la provi e dica se procedere con la fase 2 (CIQUAL).
 
 | Data | Modello | Cosa è stato fatto |
 |---|---|---|
+| 2026-10-16 | Claude Opus 5.5 | Link di prova nutritrack.redapp.dev via tunnel Cloudflare pc-windows |
 | 2026-10-16 | Claude Opus 5.5 | Fase 1: app React sul PC (giorni, pasti, parole, Open Food Facts nome/codice, storico, mezzanotte), 12 test, avvio automatico sul PC |
 | 2026-10-16 | Claude Opus 5.5 | Decise fonti alimenti e percorso React/APK/Vercel+Supabase con login (nessun codice cambiato) |
 | 2026-10-16 | Claude Opus 5.5 | Adozione AI-OS del prototipo Gemini; tolte foto AI finta e frequenti inventati; etichette AI corrette; prova in Edge ok |

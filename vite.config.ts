@@ -16,5 +16,6 @@ const offProxy = {
 export default defineConfig({
   plugins: [react()],
   server: { port: 5180, strictPort: true, proxy: offProxy },
-  preview: { port: 5180, strictPort: true, host: '127.0.0.1', proxy: offProxy },
+  // allowedHosts: l'app arriva anche dal tunnel Cloudflare (nutritrack.redapp.dev).
+  preview: { port: 5180, strictPort: true, host: '127.0.0.1', allowedHosts: ['nutritrack.redapp.dev'], proxy: offProxy },
 });
