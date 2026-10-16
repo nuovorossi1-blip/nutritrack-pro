@@ -40,6 +40,8 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Andr
 
 ## 3. Cosa funziona
 
+- [FACT] Resa crudo/cotto per porzione: pesi totali prima/dopo e grammi cotti da mangiare; misura persistita in cloud/edit/frequenti. Schede gia cotte mai convertite di nuovo; stato/etichette coerenti. Conversioni generiche marcate stime.53test/build e QA browser positivi; storico conservato.
+
 - [FACT] Navigazione Android pulsante/gesto Back gerarchica, radice minimizeApp, bordi swipe24px riservati e insets laterali landscape.50test/build e QA bridge mobile positivi; prova fisica delle due modalit? ancora da confermare. UI aggiornata remotamente, APK1.0.3 invariato.
 
 - [FACT] Revisione16/10 sera: calendario custom bubble con mese/anno, giorni tondi, futuro disabilitato, tastiera/Escape/focus e320px; bordi piu morbidi nell'app. C azzurro/P arancione/G giallo,100%verde e oltre rosso; macro nelle card pasti centrati. Browser locale e LIVE positivi anche per soglie di completamento/superamento.
@@ -199,27 +201,32 @@ Catalogo generico USDA aggiunto; CIQUAL resta una possibile espansione. APK Andr
 
 **Modello:** Codex (GPT-6) ? **Data:** 2026-10-16
 
-Richiesta supporto navigazione Android classica3pulsanti e gesti.
-Aggiunto gestore Back unico App.backButton: priorit? finestra visibile, calendario,
-scanner, porzione/review, picker, pasto; chiusura swipe aperto prima del pasto;
-profilo, conferma rapida, privacy e aggiornamento gestiti. Voce attiva: Back ferma
-microfono prima di uscire. Dalla radice minimizeApp, senza navigare fuori dal sito.
-Barre Home/Recenti lasciate al sistema; nessuna modalit? imposta dall'app.
-Insets nativi dinamici gi? esistenti Capacitor8 viewport-fit=contain preservati:
-WebView sopra3tasti/linea gesti e tastiera. Aggiunta protezione sinistra/destra
-per landscape a schermate/footer/fogli e insets scanner/privacy/updater.
-Swipe alimento ignora24px ai bordi per non interferire con Back laterale.
-50test/build positivi. Browser Edge mobile con bridge nativo simulato: calendario,
-profilo, porzione?picker?pasto?diario?minimize, inset0/24/48, landscape bordo48,
-zero errori JS. Utente temporaneo eliminato. Primo QA fallito solo selettore ricerca
-errato, corretto e ripetuto positivo. Prova fisica gesti/tasti/IME/Home/Recenti da
-confermare sul telefono. Nessun nuovo APK necessario: App plugin gi? in1.0.3;
-aggiornamento web remoto pubblicato con verifica LIVE (vedi registro centrale).
+Peso crudo/cotto: fattori generici gi? presenti avevano arrotondamento intermedio
+al grammo e le schede cotte salvavano cooked=false. Corretto: precisione0.01g,
+stato/etichette espliciti a crudo/da cotto, foodPreparation condiviso AI/nutrition;
+nessuna conversione aggiuntiva se la scheda ? gi? cotta, anche con factor residuo.
+Factor mancante/invalido o resa incompleta non trattano peso cotto come crudo.
+In PortionEditor/QuickConfirm checkbox 'Ho pesato prima e dopo la cottura':
+Totale crudo(g), Totale cotto(g), quantit? cotta da mangiare. Resa per stessa
+partita/parte edibile senza condimenti, cotto/raw; si ripartiscono macro della
+scheda cruda sulla porzione cotta. Non misura perdite nutrienti/grassi/succhi;
+testo esplicito, ingredienti aggiunti separati. Generici factor indicati STIME,
+nessuna promessa che tutte le cotture conservino macro esatti.
+Per schede cotte USDA si usano direttamente i rispettivi valori100g; tasti
+crudo/cotto scelgono la scheda, non trasformano100g crudi in100g cotti.
+Resa opzionale MealItem.cookingYield persiste cloud/edit/frequenti/quickadd,
+non cambia valori100g dell'alimento, n? ricalcola storico precedente.
+53test/build ok; test misure pasta/riso/acqua e carne/pesce/perdita, scheda cotta
+senza doppio fattore, blocco resa incompleta, edit conservativo.
+QA browser locale positivo: pasta100crudi250cotti porzione125=186kcal,250=371;
+reload cloud/edit mantengono100/250/125; pollo200crudi150cotti75=110kcal.
+Primo QA secondo picker su Frequenti: selettore ricerca mancava, test corretto
+con tabCerca; nessun difetto app. Utenti prova eliminati. Pubblicazione remota
+senza nuova APK, verifica LIVE nel registro centrale.
 
-Precedente revisione conservata: merge aeecf02 con contributi Claude,
-prodotti salvati, porzioni14g/2pezzi=7g, nomi/plurali,35schede USDA, stile bubble,
-macro colori, Google voce compatta. APK1.0.3/code3 invariato e firma stabile.
-Test fisici audio/punteggiatura/installazione/fotocamera e scope workflow aperti.
+Conservato supporto Android3pulsanti/gesti del commit12525a5 e revisione aeecf02
+(con contributi Claude). APK1.0.3/code3 invariato; test fisici navigazione/voce/
+punteggiatura/installazione/fotocamera e scope workflow restano aperti.
 
 ---
 

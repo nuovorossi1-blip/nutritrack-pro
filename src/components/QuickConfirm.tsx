@@ -1,9 +1,10 @@
+import { CookingWeights } from './CookingWeights';
 import { useAndroidBack } from '../native/navigation';
 import { X } from 'lucide-react';
 import { useState } from 'react';
 import type { MealKey } from '../types';
 import { MEALS } from '../types';
-import { macrosFor, portionLabel, rawGrams, sumMacros } from '../lib/nutrition';
+import { foodPreparation, macrosFor, portionLabel, rawGrams, sumMacros } from '../lib/nutrition';
 import type { ParsedEntry } from '../lib/parser';
 import { NumberInput } from './NumberInput';
 import { plausibilityWarnings } from '../lib/plausibility';
@@ -99,7 +100,7 @@ export function QuickConfirm({ entries: initial, meal: initialMeal, ai, dayLabel
                 ) : (
                   <span className="text-xs font-bold text-neutral-400">grammi</span>
                 )}
-                {e.food.cookedFactor ? (
+                {e.food.cookedFactor && foodPreparation(e.food) !== 'cooked' && !e.portion.cookingYield ? (
                   <select
                     value={e.portion.cooked ? 'cotto' : 'crudo'}
                     onChange={(ev) => set(i, { ...e, portion: { ...e.portion, cooked: ev.target.value === 'cotto' } })}
@@ -110,6 +111,7 @@ export function QuickConfirm({ entries: initial, meal: initialMeal, ai, dayLabel
                   </select>
                 ) : null}
               </div>
+              <CookingWeights food={e.food} portion={e.portion} onChange={(portion) => set(i, {...e, portion})} />
               <div className={`text-[11px] font-semibold ${g <= 0 ? 'text-red-500' : 'text-neutral-500'}`}>
                 {g <= 0 ? 'Quantità non indicata: scrivila qui sopra' : `${portionLabel(e.food, e.portion)} · ${m.kcal} kcal · C ${m.carbs} · P ${m.pro} · G ${m.fats}`}
               </div>

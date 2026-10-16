@@ -1,4 +1,4 @@
-import type { Food, Macros, MealItem, QtyMode } from '../types';
+import type { CookingYield, Food, Macros, MealItem, QtyMode } from '../types';
 
 const r1 = (n: number) => Math.round(n * 10) / 10;
 
@@ -24,6 +24,26 @@ export interface Portion {
   mode: QtyMode;
   qty: number;
   cooked: boolean;
+  cookingYield?: CookingYield;
+}
+
+export function foodPreparation(food: Food): Food['preparation'] {
+  if (food.preparation) return food.preparation;
+  if (food.usda) {
+    if (/\braw\b/i.test(food.usda.description)) return 'raw';
+    if (/\b(cooked|roasted|broiled|boiled|fried|baked)\b/i.test(food.usda.description)) return 'cooked';
+  }
+  if (/\b(cott[oaie]|bollit[oaie]|grigliat[oaie]|less[oaie])\b/i.test(food.name)) return 'cooked';
+  if (food.cookedFactor || /\bcrud[oaie]\b/i.test(food.name)) return 'raw';
+  return undefined;
+}
+
+export function cookingFactor(food: Food, p: Portion): number | undefined {
+  if (foodPreparation(food) === 'cooked' || !p.cooked) return undefined;
+  const measured = p.cookingYield;
+  if (measured) return measured.raw > 0 && measured.cooked > 0 && Number.isFinite(measured.raw + measured.cooked)
+    ? measured.cooked / measured.raw : undefined;
+  return food.cookedFactor && food.cookedFactor > 0 && Number.isFinite(food.cookedFactor) ? food.cookedFactor : undefined;
 }
 
 export function withServing(food: Food, grams: number | undefined, units: number | undefined): Food {
@@ -38,21 +58,27 @@ export function withServing(food: Food, grams: number | undefined, units: number
 /** Grammi a crudo (o del prodotto) corrispondenti alla quantita' inserita. */
 export function rawGrams(food: Food, p: Portion): number {
   const base = p.mode === 'pieces' ? p.qty * (food.pieceWeight || 0) : p.qty;
-  const g = p.cooked && food.cookedFactor ? base / food.cookedFactor : base;
-  return Math.max(0, p.cooked && food.cookedFactor ? Math.round(g) : Math.round(g * 100) / 100);
+  const factor = cookingFactor(food, p);
+  if (p.cooked && foodPreparation(food) !== 'cooked' && !factor) return 0;
+  const g = factor ? base / factor : base;
+  return Number.isFinite(g) ? Math.max(0, Math.round(g * 100) / 100) : 0;
 }
 
 export function portionLabel(food: Food, p: Portion): string {
   const g = rawGrams(food, p);
   const qty = Math.round(p.qty * 100) / 100;
+  const factor = cookingFactor(food, p);
+  const state = foodPreparation(food);
+  const suffix = state === 'cooked' ? ' da cotto' : state === 'raw' ? ' a crudo' : '';
+  const equivalent = p.cookingYield ? 'resa misurata' : 'stima';
   if (p.mode === 'pieces') {
     if (!food.pieceWeight) return 'Peso del pezzo da definire';
     const pieceG = Math.round(qty * (food.pieceWeight || 100));
-    if (p.cooked && food.cookedFactor) return `${qty} ${unitWord(food, qty)} cotto (${pieceG}g = ${g}g crudo)`;
-    return `${qty} ${unitWord(food, qty)} (${food.pieceWeightEstimated ? 'circa ' : ''}${g}g)`;
+    if (factor) return `${qty} ${unitWord(food, qty)} (${pieceG}g cotti ≈ ${g}g crudi; ${equivalent})`;
+    return `${qty} ${unitWord(food, qty)} (${food.pieceWeightEstimated ? 'circa ' : ''}${g}g${suffix})`;
   }
-  if (p.cooked && food.cookedFactor) return `${qty}g cotto (= ${g}g crudo)`;
-  return food.cookedFactor ? `${g}g a crudo` : `${g}g`;
+  if (factor) return `${qty}g cotti ≈ ${g}g crudi (${equivalent})`;
+  return `${g}g${suffix}`;
 }
 
 export function newId(prefix: string): string {
@@ -68,7 +94,8 @@ export function buildItem(food: Food, p: Portion, id?: string): MealItem {
     grams,
     mode: p.mode,
     qty: p.qty,
-    cooked: !!(p.cooked && food.cookedFactor),
+    cooked: foodPreparation(food) === 'cooked' || !!cookingFactor(food, p),
+    ...(p.cookingYield && cookingFactor(food, p) ? { cookingYield: p.cookingYield } : {}),
     label: portionLabel(food, p),
     addedAt: new Date().toISOString(),
     ...macrosFor(food, grams),

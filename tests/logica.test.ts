@@ -26,8 +26,8 @@ describe('giorni', () => {
 });
 
 describe('crudo e cotto', () => {
-  it('200g di pasta cotta = 95g crudi', () => {
-    expect(rawGrams(food('f12'), { mode: 'grams', qty: 200, cooked: true })).toBe(95);
+  it('200g di pasta cotta con resa stimata2.1 = 95.24g crudi', () => {
+    expect(rawGrams(food('f12'), { mode: 'grams', qty: 200, cooked: true })).toBe(95.24);
   });
   it('2 uova = 120g, 172 kcal', () => {
     const it = buildItem(food('f_egg'), { mode: 'pieces', qty: 2, cooked: false });
@@ -45,7 +45,7 @@ describe('inserimento a parole', () => {
     const r = parseFoodText(t, BASE_FOODS);
     expect(r.map((e) => e.food.id)).toEqual(['common_pasta_cooked', 'f3']);
     // La pasta cotta ora usa la scheda USDA da cotto: niente seconda conversione.
-    expect(r.map((e) => rawGrams(e.food, e.portion))).toEqual([200, 203]);
+    expect(r.map((e) => rawGrams(e.food, e.portion))).toEqual([200, 202.7]);
     expect(mealFromText(t)).toBe('pranzo');
   });
   it('numeri a parole e pezzi', () => {
@@ -152,7 +152,7 @@ describe('frasi con piu alimenti', () => {
     expect(mealFromText(t)).toBe('colazione');
   });
   it('quantita dopo, cotto, 0% e kg', () => {
-    expect(show('pasta 80g e pollo 150 g cotto')).toEqual(['f12:80', 'f3:203']);
+    expect(show('pasta 80g e pollo 150 g cotto')).toEqual(['f12:80', 'f3:202.7']);
     expect(show('yogurt greco 0% e una banana')).toEqual(['f26:0?', 'f29:150']);
     expect(show('mezzo kg di patate')).toEqual(['common_potatoes_raw:500']);
     expect(show('1 kg di patate')).toEqual(['common_potatoes_raw:1000']);

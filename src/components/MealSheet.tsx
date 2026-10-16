@@ -180,7 +180,7 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
                     </div>
                     <span className="text-sm font-bold whitespace-nowrap">{it.kcal} kcal</span>
                     {food && (
-                      <button aria-label="Modifica" onClick={() => setPicking({ food, initial: { mode: it.mode, qty: it.qty, cooked: it.cooked }, itemId: it.id })} className="p-2 text-neutral-400 hover:text-blue-500">
+                      <button aria-label="Modifica" onClick={() => setPicking({ food, initial: { mode: it.mode, qty: it.qty, cooked: it.cooked, cookingYield: it.cookingYield }, itemId: it.id })} className="p-2 text-neutral-400 hover:text-blue-500">
                         <Pencil size={16} />
                       </button>
                     )}
@@ -223,7 +223,7 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
                 {frequent.map((fr) => (
                   <div key={fr.food.id} className="flex items-center gap-1 rounded-2xl hover:bg-neutral-50 dark:hover:bg-neutral-800/60">
                     <button
-                      onClick={() => setPicking({ food: fr.food, initial: { mode: fr.last.mode, qty: fr.last.qty, cooked: fr.last.cooked } })}
+                      onClick={() => setPicking({ food: fr.food, initial: { mode: fr.last.mode, qty: fr.last.qty, cooked: fr.last.cooked, cookingYield: fr.last.cookingYield } })}
                       className="flex-1 min-w-0 text-left px-3 py-2.5"
                     >
                       <div className="text-sm font-semibold truncate">{fr.food.name}</div>
@@ -234,7 +234,7 @@ export function MealSheet({ meal, day, dayLabel, items, data, onAdd, onAddItems,
                     {/* Il + aggiunge subito la stessa quantita' dell'ultima volta; toccando il nome si cambia la quantita'. */}
                     <button
                       aria-label={`Aggiungi ${fr.food.name} ${fr.last.label}`}
-                      onClick={() => onAdd(fr.food, { mode: fr.last.mode, qty: fr.last.qty, cooked: fr.last.cooked })}
+                      onClick={() => onAdd(fr.food, { mode: fr.last.mode, qty: fr.last.qty, cooked: fr.last.cooked, cookingYield: fr.last.cookingYield })}
                       className="shrink-0 w-11 h-11 mr-1 rounded-2xl bg-blu text-white flex items-center justify-center text-xl font-bold"
                     >
                       +

@@ -6,9 +6,9 @@ import { NumberInput } from './NumberInput';
 import { pluralIt } from './PortionSetup';
 import { kcalFromMacros, plausibilityWarnings } from '../lib/plausibility';
 import { askAi } from '../lib/ai';
-import { withServing } from '../lib/nutrition';
+import { foodPreparation, withServing } from '../lib/nutrition';
 
-// Peso cotto / peso crudo, come negli alimenti di base. I valori della scheda restano quelli a crudo.
+// Stime del peso cotto / peso crudo, come negli alimenti di base. I valori della scheda restano quelli a crudo.
 const COOKING = [
   { label: 'Pasta (raddoppia il peso)', factor: 2.1, note: 'La pasta assorbe acqua e raddoppia il peso' },
   { label: 'Riso (quasi triplica)', factor: 2.7, note: 'Il riso assorbe acqua e quasi triplica il peso' },
@@ -137,13 +137,13 @@ export function FoodReview({ food, missing = [], title, onSave, onClose }: Props
           {f.pieceWeight && <p className="text-xs font-semibold">1 {f.unitName || 'pezzo'} = {Number(f.pieceWeight.toFixed(2))} g</p>}
         </fieldset>
         <label className="block">
-          <span className="text-[11px] font-bold text-neutral-500">Conversione del peso crudo/cotto (facoltativa)</span>
+          <span className="text-[11px] font-bold text-neutral-500">Conversione stimata del peso crudo/cotto (valori a crudo)</span>
           <select
-            disabled={!!f.usda && !/\braw\b/i.test(f.usda.description)}
+            disabled={foodPreparation(f) === 'cooked'}
             value={f.cookedFactor ?? ''}
             onChange={(e) => {
               const c = COOKING.find((x) => String(x.factor) === e.target.value);
-              setF(c ? { ...f, cookedFactor: c.factor, cookNote: c.note } : { ...f, cookedFactor: undefined, cookNote: undefined });
+              setF(c ? { ...f, preparation: 'raw', cookedFactor: c.factor, cookNote: c.note } : { ...f, cookedFactor: undefined, cookNote: undefined });
             }}
             className="w-full mt-0.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl px-3 py-2 text-sm"
           >

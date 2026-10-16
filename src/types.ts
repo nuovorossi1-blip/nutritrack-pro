@@ -50,18 +50,22 @@ export interface Macros {
 
 export type QtyMode = 'grams' | 'pieces';
 
+/** Weights of the same edible batch, before and after cooking, without added ingredients. */
+export interface CookingYield { raw: number; cooked: number }
+
 /** Voce di un pasto: conserva nome e valori calcolati, cosi' lo storico non cambia se l'alimento viene modificato. */
 export interface MealItem extends Macros {
   id: string;
   foodId: string;
   name: string;
-  /** Grammi a crudo (o grammi del prodotto se non si cuoce). */
+  /** Grammi riferiti alla scheda nutrizionale: crudi se convertiti, cotti per scheda cotta. */
   grams: number;
   mode: QtyMode;
   /** Quantita' inserita: grammi o numero di pezzi. */
   qty: number;
   /** true se la quantita' e' stata pesata da cotto. */
   cooked: boolean;
+  cookingYield?: CookingYield;
   label: string;
   addedAt: string;
 }

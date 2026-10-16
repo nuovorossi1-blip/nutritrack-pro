@@ -2,7 +2,8 @@ import { useAndroidBack } from '../native/navigation';
 import { Minus, Plus, X } from 'lucide-react';
 import { useState } from 'react';
 import type { Food, QtyMode } from '../types';
-import { macrosFor, portionLabel, rawGrams, withServing, type Portion } from '../lib/nutrition';
+import { foodPreparation, macrosFor, portionLabel, rawGrams, withServing, type Portion } from '../lib/nutrition';
+import { CookingWeights } from './CookingWeights';
 import { NumberInput } from './NumberInput';
 import { pluralIt } from './PortionSetup';
 import { plausibilityWarnings } from '../lib/plausibility';
@@ -51,7 +52,7 @@ export function PortionEditor({ food: originalFood, initial, confirmLabel, onCon
           <div>
             <h3 className="font-extrabold text-base">{food.name}</h3>
             <p className="text-xs text-neutral-400">
-              {food.brand ? `${food.brand} · ` : ''}per 100g{food.cookedFactor ? ' a crudo' : ''}: {food.kcal} kcal · C {food.carbs} · P {food.pro} · G {food.fats}
+              {food.brand ? `${food.brand} · ` : ''}per 100g{foodPreparation(food) === 'cooked' ? ' da cotto' : foodPreparation(food) === 'raw' ? ' a crudo' : ''}: {food.kcal} kcal · C {food.carbs} · P {food.pro} · G {food.fats}
             </p>
             {food.nutritionReference && <a href={food.nutritionReference.url} target="_blank" rel="noreferrer" className="text-[11px] underline text-blue-600 dark:text-gold-400">Fonte: {food.nutritionReference.label}</a>}
             {food.usda && <a href={food.usda.url} target="_blank" rel="noreferrer" className="text-[11px] underline text-blue-600 dark:text-gold-400">Fonte: USDA FoodData Central</a>}
@@ -84,11 +85,11 @@ export function PortionEditor({ food: originalFood, initial, confirmLabel, onCon
             <label className="col-span-2 text-xs">Nome della porzione<input aria-label="Nome della porzione" value={food.unitName || ''} placeholder="Es. fetta, biscotto, misurino" onChange={(event) => setFood({...food,unitName:event.target.value,unitPlural:pluralIt(event.target.value)})} className="w-full mt-1 p-3 rounded-xl bg-white dark:bg-neutral-900" /></label>
           </div>}
         </div>}
-        {food.counterpartId && <div className="flex rounded-2xl bg-neutral-100 dark:bg-neutral-800 p-1 gap-1">
+        {food.counterpartId && !p.cookingYield && <div className="flex rounded-2xl bg-neutral-100 dark:bg-neutral-800 p-1 gap-1">
           {(['raw','cooked'] as const).map((state) => <button key={state} className={tab(food.preparation === state)} onClick={() => { const next=alternatives.find((candidate) => candidate.id === food.counterpartId); if(next && next.preparation === state) {setFood(next);setP({...p,cooked:false});} }}>{state === 'raw' ? 'Pesato crudo' : 'Pesato cotto'}</button>)}
         </div>}
 
-        {food.cookedFactor ? (
+        {food.cookedFactor && foodPreparation(food) !== 'cooked' && !p.cookingYield ? (
           <div>
             <div className="flex bg-neutral-100 dark:bg-neutral-800 rounded-2xl p-1 gap-1">
               <button className={tab(!p.cooked)} onClick={() => setP({ ...p, cooked: false })}>
@@ -98,11 +99,12 @@ export function PortionEditor({ food: originalFood, initial, confirmLabel, onCon
                 Pesato cotto
               </button>
             </div>
-            {p.cooked && food.cookNote && <p className="text-[11px] text-gold-700 dark:text-gold-400 mt-1.5">{food.cookNote}.</p>}
+            {p.cooked && <p className="text-[11px] text-gold-700 dark:text-gold-400 mt-1.5">Conversione stimata: la resa cambia con alimento e cottura. Olio e condimenti vanno aggiunti separatamente.</p>}
           </div>
         ) : null}
 
-        <div className="text-xs font-bold text-neutral-500">Quantità da mangiare</div>
+        <CookingWeights food={food} portion={p} onChange={setP} />
+        <div className="text-xs font-bold text-neutral-500">Quantità da mangiare{p.cooked || foodPreparation(food) === 'cooked' ? ' (peso cotto)' : foodPreparation(food) === 'raw' ? ' (peso crudo)' : ''}</div>
         <div className="flex items-center gap-3">
           <button aria-label="Meno" onClick={() => setP({ ...p, qty: Math.max(0, Math.round((p.qty - step) * 10) / 10) })} className="w-11 h-11 rounded-2xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
             <Minus size={18} />
