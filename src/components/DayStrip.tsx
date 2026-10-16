@@ -8,11 +8,36 @@ interface Props {
   today: string;
   daysWithData: Set<string>;
   onSelect: (day: string) => void;
+  compact?: boolean;
 }
 
-export function DayStrip({ selected, today, daysWithData, onSelect }: Props) {
+export function DayStrip({ selected, today, daysWithData, onSelect, compact = false }: Props) {
   const days = dayStrip(selected, today);
   const [calendar, setCalendar] = useState(false);
+  if (compact) {
+    const visible = [addDays(selected, -1), selected, addDays(selected, 1)];
+    return (
+      <div className="flex min-w-0 flex-1 items-center justify-center gap-0.5" aria-label="Selezione giorno">
+        {visible.map((d, i) => {
+          const active = i === 1;
+          const future = d > today;
+          return (
+            <button key={d} type="button" disabled={future}
+              aria-label={active ? `Apri calendario, ${longLabel(d)}` : `Vai a ${longLabel(d)}`}
+              aria-current={active ? 'date' : undefined}
+              onClick={() => active ? setCalendar(true) : onSelect(d)}
+              className={`relative min-w-0 flex-1 max-w-11 rounded-lg py-1 flex flex-col items-center justify-center leading-none disabled:opacity-25 ${active ? 'bg-[#f5b935] text-neutral-950' : 'text-neutral-300'}`}
+            >
+              <span className="text-[8px] font-semibold truncate w-full text-center">{shortLabel(d, today)}</span>
+              <span className="text-sm font-extrabold mt-0.5">{parseISO(d).getDate()}</span>
+              <span className={`absolute bottom-0.5 w-1 h-1 rounded-full ${daysWithData.has(d) ? (active ? 'bg-neutral-950' : 'bg-[#f5b935]') : 'bg-transparent'}`} />
+            </button>
+          );
+        })}
+        {calendar && <CalendarSheet selected={selected} today={today} daysWithData={daysWithData} onSelect={onSelect} onClose={() => setCalendar(false)} />}
+      </div>
+    );
+  }
   return (
     <section className="bg-[#191a1c] text-white rounded-[22px] border border-[#343538] shadow-sm px-2.5 py-2">
       <div className="flex items-center gap-0.5 sm:gap-1 min-w-0">
