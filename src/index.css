@@ -102,9 +102,31 @@ textarea {
 }
 
 /* Superfici morbide e controlli arrotondati, coerenti in tutta l'app. */
-.dark body {
-  background: radial-gradient(ellipse at 10% 0%, #17213b55, transparent 55%), #0a0a0c;
+/* Sfondo app: blu notte sfumato con riflessi oro; panna/beige in tema chiaro. */
+body {
+  background: #f4ecdc;
 }
+.dark body {
+  background: #081327;
+}
+.app-home,
+.meal-content {
+  background-color: #f4ecdc;
+  background-image: radial-gradient(ellipse at 85% 8%, rgba(226, 195, 139, 0.23), transparent 48%),
+    linear-gradient(160deg, #fff9ed 0%, #f4ecdc 53%, #eadcc7 100%);
+  background-attachment: fixed;
+}
+.dark .app-home,
+.dark .meal-content {
+  background-color: #081327;
+  background-image: radial-gradient(ellipse at 88% 6%, rgba(213, 159, 54, 0.22), transparent 44%),
+    radial-gradient(ellipse at 8% 46%, rgba(30, 75, 143, 0.48), transparent 58%),
+    linear-gradient(155deg, #111e3c 0%, #0b1731 48%, #070e1d 100%);
+  background-attachment: fixed;
+}
+/* La schermata del pasto ha un contenitore scrollabile: sfondo coerente con il tema. */
+[data-meal-sheet] { background: #f4ecdc; }
+.dark [data-meal-sheet] { background: #081327; }
 button { -webkit-tap-highlight-color: transparent; }
 input[type='number']::-webkit-inner-spin-button {
   -webkit-appearance: none;
