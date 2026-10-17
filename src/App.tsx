@@ -1,4 +1,6 @@
 import { Flame, Moon, Plus, RotateCcw, Sun, Settings, Wand2 } from 'lucide-react';
+import { App as CapacitorApp } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { AppData, Food, Goals, MealItem, MealKey, Profile } from './types';
 import { needsProfileSetup } from './lib/metabolism';
@@ -99,19 +101,19 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
   // Mai aggiungere alla cieca: pasto e quantita' si confermano nel riquadro.
   const [thinking, setThinking] = useState(false);
 
-  const addQuick = async () => {
-    if (!text.trim() || thinking) return;
+  const addQuick = async (input = text) => {
+    if (!input.trim() || thinking) return;
     const foods = recognitionFoods(data);
-    const entries = parseFoodText(text, foods);
-    const meal = mealFromText(text);
-    if (entries.some((entry) => entry.food.id === 'f16') && !/\bsegale\b/.test(normalize(text))) {
+    const entries = parseFoodText(input, foods);
+    const meal = mealFromText(input);
+    if (entries.some((entry) => entry.food.id === 'f16') && !/\bsegale\b/.test(normalize(input))) {
       return toast('Quale pane? Specifica bianco, casereccio o integrale.', true);
     }
     // Frase completa: anche l'AI puo' inserire direttamente, con Annulla.
-    if (unknownWords(text, foods).length) {
+    if (unknownWords(input, foods).length) {
       setThinking(true);
       try {
-        const r = await askAi(text);
+        const r = await askAi(input);
         const aiList = aiEntries(r, foods);
         if (!aiList.length) return toast('Alimento non riconosciuto: nessuna voce aggiunta.', true);
         const complete = meal && aiList.every((e) => e.qtyGiven && e.portion.qty > 0 && !plausibilityWarnings(e.food).length)
@@ -129,6 +131,35 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
     if (meal && entries.every((e) => e.qtyGiven)) confirmQuick(entries, meal, true);
     else setQuick({ entries, meal });
   };
+
+  // Deep link Android: nutri://add?text=Aggiungi%202%20uova%20a%20colazione
+  // Non eseguiamo comandi arbitrari: accettiamo solo testo alimentare e il parser esistente.
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+    const handleUrl = (url: string) => {
+      try {
+        const parsed = new URL(url);
+        if (parsed.protocol !== 'nutri:' || parsed.hostname !== 'add') return;
+        const command = (parsed.searchParams.get('text') || '').trim().slice(0, 500);
+        if (!command) return;
+        setText(command);
+        if (selected !== today) {
+          setSelected(today);
+          toast('Comando ricevuto: verifica e premi Inserisci per registrarlo oggi.');
+          return;
+        }
+        void addQuick(command);
+      } catch { /* Ignora link non validi. */ }
+    };
+    let active = true;
+    void CapacitorApp.getLaunchUrl().then((result) => {
+      if (active && result?.url) handleUrl(result.url);
+    });
+    const listener = CapacitorApp.addListener('appUrlOpen', (event) => handleUrl(event.url));
+    return () => { active = false; void listener.then((sub) => sub.remove()); };
+    // Registriamo una volta per apertura; i comandi successivi passano dall'evento.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function confirmQuick(entries: ParsedEntry[], meal: MealKey, undoable = false) {
     // Alimenti nuovi letti dall'AI: salvati, cosi' la prossima volta si riconoscono senza AI.
