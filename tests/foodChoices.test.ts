@@ -24,4 +24,16 @@ describe('voice/text database choices',()=>{
     expect(matchingFoods('cornetto',[ice,ice])[0]).toBe(ice);
     expect(matchingFoods('cornetto',[ice,ice])).toHaveLength(1);
   });
+  it('splits a dictated sentence without commas at every new quantity',()=>{
+    expect(foodRequests('263 g di ravioli cotti 150 g di cosce di pollo cotte 200 g di patate cotte dieci castagne 50 g di strudel',BASE_FOODS)).toEqual([
+      {query:'ravioli cotti',grams:263},{query:'cosce di pollo cotte',grams:150},{query:'patate cotte',grams:200},
+      {query:'castagne',pieces:10},{query:'strudel',grams:50}]);
+    expect(foodRequests('pasta 80 g e 2 uova',BASE_FOODS)).toEqual([{query:'pasta',grams:80},{query:'uova',pieces:2}]);
+  });
+  it('matches singular/plural and prefers the cooked entry without excluding the others',()=>{
+    const matches=matchingFoods('patate cotte',BASE_FOODS);
+    expect(matches.length).toBeGreaterThan(1);
+    expect(matches[0].preparation).toBe('cooked');
+    expect(matchingFoods('cosce di pollo',[{id:'c',name:'Coscia di pollo',kcal:1,pro:0,carbs:0,fats:0,source:'usda'}])).toHaveLength(1);
+  });
 });
