@@ -72,7 +72,7 @@ export function FoodChoices({ text, foods, mealLabel, onClose, onConfirm }: {
       <div className="space-y-2">
         {requests.map((request,index)=><button key={index} onClick={()=>setActive(index)} className={`w-full text-left rounded-2xl border-2 p-3 ${active===index?'border-blue-500':'border-neutral-200 dark:border-neutral-700'}`}>
           <div className="font-bold text-sm">{entries[index]?.food.name||request.query}</div>
-          <div className="text-xs text-neutral-500">{entries[index]?portionLabel(entries[index]!.food,entries[index]!.portion):'Scegli il tipo e indica il peso'}</div>
+          <div className="text-xs text-neutral-500">{entries[index]?portionLabel(entries[index]!.food,entries[index]!.portion):request.grams?`${request.grams} g · scegli il tipo`:request.pieces?`${request.pieces} pezzi · scegli il tipo`:'Scegli il tipo e indica il peso'}</div>
         </button>)}
       </div>
       {active>=0&&!!requests.length&&<>
