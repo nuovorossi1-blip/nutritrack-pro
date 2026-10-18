@@ -21,6 +21,8 @@ import { plausibilityWarnings } from './lib/plausibility';
 import { VoiceInput } from './components/VoiceInput';
 import { AndroidDownloadBanner } from './components/AndroidTools';
 import { recognitionFoods } from './lib/savedFoodRecognition';
+import { CompleteDay } from './components/CompleteDay';
+import { CLEAN_NEW_IDS } from './data/cleanFoods';
 
 interface Toast {
   id: number;
@@ -314,6 +316,13 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
             })}
           </div>
         </section>
+
+        <CompleteDay data={data} day={day} goals={data.goals} eaten={total} onAdd={(entries, meal) => {
+          // Alimenti dell'elenco pulito che non sono fra quelli base: salvati, cosi' si possono modificare dal pasto.
+          const fresh = entries.map((e) => e.food).filter((f) => CLEAN_NEW_IDS.has(f.id) && !data.foods.some((x) => x.id === f.id));
+          if (fresh.length) update((d) => ({ ...d, foods: [...fresh, ...d.foods] }));
+          confirmQuick(entries, meal, true);
+        }} />
       </main>
 
       {openMeal && (

@@ -121,3 +121,13 @@ export function rawFromCooked(food: Food, cookedGrams: number, alternatives: Foo
   const typical = TYPICAL_YIELD.find(([re]) => re.test(food.name));
   return typical ? Math.round(cookedGrams / typical[1]) : null;
 }
+
+/** Grammi da cotto stimati per un alimento pesato crudo (gemella cotta o resa tipica). */
+export function cookedFromRaw(food: Food, rawG: number, alternatives: Food[] = []): number | null {
+  if (foodPreparation(food) !== 'raw' || rawG <= 0) return null;
+  const twin = food.counterpartId ? alternatives.find((f) => f.id === food.counterpartId) : undefined;
+  if (twin && twin.kcal > 0 && food.kcal > 0) return Math.round((rawG * food.kcal) / twin.kcal);
+  if (food.cookedFactor) return Math.round(rawG * food.cookedFactor);
+  const typical = TYPICAL_YIELD.find(([re]) => re.test(food.name));
+  return typical ? Math.round(rawG * typical[1]) : null;
+}
