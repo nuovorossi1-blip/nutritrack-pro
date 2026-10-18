@@ -101,3 +101,23 @@ export function buildItem(food: Food, p: Portion, id?: string): MealItem {
     ...macrosFor(food, grams),
   };
 }
+
+// Resa tipica (peso cotto / peso crudo) per stimare il crudo quando manca la voce gemella: solo indicativa.
+const TYPICAL_YIELD: [RegExp, number][] = [
+  [/\b(riso|risotto|basmati|farro|orzo|quinoa|cous ?cous)\b/i, 2.6],
+  [/\b(ravioli|tortellini|agnolotti|gnocchi|pasta fresca)\b/i, 1.3],
+  [/\b(pasta|spaghetti|penne|fusilli|rigatoni|maccheroni|farfalle|linguine|tagliatelle|lasagn)/i, 2.1],
+  [/\b(fagioli|ceci|lenticchie|piselli secchi|legumi)\b/i, 2.4],
+  [/\b(pollo|tacchino|manzo|vitello|maiale|scottona|bistecca|carne|cosce|coscia|petto|fettina|hamburger|agnello)\b/i, 0.75],
+  [/\b(salmone|merluzzo|nasello|tonno|orata|branzino|pesce|spigola|trota)\b/i, 0.8],
+  [/\b(patat|carot|zucchin|broccol|spinac|verdur|melanzan|peperon|cavol|fagiolin)/i, 0.9],
+];
+
+/** Grammi a crudo stimati per un alimento gia' cotto: gemella cruda (stesse calorie) o resa tipica. */
+export function rawFromCooked(food: Food, cookedGrams: number, alternatives: Food[] = []): number | null {
+  if (foodPreparation(food) !== 'cooked' || cookedGrams <= 0) return null;
+  const twin = food.counterpartId ? alternatives.find((f) => f.id === food.counterpartId) : undefined;
+  if (twin && twin.kcal > 0 && food.kcal > 0) return Math.round((cookedGrams * food.kcal) / twin.kcal);
+  const typical = TYPICAL_YIELD.find(([re]) => re.test(food.name));
+  return typical ? Math.round(cookedGrams / typical[1]) : null;
+}

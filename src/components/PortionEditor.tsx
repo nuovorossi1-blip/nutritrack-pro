@@ -2,7 +2,7 @@ import { useAndroidBack } from '../native/navigation';
 import { Minus, Plus, X } from 'lucide-react';
 import { useState } from 'react';
 import type { Food, QtyMode } from '../types';
-import { foodPreparation, macrosFor, portionLabel, rawGrams, withServing, type Portion } from '../lib/nutrition';
+import { foodPreparation, macrosFor, portionLabel, rawFromCooked, rawGrams, withServing, type Portion } from '../lib/nutrition';
 import { CookingWeights } from './CookingWeights';
 import { NumberInput } from './NumberInput';
 import { pluralIt } from './PortionSetup';
@@ -32,6 +32,7 @@ export function PortionEditor({ food: originalFood, initial, confirmLabel, onCon
   const [p, setP] = useState<Portion>(initial || defaultPortion(food));
   const grams = rawGrams(food, p);
   const m = macrosFor(food, grams);
+  const rawEstimate = rawFromCooked(food, grams, alternatives || []);
   const step = p.mode === 'pieces' ? (food.pieceWeight && food.pieceWeight >= 100 ? 0.5 : 1) : 10;
 
   const setMode = (mode: QtyMode) => {
@@ -125,6 +126,7 @@ export function PortionEditor({ food: originalFood, initial, confirmLabel, onCon
 
         <div className="rounded-2xl bg-blue-50 dark:bg-blue-950/40 p-3">
           <div className="text-xs font-semibold text-blue-700 dark:text-blue-300">{portionLabel(food, p)}</div>
+          {rawEstimate !== null && <div className="text-xs text-neutral-500 mt-0.5">≈ {rawEstimate} g a crudo (stima)</div>}
           <div className="text-sm font-extrabold mt-1">
             {p.mode === 'pieces' && !food.pieceWeight ? '?' : m.kcal} kcal <span className="text-xs font-semibold text-neutral-500">· C {m.carbs}g · P {m.pro}g · G {m.fats}g</span>
           </div>

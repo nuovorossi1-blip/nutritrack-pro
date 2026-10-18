@@ -22,7 +22,8 @@ export function NumberInput({ value, onChange, className, decimals = true, place
   // stesso render, senza un passaggio in ritardo come con useEffect.
   if (value !== seen) {
     setSeen(value);
-    if (parse(text) !== value) setText(fmt(value));
+    // Campo svuotato dall'utente: il valore diventa 0 ma il testo resta vuoto, niente "0" davanti.
+    if (parse(text) !== value && !(text.trim() === '' && !value)) setText(fmt(value));
   }
   return (
     <input
@@ -34,9 +35,9 @@ export function NumberInput({ value, onChange, className, decimals = true, place
       onFocus={(e) => e.target.select()}
       // Anche al tocco su un campo gia' attivo (sul telefono il focus non riparte): si riscrive il numero da capo.
       onPointerUp={(e) => e.currentTarget.select()}
-      onBlur={() => setText(fmt(value))}
+      onBlur={() => setText(value ? fmt(value) : text.trim() === '' ? '' : fmt(value))}
       onChange={(e) => {
-        const t = e.target.value;
+        const t = e.target.value.replace(/^0+(?=\d)/, '');
         if (!(decimals ? /^\d*([.,]\d*)?$/ : /^\d*$/).test(t)) return;
         setText(t);
         onChange(parse(t));
