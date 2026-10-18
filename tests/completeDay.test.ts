@@ -29,6 +29,7 @@ describe('completa la giornata',()=>{
     const r=planGrams({kcal:300,pro:0,carbs:60,fats:0},[item('f11'),item('bread_white')]);
     expect(r.grams[0]).toBeGreaterThan(0);expect(r.grams[1]).toBeGreaterThan(0);
     expect(groupOf({id:'x',name:'Bresaola',kcal:151,pro:32,carbs:0,fats:2.6,source:'personale'})).toBe('pro');
+    expect(groupOf({id:'z',name:'Cosce di pollo',kcal:239,pro:24,carbs:0,fats:15.5,source:'personale'})).toBe('pro');
     expect(groupOf({id:'y',name:'Cetrioli',kcal:12,pro:0.7,carbs:2,fats:0.1,source:'personale'})).toBe('veg');
   });
 });

@@ -11,6 +11,8 @@ const MACROS = ['pro', 'carbs', 'fats'] as const;
 /** Gruppo di un alimento qualsiasi: macro che da' piu' calorie, verdura se quasi senza calorie. */
 export function groupOf(food: Food): PlanGroup {
   if (food.kcal < 45 && food.fats < 2) return 'veg';
+  // Carne e pesce grassi (cosce, salmone): restano proteine anche se i grassi danno piu' calorie.
+  if (food.pro >= 15) return 'pro';
   const kcal = { pro: food.pro * 4, carbs: food.carbs * 4, fats: food.fats * 9 };
   return MACROS.reduce((best, m) => (kcal[m] > kcal[best] ? m : best), 'pro' as (typeof MACROS)[number]);
 }
