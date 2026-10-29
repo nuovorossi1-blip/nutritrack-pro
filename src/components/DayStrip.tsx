@@ -25,11 +25,11 @@ export function DayStrip({ selected, today, daysWithData, onSelect, compact = fa
               aria-label={active ? `Apri calendario, ${longLabel(d)}` : `Vai a ${longLabel(d)}`}
               aria-current={active ? 'date' : undefined}
               onClick={() => active ? setCalendar(true) : onSelect(d)}
-              className={`relative min-w-0 flex-1 max-w-11 rounded-lg py-1 flex flex-col items-center justify-center leading-none ${active ? 'bg-[#f5b935] text-neutral-950' : 'text-neutral-300'}`}
+              className={`relative min-w-0 flex-1 max-w-11 rounded-lg py-1 flex flex-col items-center justify-center leading-none ${active ? 'bg-[#F5A623] text-neutral-950' : 'text-neutral-300'}`}
             >
               <span className="text-[8px] font-semibold truncate w-full text-center">{shortLabel(d, today)}</span>
               <span className="text-sm font-extrabold mt-0.5">{parseISO(d).getDate()}</span>
-              <span className={`absolute bottom-0.5 w-1 h-1 rounded-full ${daysWithData.has(d) ? (active ? 'bg-neutral-950' : 'bg-[#f5b935]') : 'bg-transparent'}`} />
+              <span className={`absolute bottom-0.5 w-1 h-1 rounded-full ${daysWithData.has(d) ? (active ? 'bg-neutral-950' : 'bg-[#F5A623]') : 'bg-transparent'}`} />
             </button>
           );
         })}
@@ -38,7 +38,7 @@ export function DayStrip({ selected, today, daysWithData, onSelect, compact = fa
     );
   }
   return (
-    <section className="bg-[#191a1c] text-white rounded-[22px] border border-[#343538] shadow-sm px-2.5 py-2">
+    <section className="bg-[#242424] text-white rounded-[22px] border border-[#3A3A3A] shadow-sm px-2.5 py-2">
       <div className="flex items-center gap-0.5 sm:gap-1 min-w-0">
         <button aria-label="Giorno precedente" onClick={() => onSelect(addDays(selected, -1))} className="w-7 h-9 sm:w-9 shrink-0 rounded-full flex items-center justify-center text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800">
           <ChevronLeft size={18} />
@@ -75,7 +75,7 @@ export function DayStrip({ selected, today, daysWithData, onSelect, compact = fa
               Torna a oggi
             </button>
           )}
-          <button onClick={() => setCalendar(true)} className="text-[11px] font-bold text-white flex items-center gap-1 bg-[#292a2d] rounded-full px-2.5 py-1.5">
+          <button onClick={() => setCalendar(true)} className="text-[11px] font-bold text-white flex items-center gap-1 bg-[#2D2D2D] rounded-full px-2.5 py-1.5">
             <CalendarDays size={14} /> Calendario
           </button>
         </div>

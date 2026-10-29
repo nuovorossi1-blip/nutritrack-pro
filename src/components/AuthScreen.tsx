@@ -1,5 +1,6 @@
 import { Flame } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { chiudiAvvio } from '../lib/avvio';
 import { supabase, TERMS_VERSION } from '../lib/cloud';
 import { LegalModal } from './Legal';
 import { AndroidDownloadBanner } from './AndroidTools';
@@ -25,6 +26,7 @@ interface Props {
 }
 
 export function AuthScreen({ recovery, onPasswordChanged }: Props) {
+  useEffect(() => chiudiAvvio(), []);
   const [mode, setMode] = useState<Mode>(recovery ? 'nuova-password' : 'accedi');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

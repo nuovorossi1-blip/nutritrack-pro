@@ -51,28 +51,28 @@ export function CompleteDay({ data, day, goals, eaten, onAdd }: {
   };
 
   return (
-    <section aria-label="Completa la giornata" className="rounded-[22px] p-4 bg-[#191a1c] text-white border border-[#343538] space-y-3">
+    <section aria-label="Completa la giornata" className="rounded-[22px] p-4 bg-[#242424] text-white border border-[#3A3A3A] space-y-3">
       <div>
-        <div className="flex items-center gap-2"><Target size={18} className="text-[#f5b935]" /><h3 className="font-bold">Completa la giornata</h3></div>
+        <div className="flex items-center gap-2"><Target size={18} className="text-[#F5A623]" /><h3 className="font-bold">Completa la giornata</h3></div>
         <p className="text-[11px] text-neutral-400 mt-0.5">Solo un suggerimento: puoi mangiare anche altro.</p>
       </div>
       {done ? <p className="text-sm text-green-400 font-semibold">Obiettivo raggiunto: non manca niente per oggi.</p> : <>
-        <div className="rounded-2xl bg-[#26272b] p-3 text-sm">
-          <span className="text-neutral-400">Mancano </span><b className="text-[#f5b935]">{need.kcal} kcal</b>
+        <div className="rounded-2xl bg-[#2D2D2D] p-3 text-sm">
+          <span className="text-neutral-400">Mancano </span><b className="text-[#F5A623]">{need.kcal} kcal</b>
           <span className="text-neutral-400"> · </span><b className="text-orange-400">P</b> {need.pro} g
           <span className="text-neutral-400"> · </span><b className="text-sky-400">C</b> {need.carbs} g
           <span className="text-neutral-400"> · </span><b className="text-yellow-400">G</b> {need.fats} g
         </div>
-        <div className="flex gap-1 rounded-2xl bg-[#26272b] p-1" role="tablist">
+        <div className="flex gap-1 rounded-2xl bg-[#2D2D2D] p-1" role="tablist">
           {GROUPS.map((g) => <button key={g.key} role="tab" aria-selected={group === g.key} onClick={() => setGroup(g.key)}
-            className={`flex-1 rounded-xl py-2 text-xs font-bold ${group === g.key ? 'bg-[#3a3b40] text-white' : 'text-neutral-400'}`}>{g.label}</button>)}
+            className={`flex-1 rounded-xl py-2 text-xs font-bold ${group === g.key ? 'bg-[#404040] text-white' : 'text-neutral-400'}`}>{g.label}</button>)}
         </div>
         <div className="flex flex-wrap gap-2">
           {choices.filter((c) => c.group === group).map((c) => {
             const on = picked.includes(c.food.id);
             return <button key={c.food.id} onClick={() => toggle(c.food.id)} aria-pressed={on}
-              className={`rounded-full px-3 py-2 text-xs font-semibold border flex items-center gap-1 ${on ? 'bg-blu border-blue-400 text-white' : 'bg-[#26272b] border-[#343538] text-neutral-200'}`}>
-              {c.mine && <Star size={12} className="text-[#f5b935]" />}{on && <Check size={12} />}{c.food.name}{c.food.brand ? ` · ${c.food.brand}` : ''}
+              className={`rounded-full px-3 py-2 text-xs font-semibold border flex items-center gap-1 ${on ? 'bg-blu border-blue-400 text-white' : 'bg-[#2D2D2D] border-[#3A3A3A] text-neutral-200'}`}>
+              {c.mine && <Star size={12} className="text-[#F5A623]" />}{on && <Check size={12} />}{c.food.name}{c.food.brand ? ` · ${c.food.brand}` : ''}
             </button>;
           })}
         </div>
@@ -81,7 +81,7 @@ export function CompleteDay({ data, day, goals, eaten, onAdd }: {
           {items.map((it, i) => {
             const m = macrosFor(it.food, plan.grams[i]);
             const cooked = it.group !== 'veg' ? cookedFromRaw(it.food, plan.grams[i], foods) : null;
-            return <div key={it.food.id} className="flex items-center gap-2 rounded-2xl bg-[#26272b] p-2.5">
+            return <div key={it.food.id} className="flex items-center gap-2 rounded-2xl bg-[#2D2D2D] p-2.5">
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-bold truncate">{it.food.name}</div>
                 <div className="text-[11px] text-neutral-400">{m.kcal} kcal · P {m.pro} · C {m.carbs} · G {m.fats}{cooked ? ` · ≈ ${cooked} g da cotto` : ''}{it.fixed !== undefined ? ' · bloccato' : ''}</div>
@@ -89,14 +89,14 @@ export function CompleteDay({ data, day, goals, eaten, onAdd }: {
               <div className="relative w-24 shrink-0">
                 <NumberInput value={plan.grams[i]} decimals={false} ariaLabel={`Grammi di ${it.food.name}`}
                   onChange={(n) => setFixed((f) => ({ ...f, [it.food.id]: n ?? 0 }))}
-                  className="w-full rounded-xl bg-[#191a1c] border border-[#343538] py-2 pl-2 pr-6 text-right font-extrabold" />
+                  className="w-full rounded-xl bg-[#242424] border border-[#3A3A3A] py-2 pl-2 pr-6 text-right font-extrabold" />
                 <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-neutral-500">g</span>
               </div>
               <button aria-label={`Togli ${it.food.name}`} onClick={() => toggle(it.food.id)} className="p-1.5 text-neutral-400"><X size={16} /></button>
             </div>;
           })}
           {Object.keys(fixed).length > 0 && <button onClick={() => setFixed({})} className="text-xs font-bold text-blue-400">Ricalcola tutti i grammi</button>}
-          <div className="rounded-2xl bg-[#26272b] p-3 text-xs space-y-1">
+          <div className="rounded-2xl bg-[#2D2D2D] p-3 text-xs space-y-1">
             <div>Con questi: <b className="text-orange-400">P</b> {plan.total.pro}/{need.pro} · <b className="text-sky-400">C</b> {plan.total.carbs}/{need.carbs} · <b className="text-yellow-400">G</b> {plan.total.fats}/{need.fats}</div>
             <div className={Math.abs(kcalDiff) <= 100 ? 'text-green-400 font-semibold' : 'text-amber-400 font-semibold'}>
               {plan.total.kcal} kcal su {need.kcal} ({kcalDiff >= 0 ? '+' : ''}{kcalDiff}){Math.abs(kcalDiff) <= 100 ? ' · ok' : ''}
@@ -106,7 +106,7 @@ export function CompleteDay({ data, day, goals, eaten, onAdd }: {
             </div>)}
           </div>
           <div className="flex gap-2">
-            <select aria-label="Pasto" value={meal} onChange={(e) => setMeal(e.target.value as MealKey)} className="rounded-2xl bg-[#26272b] px-3 text-sm font-bold">
+            <select aria-label="Pasto" value={meal} onChange={(e) => setMeal(e.target.value as MealKey)} className="rounded-2xl bg-[#2D2D2D] px-3 text-sm font-bold">
               {MEALS.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
             </select>
             <button disabled={!ready} onClick={add} className="add-button flex-1 rounded-2xl bg-blu text-white font-extrabold disabled:opacity-40">

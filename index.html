@@ -3,11 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=contain" />
-    <meta name="theme-color" content="#0a0a0a" />
+    <meta name="theme-color" content="#1A1A1A" />
+    <link rel="preload" href="/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>NutriTrack PRO</title>
   </head>
-  <body class="bg-neutral-100 dark:bg-neutral-950 text-neutral-800 dark:text-neutral-100 antialiased">
+  <body class="bg-neutral-100 dark:bg-[#1A1A1A] text-neutral-800 dark:text-neutral-100 antialiased">
+    <div id="avvio"><img src="/favicon.svg" alt="" /><div class="nome">NUTRITRACK PRO</div><div class="giro"></div></div>
+    <script>window.__avvioT = performance.now(); setTimeout(function () { var a = document.getElementById('avvio'); if (a) a.remove(); }, 6000);</script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

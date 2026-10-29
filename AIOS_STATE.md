@@ -4,7 +4,7 @@
 > qui. Va **aggiornato** a ogni sessione di lavoro, non accodato all'infinito.
 > L'identità del progetto e il percorso di AI-OS stanno in `AIOS_PROJECT.json`.
 
-**Ultimo aggiornamento:** 2026-10-17 - GPT-6 (bozza grafica GitHub)
+**Ultimo aggiornamento:** 2026-10-29 - Claude (grafica standard AI-OS)
 
 Etichette usate in questo file:
 `[FACT]` verificato nel codice · `[RICOSTRUITO]` dedotto da indizi ·
@@ -22,6 +22,12 @@ e condizioni d'uso + mail di conferma, come il Gestionale Palestra) e il suo
 storico per giorno. Online su Vercel + Supabase (account smaugdrago@gmail.com).
 
 ---
+
+## Grafica standard AI-OS (29/10/2026)
+
+- [FACT] Applicata la grafica di `ai-os/STILE_GRAFICO.md` (come PronoBlast e Jupiter): sfondo grafite #1A1A1A, riquadri #242424/#2D2D2D, oro #F5A623 con gradiente corallo sui pulsanti principali (`bg-blu`, testo grafite), Manrope per i testi e Barlow Condensed per titoli e numeri grandi (font in `public/fonts`, licenza OFL), schermata d'avvio in `index.html` tolta da `src/lib/avvio.ts`.
+- [FACT] Nel `tailwind.config.js` le scure di `neutral` sono grafite e la scala `blue` d'accento è oro: le classi nei componenti restano le stesse. Colori con significato invariati: carboidrati azzurri, proteine arancioni, grassi gialli, calorie verdi, rosso oltre l'obiettivo. Tema chiaro non toccato.
+- [FACT] Build ok, test 66/67 (fallisce il vecchio «la barra non va oltre oggi», già rotto). Foto 412 px in locale senza cloud. APK non ricompilato: apre il sito, quindi la grafica arriva senza aggiornare (guscio Android e `www/offline.html` cambiano solo alla prossima APK).
 
 ## Modifica grafica in revisione (17/10/2026)
 

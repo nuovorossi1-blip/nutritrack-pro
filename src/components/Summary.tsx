@@ -9,7 +9,7 @@ function Macro({ label, value, goal, kind }: { label: string; value: number; goa
   return (
     <div className="flex flex-col items-center gap-1.5 min-w-0">
       <span className="text-xs text-neutral-500 dark:text-neutral-300">{label}</span>
-      <div role="progressbar" aria-label={label} aria-valuenow={Math.min(value,goal)} aria-valuemin={0} aria-valuemax={goal} className="w-full h-1.5 rounded-full bg-[#38393d] overflow-hidden">
+      <div role="progressbar" aria-label={label} aria-valuenow={Math.min(value,goal)} aria-valuemin={0} aria-valuemax={goal} className="w-full h-1.5 rounded-full bg-[#3A3A3A] overflow-hidden">
         <div className="h-full rounded-full" style={{ width: `${Math.max(0,pct)}%`, backgroundColor: over ? "#ef4444" : kind === "carbs" ? "#38b6ff" : kind === "pro" ? "#fb923c" : "#f5b935" }} />
       </div>
       <span className={`text-[11px] sm:text-sm font-extrabold whitespace-nowrap ${over ? 'text-red-500' : ''}`}>
@@ -42,39 +42,39 @@ export function Summary({ total, goals, name }: Props) {
     <section>
       <div className="flex flex-wrap items-end justify-between gap-x-2 gap-y-1 px-1 mb-2">
         <h2 className="text-2xl font-extrabold">Riepilogo</h2>
-        <span className="text-[10px] sm:text-xs font-bold text-[#f5b935] uppercase tracking-tight text-right">
+        <span className="text-[10px] sm:text-xs font-bold text-[#F5A623] uppercase tracking-tight text-right">
           {name ? `${name} · ` : ''}
           {goals.plan ? `${PLAN_LABEL[goals.plan]} · ` : ''}
           {fmt(goals.kcal)} kcal
         </span>
       </div>
-      <div className={`bg-[#191a1c] text-white rounded-[26px] border shadow-sm p-3 sm:p-5 ${over ? 'border-red-500/70' : 'border-[#343538]'}`}>
+      <div className={`bg-[#242424] text-white rounded-[26px] border shadow-sm p-3 sm:p-5 ${over ? 'border-red-500/70' : 'border-[#3A3A3A]'}`}>
         <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-1">
           <div className="text-center">
-            <div className="text-xl sm:text-2xl font-extrabold">{fmt(total.kcal)}</div>
+            <div className="font-titoli text-2xl sm:text-3xl font-extrabold">{fmt(total.kcal)}</div>
             <div className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-300">Mangiate</div>
           </div>
           <div className="relative w-[clamp(90px,28vw,116px)] h-[clamp(90px,28vw,116px)] sm:w-36 sm:h-36">
             <svg viewBox="0 0 120 120" className="w-full h-full rotate-[135deg]">
               <defs>
                 <linearGradient id="arco-oro" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="#FFE29A" />
-                  <stop offset="50%" stopColor="#FFC857" />
-                  <stop offset="100%" stopColor="#E6A800" />
+                  <stop offset="0%" stopColor="#FFC15E" />
+                  <stop offset="50%" stopColor="#F5A623" />
+                  <stop offset="100%" stopColor="#FF6B6B" />
                 </linearGradient>
               </defs>
-              <circle cx="60" cy="60" r={R} fill="none" strokeWidth="9" strokeLinecap="round" className="stroke-[#38393d]" strokeDasharray={`${ARC} ${C}`} />
+              <circle cx="60" cy="60" r={R} fill="none" strokeWidth="9" strokeLinecap="round" className="stroke-[#3A3A3A]" strokeDasharray={`${ARC} ${C}`} />
               {total.kcal > 0 && (
                 <circle data-calorie-progress cx="60" cy="60" r={R} fill="none" strokeWidth="9" strokeLinecap="round" stroke={over ? '#ef4444' : '#22c55e'} strokeDasharray={`${Math.max(ARC * pct, 0.1)} ${C}`} />
               )}
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-2xl sm:text-3xl font-extrabold">{fmt(left)}</span>
+              <span className="font-titoli text-3xl sm:text-4xl font-extrabold">{fmt(left)}</span>
               <span className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-300">Rimanenti</span>
             </div>
           </div>
           <div className="text-center">
-            <div className={`text-2xl font-extrabold ${over ? 'text-red-500' : 'text-neutral-400'}`}>{over ? `+${fmt(excess)}` : '0'}</div>
+            <div className={`font-titoli text-2xl sm:text-3xl font-extrabold ${over ? 'text-red-500' : 'text-neutral-400'}`}>{over ? `+${fmt(excess)}` : '0'}</div>
             <div className={`text-sm ${over ? 'text-red-500 font-bold' : 'text-neutral-500 dark:text-neutral-300'}`}>Eccesso</div>
           </div>
         </div>

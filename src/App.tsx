@@ -23,6 +23,7 @@ import { AndroidDownloadBanner } from './components/AndroidTools';
 import { recognitionFoods } from './lib/savedFoodRecognition';
 import { CompleteDay } from './components/CompleteDay';
 import { CLEAN_NEW_IDS } from './data/cleanFoods';
+import { chiudiAvvio } from './lib/avvio';
 
 interface Toast {
   id: number;
@@ -81,6 +82,8 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
   useEffect(() => {
     document.documentElement.classList.toggle('dark', data.dark);
   }, [data.dark]);
+
+  useEffect(() => chiudiAvvio(), []);
 
   const toast = (msg: string, error = false, action?: Toast['action'], duration = error ? 6000 : action ? 7000 : 2000) => {
     const id = Date.now() + Math.random();
@@ -233,14 +236,14 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
 
   return (
     <div className="app-screen app-home min-h-screen">
-      <header className="bg-[#17181b]/95 dark:bg-[#17181b]/95 backdrop-blur sticky top-0 z-30 border-b border-[#23252c] text-white">
+      <header className="bg-[#1F1F1F]/95 dark:bg-[#1F1F1F]/95 backdrop-blur sticky top-0 z-30 border-b border-[#2A2A2A] text-white">
         <div className="home-container h-14 sm:h-16 flex items-center justify-between gap-1.5">
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 min-w-0">
-            <div className="hidden min-[430px]:flex w-10 h-10 shrink-0 rounded-full bg-[#f5b935] flex items-center justify-center text-neutral-950 shadow-md shadow-amber-400/30">
+            <div className="hidden min-[430px]:flex w-10 h-10 shrink-0 rounded-full bg-[#F5A623] flex items-center justify-center text-neutral-950 shadow-md shadow-amber-400/30">
               <Flame size={20} />
             </div>
             <div>
-              <h1 className="text-[12px] min-[380px]:text-sm sm:text-lg font-extrabold tracking-tight whitespace-nowrap text-white">NutriTrack PRO</h1>
+              <h1 className="text-[12px] min-[380px]:text-sm sm:text-lg font-extrabold tracking-tight whitespace-nowrap text-[#F5A623]">NutriTrack PRO</h1>
               {userId && (
                 <p className={`text-[10px] font-semibold ${sync === 'errore' ? 'text-red-500' : 'text-neutral-400'}`}>
                   {sync === 'ok' ? '☁ Salvato' : sync === 'salvo' ? '☁ Salvataggio…' : '⚠ Non salvato: controlla la rete'}
@@ -251,13 +254,13 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
           </div>
           <DayStrip compact selected={selected} today={today} daysWithData={daysWithData} onSelect={setSelected} />
           <div className="flex items-center gap-0.5 sm:gap-2 shrink-0">
-            <button aria-label="Profilo e obiettivi" onClick={() => setSettings(true)} className="w-7 h-8 min-[380px]:w-8 min-[380px]:h-9 sm:w-10 sm:h-10 rounded-full bg-[#26272b] flex items-center justify-center">
+            <button aria-label="Profilo e obiettivi" onClick={() => setSettings(true)} className="w-7 h-8 min-[380px]:w-8 min-[380px]:h-9 sm:w-10 sm:h-10 rounded-full bg-[#2D2D2D] flex items-center justify-center">
               <Settings size={19} />
             </button>
-            <button aria-label="Azzera giorno" title="Azzera il giorno scelto" onClick={resetDay} className="w-7 h-8 min-[380px]:w-8 min-[380px]:h-9 sm:w-10 sm:h-10 rounded-full bg-[#26272b] flex items-center justify-center">
+            <button aria-label="Azzera giorno" title="Azzera il giorno scelto" onClick={resetDay} className="w-7 h-8 min-[380px]:w-8 min-[380px]:h-9 sm:w-10 sm:h-10 rounded-full bg-[#2D2D2D] flex items-center justify-center">
               <RotateCcw size={16} />
             </button>
-            <button aria-label="Tema" onClick={() => update((d) => ({ ...d, dark: !d.dark }))} className="w-7 h-8 min-[380px]:w-8 min-[380px]:h-9 sm:w-10 sm:h-10 rounded-full bg-[#26272b] flex items-center justify-center">
+            <button aria-label="Tema" onClick={() => update((d) => ({ ...d, dark: !d.dark }))} className="w-7 h-8 min-[380px]:w-8 min-[380px]:h-9 sm:w-10 sm:h-10 rounded-full bg-[#2D2D2D] flex items-center justify-center">
               {data.dark ? <Sun size={16} className="text-gold-400" /> : <Moon size={16} />}
             </button>
           </div>
@@ -278,7 +281,7 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
           name={data.profile?.name}
         />
 
-        <section className="rounded-[22px] p-4 text-white bg-gradient-to-br from-[#1d3267] via-[#17244b] to-[#101522] border border-[#24345c] shadow-xl">
+        <section className="rounded-[22px] p-4 text-white bg-gradient-to-br from-[#2D2D2D] via-[#242424] to-[#1F1F1F] border border-gold-400/25 shadow-xl">
           <div className="flex items-center gap-2">
             <Wand2 size={18} className="text-blue-300" />
             <h3 className="font-bold">Inserimento rapido a parole</h3>
@@ -293,9 +296,9 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
               const items = day[m.key];
               const t = sumMacros(items);
               return (
-                <button key={m.key} onClick={() => setOpenMeal(m.key)} className="home-meal-card w-full text-left bg-[#191a1c] text-white rounded-[22px] border border-[#343538] shadow-sm p-3.5 hover:border-[#f5b935] transition min-w-0 flex flex-col justify-between min-h-[182px] sm:min-h-[194px]">
+                <button key={m.key} onClick={() => setOpenMeal(m.key)} className="home-meal-card w-full text-left bg-[#242424] text-white rounded-[22px] border border-[#3A3A3A] shadow-sm p-3.5 hover:border-[#F5A623] transition min-w-0 flex flex-col justify-between min-h-[182px] sm:min-h-[194px]">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="home-meal-icon w-9 h-9 shrink-0 rounded-full bg-[#292a2d] flex items-center justify-center text-lg">{m.emoji}</span>
+                    <span className="home-meal-icon w-9 h-9 shrink-0 rounded-full bg-[#2D2D2D] flex items-center justify-center text-lg">{m.emoji}</span>
                     <div className="flex-1 min-w-0">
                       <div className="home-meal-title font-bold text-sm sm:text-base truncate">{m.label}</div>
                       <div className="text-[11px] text-neutral-400">{items.length} {items.length === 1 ? 'alimento' : 'alimenti'}</div>
@@ -303,8 +306,8 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
                     <Plus size={18} className="text-neutral-400" />
                   </div>
                   {items.length > 0 && <p className="text-[11px] text-neutral-500 mt-2 line-clamp-2">{items.map((i) => `${i.name} (${i.label})`).join(' • ')}</p>}
-                  <div className="flex flex-col items-center gap-2.5 mt-4 pt-3.5 border-t border-[#343538]">
-                    <span className="text-[22px] sm:text-2xl font-extrabold text-[#f5b935]">{t.kcal} kcal</span>
+                  <div className="flex flex-col items-center gap-2.5 mt-4 pt-3.5 border-t border-[#3A3A3A]">
+                    <span className="font-titoli text-[26px] sm:text-3xl font-extrabold text-[#F5A623]">{t.kcal} kcal</span>
                     <div className="home-meal-macros w-full text-center text-[10px] sm:text-xs whitespace-nowrap" aria-label="Macro del pasto">
                       <span><b className="text-sky-400">C</b> {t.carbs} g</span>
                       <span><b className="text-orange-400">P</b> {t.pro} g</span>
