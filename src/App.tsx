@@ -307,7 +307,7 @@ export default function App({ initial, storageKey, userId, email, onLogout }: Ap
                     <span className="text-[22px] sm:text-2xl font-extrabold text-[#f5b935]">{t.kcal} kcal</span>
                     <div className="home-meal-macros w-full text-center text-[10px] sm:text-xs whitespace-nowrap" aria-label="Macro del pasto">
                       <span><b className="text-sky-400">C</b> {t.carbs} g</span>
-                      <span><b className="text-red-500">P</b> {t.pro} g</span>
+                      <span><b className="text-orange-400">P</b> {t.pro} g</span>
                       <span><b className="text-yellow-400">G</b> {t.fats} g</span>
                     </div>
                   </div>

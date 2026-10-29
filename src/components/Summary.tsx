@@ -10,7 +10,7 @@ function Macro({ label, value, goal, kind }: { label: string; value: number; goa
     <div className="flex flex-col items-center gap-1.5 min-w-0">
       <span className="text-xs text-neutral-500 dark:text-neutral-300">{label}</span>
       <div role="progressbar" aria-label={label} aria-valuenow={Math.min(value,goal)} aria-valuemin={0} aria-valuemax={goal} className="w-full h-1.5 rounded-full bg-[#38393d] overflow-hidden">
-        <div className="h-full rounded-full" style={{ width: `${Math.max(0,pct)}%`, backgroundColor: kind === "carbs" ? "#38b6ff" : kind === "pro" ? "#ef4444" : "#f5b935" }} />
+        <div className="h-full rounded-full" style={{ width: `${Math.max(0,pct)}%`, backgroundColor: over ? "#ef4444" : kind === "carbs" ? "#38b6ff" : kind === "pro" ? "#fb923c" : "#f5b935" }} />
       </div>
       <span className={`text-[11px] sm:text-sm font-extrabold whitespace-nowrap ${over ? 'text-red-500' : ''}`}>
         {fmt(value)} / {fmt(goal)} g

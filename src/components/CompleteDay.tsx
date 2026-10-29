@@ -59,7 +59,7 @@ export function CompleteDay({ data, day, goals, eaten, onAdd }: {
       {done ? <p className="text-sm text-green-400 font-semibold">Obiettivo raggiunto: non manca niente per oggi.</p> : <>
         <div className="rounded-2xl bg-[#26272b] p-3 text-sm">
           <span className="text-neutral-400">Mancano </span><b className="text-[#f5b935]">{need.kcal} kcal</b>
-          <span className="text-neutral-400"> · </span><b className="text-red-500">P</b> {need.pro} g
+          <span className="text-neutral-400"> · </span><b className="text-orange-400">P</b> {need.pro} g
           <span className="text-neutral-400"> · </span><b className="text-sky-400">C</b> {need.carbs} g
           <span className="text-neutral-400"> · </span><b className="text-yellow-400">G</b> {need.fats} g
         </div>
@@ -97,7 +97,7 @@ export function CompleteDay({ data, day, goals, eaten, onAdd }: {
           })}
           {Object.keys(fixed).length > 0 && <button onClick={() => setFixed({})} className="text-xs font-bold text-blue-400">Ricalcola tutti i grammi</button>}
           <div className="rounded-2xl bg-[#26272b] p-3 text-xs space-y-1">
-            <div>Con questi: <b className="text-red-500">P</b> {plan.total.pro}/{need.pro} · <b className="text-sky-400">C</b> {plan.total.carbs}/{need.carbs} · <b className="text-yellow-400">G</b> {plan.total.fats}/{need.fats}</div>
+            <div>Con questi: <b className="text-orange-400">P</b> {plan.total.pro}/{need.pro} · <b className="text-sky-400">C</b> {plan.total.carbs}/{need.carbs} · <b className="text-yellow-400">G</b> {plan.total.fats}/{need.fats}</div>
             <div className={Math.abs(kcalDiff) <= 100 ? 'text-green-400 font-semibold' : 'text-amber-400 font-semibold'}>
               {plan.total.kcal} kcal su {need.kcal} ({kcalDiff >= 0 ? '+' : ''}{kcalDiff}){Math.abs(kcalDiff) <= 100 ? ' · ok' : ''}
             </div>
